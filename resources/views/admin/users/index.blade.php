@@ -51,6 +51,52 @@
 @endif
 
 <div class="bg-white dark:bg-slate-800 shadow-sm sm:rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+    {{-- ═══ Filter & Search Component ═══ --}}
+    <div class="p-4 bg-gray-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-700">
+        <form action="{{ route('admin.users.index') }}" method="GET" class="flex flex-col md:flex-row gap-3 items-center justify-between">
+            
+            {{-- Search Input --}}
+            <div class="relative w-full md:w-80">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..."
+                       class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                {{-- Role Filter --}}
+                <select name="role" onchange="this.form.submit()" class="px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500">
+                    <option value="">Semua Peran (Role)</option>
+                    <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin / Staff</option>
+                    <option value="pengurus_akademik" {{ request('role') === 'pengurus_akademik' ? 'selected' : '' }}>Pengurus Akademik</option>
+                    <option value="tenaga_pengajar" {{ request('role') === 'tenaga_pengajar' ? 'selected' : '' }}>Tenaga Pengajar (Ustaz)</option>
+                    <option value="pimpinan" {{ request('role') === 'pimpinan' ? 'selected' : '' }}>Pimpinan Pesantren</option>
+                    <option value="santri" {{ request('role') === 'santri' ? 'selected' : '' }}>Santri</option>
+                </select>
+
+                {{-- Status Verification Filter --}}
+                <select name="status" onchange="this.form.submit()" class="px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500">
+                    <option value="">Semua Status Verifikasi</option>
+                    <option value="verified" {{ request('status') === 'verified' ? 'selected' : '' }}>Terverifikasi</option>
+                    <option value="unverified" {{ request('status') === 'unverified' ? 'selected' : '' }}>Belum Verifikasi</option>
+                </select>
+
+                {{-- Filter Button --}}
+                <button type="submit" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold transition shadow-sm">
+                    Cari
+                </button>
+
+                @if(request()->hasAny(['search', 'role', 'status']))
+                    <a href="{{ route('admin.users.index') }}" class="px-3 py-2 bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-300 transition">
+                        Reset Filter
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
             <thead class="bg-gray-50 dark:bg-slate-900">
@@ -146,9 +192,13 @@
                                 @csrf
                                 @method('PATCH')
                                 <select name="role"
-                                        class="text-sm rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-1.5 pr-8">
-                                    <option value="admin" @selected($user->role === \App\Models\User::ROLE_ADMIN)>Admin</option>
+                                        class="text-xs rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-1.5 pr-8">
                                     <option value="super_admin" @selected($user->role === \App\Models\User::ROLE_SUPER_ADMIN)>Super Admin</option>
+                                    <option value="admin" @selected($user->role === \App\Models\User::ROLE_ADMIN)>Admin / Staff</option>
+                                    <option value="pengurus_akademik" @selected($user->role === \App\Models\User::ROLE_PENGURUS_AKADEMIK)>Pengurus Akademik</option>
+                                    <option value="tenaga_pengajar" @selected($user->role === \App\Models\User::ROLE_TENAGA_PENGAJAR)>Tenaga Pengajar (Ustaz)</option>
+                                    <option value="pimpinan" @selected($user->role === \App\Models\User::ROLE_PIMPINAN)>Pimpinan Pesantren</option>
+                                    <option value="santri" @selected($user->role === \App\Models\User::ROLE_SANTRI)>Santri</option>
                                 </select>
                                 <button type="submit"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-md transition">

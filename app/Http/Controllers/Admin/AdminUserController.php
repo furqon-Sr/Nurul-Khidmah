@@ -17,10 +17,34 @@ class AdminUserController extends Controller
 {
     use PasswordValidationRules;
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::query()
-            ->orderByRaw("CASE WHEN role = 'super_admin' THEN 0 ELSE 1 END")
+        $query = User::query();
+
+        // Search Filter (Nama / Email)
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Role Filter
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Verification Status Filter
+        if ($request->filled('status')) {
+            if ($request->status === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($request->status === 'unverified') {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        $users = $query->orderByRaw("CASE WHEN role = 'super_admin' THEN 0 ELSE 1 END")
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'role', 'avatar', 'email_verified_at', 'created_at']);
 
@@ -38,7 +62,7 @@ class AdminUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => $this->passwordRules(),
-            'role' => ['required', 'in:super_admin,admin'],
+            'role' => ['required', 'in:super_admin,admin,pengurus_akademik,tenaga_pengajar,pimpinan,santri'],
         ]);
 
         $data = [
@@ -61,16 +85,16 @@ class AdminUserController extends Controller
         AdminActivityLog::log('create', 'Membuat pengguna admin baru: '.$newUser->name.' ('.$newUser->email.')', 'User', $newUser->id);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Pengguna admin baru berhasil ditambahkan. Mereka dapat langsung masuk ke panel.');
+            ->with('success', 'Pengguna baru berhasil ditambahkan. Mereka dapat langsung masuk ke panel.');
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'role' => ['required', 'in:super_admin,admin'],
+            'role' => ['required', 'in:super_admin,admin,pengurus_akademik,tenaga_pengajar,pimpinan,santri'],
         ]);
 
-        if ($user->is(Auth::user()) && $user->isSuperAdmin() && $validated['role'] === User::ROLE_ADMIN) {
+        if ($user->is(Auth::user()) && $user->isSuperAdmin() && $validated['role'] !== User::ROLE_SUPER_ADMIN) {
             $otherSuperCount = User::query()
                 ->where('role', User::ROLE_SUPER_ADMIN)
                 ->where('id', '!=', $user->id)
