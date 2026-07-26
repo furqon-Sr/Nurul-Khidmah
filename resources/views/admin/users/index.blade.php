@@ -60,8 +60,9 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email..."
-                       class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500">
+                <input type="text" id="live-search-input" name="search" value="{{ request('search') }}" placeholder="Cari nama atau email (langsung saat mengetik)..."
+                       class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500"
+                       autocomplete="off">
             </div>
 
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -111,7 +112,8 @@
             </thead>
             <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 @foreach ($users as $user)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-900/60 transition-colors group">
+                    <tr class="user-row hover:bg-gray-50 dark:hover:bg-slate-900/60 transition-colors group"
+                        data-search="{{ strtolower($user->name . ' ' . $user->email) }}">
                         {{-- Kolom Pengguna dengan foto profil --}}
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-3">
@@ -261,6 +263,11 @@
                         </td>
                     </tr>
                 @endforeach
+                <tr id="no-search-results" style="display: {{ $users->isEmpty() ? '' : 'none' }};">
+                    <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-slate-400 text-sm">
+                        Tidak ada pengguna yang cocok dengan pencarian.
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -395,6 +402,48 @@
     document.getElementById('avatar-preview-modal').addEventListener('click', function(e) {
         if (e.target === this) cancelAvatarUpload();
     });
+
+    // Instant Live Search saat Mengetik (0ms response)
+    const searchInput = document.getElementById('live-search-input');
+    const userRows = document.querySelectorAll('.user-row');
+    const noResultsRow = document.getElementById('no-search-results');
+    let searchTimeout = null;
+
+    if (searchInput) {
+        // Fokuskan kursor ke akhir teks jika ada kata kunci yang aktif
+        if (searchInput.value) {
+            searchInput.focus();
+            const val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+        }
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            userRows.forEach(row => {
+                const searchData = row.getAttribute('data-search') || '';
+                if (searchData.includes(query)) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (noResultsRow) {
+                noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
+            }
+
+            // Debounce simpan parameter ke URL server jika pengguna selesai mengetik
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const form = searchInput.closest('form');
+                if (form) form.submit();
+            }, 700);
+        });
+    }
 
     // Escape key
     document.addEventListener('keydown', function(e) {
