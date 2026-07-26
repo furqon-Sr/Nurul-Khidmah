@@ -23,10 +23,10 @@
     {{-- Card Header --}}
     <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-green-50 to-white dark:from-slate-800 dark:to-slate-950 border-b border-gray-100 dark:border-slate-700">
         <div class="flex items-center gap-3">
-            <span class="text-2xl">{{ $icon }}</span>
+            <span class="text-2xl">{{ $icon ?? '' }}</span>
             <div>
-                <h3 class="font-bold text-lg text-green-800 leading-tight">{{ $title }}</h3>
-                @if(!empty($description))
+                <h3 class="font-bold text-lg text-green-800 leading-tight">{{ $title ?? '' }}</h3>
+                @if(isset($description) && !empty($description))
                     <p class="text-xs text-gray-500 mt-0.5">{{ $description }}</p>
                 @endif
             </div>

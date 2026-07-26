@@ -22,6 +22,14 @@ class User extends Authenticatable implements PasskeyUser
 
     public const ROLE_ADMIN = 'admin';
 
+    public const ROLE_PENGURUS_AKADEMIK = 'pengurus_akademik';
+
+    public const ROLE_TENAGA_PENGAJAR = 'tenaga_pengajar';
+
+    public const ROLE_PIMPINAN = 'pimpinan';
+
+    public const ROLE_SANTRI = 'santri';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
@@ -71,11 +79,49 @@ class User extends Authenticatable implements PasskeyUser
      */
     public function isAdmin(): bool
     {
-        return ($this->role ?? self::ROLE_ADMIN) === self::ROLE_ADMIN;
+        return in_array($this->role, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN, self::ROLE_PENGURUS_AKADEMIK]);
+    }
+
+    public function isPengurusAkademik(): bool
+    {
+        return in_array($this->role, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN, self::ROLE_PENGURUS_AKADEMIK]);
+    }
+
+    public function isTenagaPengajar(): bool
+    {
+        return $this->role === self::ROLE_TENAGA_PENGAJAR;
+    }
+
+    public function isPimpinan(): bool
+    {
+        return $this->role === self::ROLE_PIMPINAN;
+    }
+
+    public function isSantri(): bool
+    {
+        return $this->role === self::ROLE_SANTRI;
+    }
+
+    public function pengajar(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Pengajar::class, 'user_id');
+    }
+
+    public function santri(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Santri::class, 'user_id');
     }
 
     public function roleLabel(): string
     {
-        return $this->isSuperAdmin() ? 'Super Admin' : 'Admin';
+        return match ($this->role) {
+            self::ROLE_SUPER_ADMIN => 'Super Admin',
+            self::ROLE_ADMIN => 'Admin',
+            self::ROLE_PENGURUS_AKADEMIK => 'Pengurus Akademik',
+            self::ROLE_TENAGA_PENGAJAR => 'Tenaga Pengajar',
+            self::ROLE_PIMPINAN => 'Pimpinan Pesantren',
+            self::ROLE_SANTRI => 'Santri',
+            default => 'Pengguna',
+        };
     }
 }

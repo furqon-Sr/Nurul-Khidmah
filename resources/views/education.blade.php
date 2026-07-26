@@ -102,10 +102,14 @@
                     </p>
                     
                     @if(isset($contents['education_fee_pdf']) && $contents['education_fee_pdf']->image_path)
+                        @php
+                            $ext = pathinfo($contents['education_fee_pdf']->image_path, PATHINFO_EXTENSION);
+                            $typeLabel = in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']) ? 'Gambar' : strtoupper($ext);
+                        @endphp
                         <div class="mt-6">
                             <a href="{{ route('education.download-fee') }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#E8F81D] hover:bg-yellow-400 text-gray-900 font-bold text-sm shadow-md hover:shadow-lg transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Unduh Brosur & Dokumen Lengkap (PDF)
+                                Unduh Brosur & Dokumen Lengkap ({{ $typeLabel }})
                             </a>
                         </div>
                     @endif

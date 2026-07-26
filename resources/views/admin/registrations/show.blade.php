@@ -145,6 +145,23 @@
             </div>
         </div>
 
+        <!-- Hapus Pendaftar (Danger Zone) -->
+        <div class="bg-red-50 dark:bg-red-950/20 rounded-xl shadow-sm border border-red-200 dark:border-red-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-red-200 dark:border-red-800 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 font-bold">Zona Bahaya (Danger Zone)</div>
+            <div class="p-6">
+                <p class="text-xs text-red-700 dark:text-red-300 mb-4 leading-relaxed">
+                    Tindakan ini tidak dapat dibatalkan. Seluruh data pendaftaran dan pas foto santri ini akan dihapus secara permanen dari server database.
+                </p>
+                <form action="{{ route('admin.registrations.destroy', $registration->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pendaftar ini secara permanen?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="w-full bg-red-650 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition shadow-sm text-sm">
+                        Hapus Pendaftar Secara Permanen
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection

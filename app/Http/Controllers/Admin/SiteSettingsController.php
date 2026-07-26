@@ -96,7 +96,7 @@ class SiteSettingsController extends Controller
             // If it's an image or file field
             if (str_ends_with($key, '_image') || $key === 'logo' || $key === 'favicon' || $key === 'education_fee_pdf' || $key === 'kop_surat') {
                 $rule = match (true) {
-                    $key === 'education_fee_pdf' => 'nullable|file|mimes:pdf|max:5120',
+                    $key === 'education_fee_pdf' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
                     $key === 'favicon' => 'nullable|file|mimes:ico,png,jpg,jpeg,svg|max:2048',
                     $key === 'kop_surat' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:20480',
                     default => ($content && $content->image_path ? 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:20480' : 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:20480'),

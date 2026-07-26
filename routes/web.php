@@ -48,7 +48,9 @@ Route::post('/kontak', [\App\Http\Controllers\ContactController::class, 'store']
 Route::get('/biaya-pendidikan/download', function () {
     $pdfContent = \App\Models\PageContent::where('section_key', 'education_fee_pdf')->first();
     if ($pdfContent && $pdfContent->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($pdfContent->image_path)) {
-        return \Illuminate\Support\Facades\Storage::disk('public')->download($pdfContent->image_path, 'Biaya_Pendidikan_Nurul_Khidmah.pdf');
+        $ext = pathinfo($pdfContent->image_path, PATHINFO_EXTENSION) ?: 'pdf';
+        $filename = 'Biaya_Pendidikan_Nurul_Khidmah.' . $ext;
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($pdfContent->image_path, $filename);
     }
     return abort(404, 'Dokumen biaya pendidikan belum diunggah.');
 })->name('education.download-fee');
@@ -60,6 +62,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth'])->post('/logout', function (Request $request) {
+    // Catat logout sebelum session dihancurkan
+    if (auth()->check()) {
+        \App\Models\AdminActivityLog::log('logout', 'Logout dari panel admin');
+    }
+
     Auth::logout();
 
     $request->session()->invalidate();
@@ -68,12 +75,22 @@ Route::middleware(['auth'])->post('/logout', function (Request $request) {
     return redirect('/');
 })->name('logout');
 
-Route::middleware(['auth', 'role:super_admin,admin'])->group(function () {
+Route::middleware(['auth', 'role:super_admin,admin,pengurus_akademik'])->group(function () {
     Route::resource('admin/news', NewsController::class)->names('admin.news');
     Route::resource('admin/facilities', FacilityController::class)->names('admin.facilities');
     Route::resource('admin/fees', \App\Http\Controllers\Admin\EducationFeeController::class)->names('admin.fees');
     Route::resource('admin/programs', \App\Http\Controllers\Admin\ProgramController::class)->names('admin.programs');
     Route::post('admin/programs/{program}/toggle', [\App\Http\Controllers\Admin\ProgramController::class, 'toggle'])->name('admin.programs.toggle');
+
+    // Data Master SIAKAD Routes
+    Route::resource('admin/academic-years', \App\Http\Controllers\Admin\AcademicYearController::class)->names('admin.academic-years');
+    Route::post('admin/academic-years/{academicYear}/toggle', [\App\Http\Controllers\Admin\AcademicYearController::class, 'toggleActive'])->name('admin.academic-years.toggle');
+
+    Route::resource('admin/subjects', \App\Http\Controllers\Admin\SubjectController::class)->names('admin.subjects');
+    Route::resource('admin/teachers', \App\Http\Controllers\Admin\TeacherController::class)->names('admin.teachers');
+    Route::resource('admin/classes', \App\Http\Controllers\Admin\ClassRoomController::class)->names('admin.classes');
+    Route::resource('admin/santri', \App\Http\Controllers\Admin\SantriManagementController::class)->names('admin.santri');
+    Route::resource('admin/schedules', \App\Http\Controllers\Admin\ScheduleController::class)->names('admin.schedules');
 
     // Pendaftar Routes
     Route::get('admin/registrations', [\App\Http\Controllers\SantriRegistrationController::class, 'index'])->name('admin.registrations.index');
@@ -81,12 +98,46 @@ Route::middleware(['auth', 'role:super_admin,admin'])->group(function () {
     Route::get('admin/registrations/{registration}', [\App\Http\Controllers\SantriRegistrationController::class, 'show'])->name('admin.registrations.show');
     Route::put('admin/registrations/{registration}/status', [\App\Http\Controllers\SantriRegistrationController::class, 'updateStatus'])->name('admin.registrations.update-status');
     Route::get('admin/registrations/{registration}/pdf', [\App\Http\Controllers\SantriRegistrationController::class, 'downloadPdf'])->name('admin.registrations.pdf');
+    Route::delete('admin/registrations/{registration}', [\App\Http\Controllers\SantriRegistrationController::class, 'destroy'])->name('admin.registrations.destroy');
 
     // Manual cache flush route (for debugging/forced refresh)
     Route::get('admin/flush-cache', function () {
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
         return redirect()->back()->with('success', 'Cache berhasil dibersihkan. Data terbaru akan dimuat dari database.');
     })->name('admin.flush-cache');
+});
+
+Route::middleware(['auth', 'role:super_admin,admin,pengurus_akademik,tenaga_pengajar'])->group(function () {
+    // Presensi / Absensi Routes
+    Route::get('teacher/attendance', [\App\Http\Controllers\Teacher\AttendanceController::class, 'index'])->name('teacher.attendance.index');
+    Route::get('teacher/attendance/create', [\App\Http\Controllers\Teacher\AttendanceController::class, 'create'])->name('teacher.attendance.create');
+    Route::post('teacher/attendance', [\App\Http\Controllers\Teacher\AttendanceController::class, 'store'])->name('teacher.attendance.store');
+
+    // Input Nilai Routes
+    Route::get('teacher/grades', [\App\Http\Controllers\Teacher\GradeController::class, 'index'])->name('teacher.grades.index');
+    Route::get('teacher/grades/{schedule}/edit', [\App\Http\Controllers\Teacher\GradeController::class, 'edit'])->name('teacher.grades.edit');
+    Route::put('teacher/grades/{schedule}', [\App\Http\Controllers\Teacher\GradeController::class, 'update'])->name('teacher.grades.update');
+});
+
+// Santri Portal Routes
+Route::middleware(['auth', 'role:super_admin,admin,pengurus_akademik,santri'])->group(function () {
+    Route::get('santri/dashboard', [\App\Http\Controllers\Santri\SantriPortalController::class, 'dashboard'])->name('santri.dashboard');
+    Route::get('santri/attendance', [\App\Http\Controllers\Santri\SantriPortalController::class, 'attendance'])->name('santri.attendance');
+    Route::get('santri/grades', [\App\Http\Controllers\Santri\SantriPortalController::class, 'grades'])->name('santri.grades');
+    Route::get('santri/rapor-pdf', [\App\Http\Controllers\Santri\SantriPortalController::class, 'downloadRaporPdf'])->name('santri.rapor-pdf');
+});
+
+// Pimpinan Dashboard Routes
+Route::middleware(['auth', 'role:super_admin,admin,pimpinan'])->group(function () {
+    Route::get('pimpinan/dashboard', [\App\Http\Controllers\Pimpinan\PimpinanDashboardController::class, 'index'])->name('pimpinan.dashboard');
+});
+
+// Academic Reports & PDF Export Routes
+Route::middleware(['auth', 'role:super_admin,admin,pengurus_akademik,pimpinan,tenaga_pengajar'])->group(function () {
+    Route::get('admin/reports', [\App\Http\Controllers\Admin\AcademicReportController::class, 'index'])->name('admin.reports.index');
+    Route::get('admin/reports/attendance-pdf', [\App\Http\Controllers\Admin\AcademicReportController::class, 'exportAttendancePdf'])->name('admin.reports.attendance-pdf');
+    Route::get('admin/reports/grades-pdf', [\App\Http\Controllers\Admin\AcademicReportController::class, 'exportGradesPdf'])->name('admin.reports.grades-pdf');
+    Route::get('admin/reports/santri-rapor-pdf/{santri}', [\App\Http\Controllers\Admin\AcademicReportController::class, 'exportSantriRaporPdf'])->name('admin.reports.santri-rapor-pdf');
 });
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
@@ -100,50 +151,12 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::delete('admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     Route::patch('admin/users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('admin.users.reset-password');
     Route::post('admin/users/{user}/avatar', [AdminUserController::class, 'updateAvatar'])->name('admin.users.update-avatar');
+    Route::patch('admin/users/{user}/toggle-verification', [AdminUserController::class, 'toggleVerification'])->name('admin.users.toggle-verification');
 
-    // One-time setup: create missing tables directly via Schema
-    Route::get('admin/run-setup', function () {
-        $results = [];
-
-        if (! \Illuminate\Support\Facades\Schema::hasTable('education_programs')) {
-            \Illuminate\Support\Facades\Schema::create('education_programs', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('slug')->unique();
-                $table->text('description')->nullable();
-                $table->string('image_path')->nullable();
-                $table->boolean('is_active')->default(true);
-                $table->boolean('is_registration_open')->default(false);
-                $table->integer('order')->default(0);
-                $table->timestamps();
-            });
-            $results[] = '✅ Tabel education_programs berhasil dibuat.';
-        } else {
-            $results[] = '✅ Tabel education_programs sudah ada.';
-        }
-
-        if (! \Illuminate\Support\Facades\Schema::hasTable('education_fees')) {
-            \Illuminate\Support\Facades\Schema::create('education_fees', function (\Illuminate\Database\Schema\Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('level')->nullable();
-                $table->unsignedBigInteger('amount')->default(0);
-                $table->text('description')->nullable();
-                $table->timestamps();
-            });
-            $results[] = '✅ Tabel education_fees berhasil dibuat.';
-        } else {
-            $results[] = '✅ Tabel education_fees sudah ada.';
-        }
-
-        \Illuminate\Support\Facades\Cache::forget('site_global_data');
-
-        return response('<html><body style="font-family:sans-serif;padding:20px;background:#f0fdf4">
-            <h2 style="color:#166534;">🛠️ Setup Selesai</h2>
-            <ul>' . implode('', array_map(fn($r) => "<li style='margin:8px 0;color:#15803d;font-size:15px;'>$r</li>", $results)) . '</ul>
-            <br><a href="/admin/programs" style="display:inline-block;padding:10px 20px;background:#16a34a;color:white;border-radius:8px;text-decoration:none;font-weight:bold;">→ Kembali ke Program Pendidikan</a>
-        </body></html>');
-    })->name('admin.run-setup');
+    // Log Aktivitas Admin (hanya bisa dilihat Super Admin)
+    Route::get('admin/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
 });
 
 require __DIR__ . '/settings.php';
+
+

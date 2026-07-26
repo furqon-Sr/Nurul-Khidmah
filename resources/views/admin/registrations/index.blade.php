@@ -167,6 +167,10 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 Set Pending
             </button>
+            <button type="submit" name="status" value="delete" onclick="return confirm('Apakah Anda yakin ingin menghapus semua pendaftar terpilih secara permanen?')" class="px-4 py-2 bg-red-600 hover:bg-red-750 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Hapus Terpilih
+            </button>
             <button type="button" onclick="deselectAll()" class="px-3 py-2 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 rounded-lg text-xs hover:bg-gray-100 dark:hover:bg-slate-700 transition">
                 Batal
             </button>
@@ -221,8 +225,17 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                             <a href="{{ route('admin.registrations.show', $item->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg transition font-semibold">Detail</a>
+                            <button type="button" 
+                                    onclick="if(confirm('Apakah Anda yakin ingin menghapus data pendaftar {{ $item->student_name }} secara permanen?')) { 
+                                        const form = document.getElementById('delete-registration-form');
+                                        form.action = '{{ route('admin.registrations.destroy', $item->id) }}';
+                                        form.submit();
+                                    }" 
+                                    class="text-red-650 dark:text-red-450 hover:text-red-900 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 rounded-lg transition font-semibold">
+                                Hapus
+                            </button>
                         </td>
                     </tr>
                     @empty
@@ -289,4 +302,9 @@
         }
     });
 </script>
+
+<form id="delete-registration-form" action="" method="POST" class="hidden">
+    @csrf
+    @method('DELETE')
+</form>
 @endsection

@@ -159,6 +159,30 @@
 
                         <td class="px-6 py-4 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-2">
+                                {{-- Toggle Verification Button (tidak tampil untuk diri sendiri) --}}
+                                @if($user->id !== auth()->id())
+                                    <form method="POST" action="{{ route('admin.users.toggle-verification', $user) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        @if($user->email_verified_at)
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-md transition"
+                                                    title="Nonaktifkan / Batalkan Verifikasi Akun"
+                                                    onclick="return confirm('Nonaktifkan akun {{ addslashes($user->name) }}? Pengguna ini tidak akan bisa login.')">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                Nonaktifkan
+                                            </button>
+                                        @else
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-md transition"
+                                                    title="Verifikasi Akun Admin">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                                                Verifikasi
+                                            </button>
+                                        @endif
+                                    </form>
+                                @endif
+
                                 {{-- Reset Password Button --}}
                                 <button type="button"
                                         onclick="openResetModal({{ $user->id }}, '{{ addslashes($user->name) }}')"

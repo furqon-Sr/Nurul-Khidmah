@@ -114,25 +114,25 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">
-                                            📄 Upload Brosur / Biaya Pendidikan (PDF)
-                                        </label>
-                                        <p class="text-xs text-gray-800 dark:text-gray-200 mt-1 mb-2">File PDF ini akan langsung diunduh saat pengunjung menekan tombol <strong>"Biaya Pendidikan"</strong> di halaman utama (Hero).</p>
-                                        @if(isset($contents['education_fee_pdf']) && $contents['education_fee_pdf']?->image_path)
-                                            <div class="mt-2 mb-3 flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                                <svg class="w-6 h-6 text-green-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
-                                                <div>
-                                                    <p class="text-sm font-semibold text-green-700">✅ File PDF aktif terpasang</p>
-                                                    <a href="{{ route('education.download-fee') }}" target="_blank" class="text-xs text-green-600 hover:underline">Klik untuk preview / download file →</a>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div class="mt-2 mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                                <p class="text-xs text-gray-800 dark:text-gray-200">⚠️ Belum ada file PDF. Tombol "Biaya Pendidikan" di hero akan ditampilkan dalam keadaan tidak aktif.</p>
-                                            </div>
-                                        @endif
-                                        <input type="file" name="education_fee_pdf" accept="application/pdf" class="mt-1 block w-full text-sm text-gray-500 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
-                                        <p class="text-xs text-gray-800 dark:text-gray-200 mt-1">Format: PDF saja. Maksimal 5MB.</p>
+                                         <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">
+                                             📄 Upload Brosur / Biaya Pendidikan (PDF atau Gambar)
+                                         </label>
+                                         <p class="text-xs text-gray-800 dark:text-gray-200 mt-1 mb-2">File PDF atau Gambar ini akan langsung diunduh saat pengunjung menekan tombol <strong>"Biaya Pendidikan"</strong> di halaman utama (Hero).</p>
+                                         @if(isset($contents['education_fee_pdf']) && $contents['education_fee_pdf']?->image_path)
+                                             <div class="mt-2 mb-3 flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                 <svg class="w-6 h-6 text-green-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
+                                                 <div>
+                                                     <p class="text-sm font-semibold text-green-700">✅ Berkas Brosur Aktif Terpasang</p>
+                                                     <a href="{{ route('education.download-fee') }}" target="_blank" class="text-xs text-green-600 hover:underline">Klik untuk preview / download file →</a>
+                                                 </div>
+                                             </div>
+                                         @else
+                                             <div class="mt-2 mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                                 <p class="text-xs text-gray-800 dark:text-gray-200">⚠️ Belum ada berkas brosur. Tombol "Biaya Pendidikan" di hero akan ditampilkan dalam keadaan tidak aktif.</p>
+                                             </div>
+                                         @endif
+                                         <input type="file" name="education_fee_pdf" accept="application/pdf,image/*" class="mt-1 block w-full text-sm text-gray-500 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
+                                         <p class="text-xs text-red-600 dark:text-red-400 mt-1">Format: PDF atau Gambar (JPG, JPEG, PNG, WEBP). Maksimal 2MB (Batasan sistem server PHP).</p>
                                     </div>
 
                                     <div class="border-t border-gray-150 pt-5">

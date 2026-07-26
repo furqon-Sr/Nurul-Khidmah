@@ -1,33 +1,22 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "laravel/laravel",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
-    "keywords": [
-        "laravel",
-        "framework"
-    ],
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "intervention/image-laravel": "^4.0",
-        "laravel/chisel": "^0.1.0",
-        "laravel/fortify": "^1.37.2",
-        "laravel/framework": "^13.7",
-        "laravel/tinker": "^3.0",
-        "livewire/flux": "^2.13.1",
-        "livewire/livewire": "^4.1"
+        "laravel/framework": "^13.0",
+        "laravel/tinker": "^3.0"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.24",
+        "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.5",
-        "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",
-        "laravel/sail": "^1.53",
         "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.9.3",
-        "pestphp/pest": "^4.7",
-        "pestphp/pest-plugin-laravel": "^4.1"
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^11.5.50"
     },
     "autoload": {
         "psr-4": {
@@ -52,21 +41,10 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
-        ],
-        "lint": [
-            "pint --parallel"
-        ],
-        "lint:check": [
-            "pint --parallel --test"
-        ],
-        "ci:check": [
-            "Composer\\Config::disableProcessTimeout",
-            "@test"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@lint:check",
             "@php artisan test"
         ],
         "post-autoload-dump": [
@@ -90,10 +68,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": [],
-            "installer": {
-                "post-create-project": []
-            }
+            "dont-discover": []
         }
     },
     "config": {
@@ -105,6 +80,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

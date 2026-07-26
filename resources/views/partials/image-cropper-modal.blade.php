@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const w = wrapper && wrapper.querySelector('input[name="' + input.name + '_crop_width"]');
                 if (w && !w.value) {
                     e.preventDefault();
-                    alert('Silakan selesaikan crop untuk "' + (input.labels[0] ? input.labels[0].textContent.trim() : input.name) + '" — pilih gambar, atur area, lalu klik Terapkan crop.');
+                    alert('Silakan selesaikan crop untuk "' + (input.labels && input.labels[0] ? input.labels[0].textContent.trim() : input.name) + '" — pilih gambar, atur area, lalu klik Terapkan crop.');
                     input.focus();
                 }
             });

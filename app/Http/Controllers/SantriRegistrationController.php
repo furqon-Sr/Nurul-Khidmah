@@ -172,7 +172,13 @@ class SantriRegistrationController extends Controller
             'status' => $validated['status']
         ]);
 
-        return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.');
+        $credentialMsg = '';
+        if ($validated['status'] === 'accepted') {
+            $info = $this->convertToSantriAccount($registration);
+            $credentialMsg = " Akun login Santri berhasil dibuat! NIS: {$info['nis']} | Email: {$info['email']} | Password: {$info['password']}";
+        }
+
+        return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.' . $credentialMsg);
     }
 
     /**
@@ -183,19 +189,102 @@ class SantriRegistrationController extends Controller
         $validated = $request->validate([
             'registration_ids' => 'required|array',
             'registration_ids.*' => 'exists:santri_registrations,id',
-            'status' => 'required|in:pending,accepted,rejected',
+            'status' => 'required|in:pending,accepted,rejected,delete',
         ]);
 
-        SantriRegistration::whereIn('id', $validated['registration_ids'])
-            ->update(['status' => $validated['status']]);
+        if ($validated['status'] === 'delete') {
+            $registrations = SantriRegistration::whereIn('id', $validated['registration_ids'])->get();
+            $count = $registrations->count();
+            
+            foreach ($registrations as $reg) {
+                if ($reg->student_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($reg->student_photo)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($reg->student_photo);
+                }
+                $reg->delete();
+            }
+
+            return redirect()->back()->with('success', $count . ' data pendaftar berhasil dihapus secara permanen.');
+        }
+
+        $registrations = SantriRegistration::whereIn('id', $validated['registration_ids'])->get();
+        foreach ($registrations as $reg) {
+            $reg->update(['status' => $validated['status']]);
+            if ($validated['status'] === 'accepted') {
+                $this->convertToSantriAccount($reg);
+            }
+        }
 
         $statusLabel = match ($validated['status']) {
-            'accepted' => 'diterima (approved)',
+            'accepted' => 'diterima & dibuatkan akun Santri otomatis',
             'rejected' => 'ditolak (rejected)',
             default => 'menunggu (pending)',
         };
 
         return redirect()->back()->with('success', 'Status untuk ' . count($validated['registration_ids']) . ' pendaftar berhasil diubah menjadi ' . $statusLabel . '.');
+    }
+
+    /**
+     * Otomatis membuatkan akun User & profil Santri saat PPDB Diterima
+     */
+    private function convertToSantriAccount(SantriRegistration $registration): array
+    {
+        $email = strtolower($registration->email);
+        if (empty($email) || \App\Models\User::where('email', $email)->exists()) {
+            $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $registration->full_name));
+            $email = $cleanName . rand(100, 999) . '@santri.nurulkhidmah.org';
+        }
+
+        $password = 'santri123';
+
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => $registration->full_name,
+                'password' => \Illuminate\Support\Facades\Hash::make($password),
+                'role' => \App\Models\User::ROLE_SANTRI,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $year = date('Y');
+        $lastSantri = \App\Models\Santri::where('nis', 'like', $year . '%')->orderBy('id', 'desc')->first();
+        $sequence = $lastSantri ? (intval(substr($lastSantri->nis, 4)) + 1) : 1;
+        $nis = $year . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+
+        $defaultKelas = \App\Models\Kelas::first();
+
+        $santri = \App\Models\Santri::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'nis' => $nis,
+                'kelas_id' => $defaultKelas?->id,
+                'nama_lengkap' => $registration->full_name,
+                'jenis_kelamin' => $registration->gender == 'L' ? 'L' : 'P',
+                'nama_wali' => $registration->guardian_name ?? 'Wali Santri',
+                'tahun_masuk' => $year,
+                'status_santri' => 'Aktif',
+            ]
+        );
+
+        return [
+            'email' => $email,
+            'password' => $password,
+            'nis' => $nis,
+        ];
+    }
+
+    /**
+     * Menghapus pendaftar tunggal beserta fotonya jika ada
+     */
+    public function destroy(SantriRegistration $registration)
+    {
+        if ($registration->student_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($registration->student_photo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($registration->student_photo);
+        }
+
+        $registration->delete();
+
+        return redirect()->route('admin.registrations.index')->with('success', 'Data pendaftar berhasil dihapus secara permanen.');
     }
 
     /**

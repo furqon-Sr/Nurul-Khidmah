@@ -9,23 +9,34 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckRole
 {
     /**
-     * Handle an incoming request.
+     * Handle an incoming request — verifikasi role dan status akun.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (! $request->user()) {
+        $user = $request->user();
+
+        if (! $user) {
             abort(403, 'Unauthorized.');
         }
 
+        // Blokir akun yang email-nya belum terverifikasi (lewati jika di lingkungan local/testing)
+        if (! app()->environment('local', 'testing') && ! $user->email_verified_at) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda belum diverifikasi. Hubungi Super Admin.',
+            ]);
+        }
+
         if (empty($roles)) {
-            // Jika tidak ada parameter role spesifik yang diberikan, 
-            // izinkan super_admin atau admin secara default
             $roles = ['super_admin', 'admin'];
         }
 
-        $userRole = $request->user()->role ?? 'admin';
+        $userRole = $user->role ?? 'admin';
 
         if (! in_array($userRole, $roles, true)) {
             abort(403, 'Forbidden. You do not have the required role.');

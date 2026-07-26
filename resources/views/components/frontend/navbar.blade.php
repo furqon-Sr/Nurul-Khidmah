@@ -1,4 +1,4 @@
-<nav x-data="{ mobileMenuOpen: false }" class="bg-[#045F33] py-4 w-full z-50 shadow-md">
+<nav x-data="{ mobileMenuOpen: false }" class="relative bg-[#045F33] py-4 w-full z-50 shadow-md">
     <div class="container mx-auto px-4 md:px-8">
         <div class="flex justify-between items-center">
             <!-- Logo -->
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Mobile Menu Panel -->
-    <div x-show="mobileMenuOpen" x-cloak class="lg:hidden absolute top-full left-0 w-full bg-[#045F33] shadow-xl border-t border-green-800">
+    <div x-show="mobileMenuOpen" x-cloak class="lg:hidden absolute top-full left-0 w-full bg-[#045F33] shadow-xl border-t border-green-800 z-50">
         <div class="px-6 py-4 flex flex-col space-y-4">
             <a href="{{ route('home') }}" class="font-medium border-b border-green-800 pb-2 {{ request()->routeIs('home') ? 'text-[#F2C94C]' : 'text-white' }}">Home</a>
             <a href="{{ route('about') }}" class="font-medium border-b border-green-800 pb-2 {{ request()->routeIs('about') ? 'text-[#F2C94C]' : 'text-white' }}">Tentang Kami</a>

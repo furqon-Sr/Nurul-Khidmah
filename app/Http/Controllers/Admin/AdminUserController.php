@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Concerns\PasswordValidationRules;
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,6 @@ class AdminUserController extends Controller
             'email_verified_at' => now(),
         ];
 
-        // Upload foto profil jika ada
         if ($request->hasFile('avatar')) {
             $request->validate([
                 'avatar' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -56,7 +56,9 @@ class AdminUserController extends Controller
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        User::create($data);
+        $newUser = User::create($data);
+
+        AdminActivityLog::log('create', 'Membuat pengguna admin baru: '.$newUser->name.' ('.$newUser->email.')', 'User', $newUser->id);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna admin baru berhasil ditambahkan. Mereka dapat langsung masuk ke panel.');
@@ -79,16 +81,15 @@ class AdminUserController extends Controller
             }
         }
 
+        $oldRole = $user->role;
         $user->update(['role' => $validated['role']]);
+
+        AdminActivityLog::log('update', 'Mengubah role '.$user->name.' dari '.$oldRole.' menjadi '.$validated['role'], 'User', $user->id);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Peran untuk '.$user->name.' telah diperbarui.');
     }
 
-    /**
-     * Hapus akun pengguna admin.
-     * Proteksi: tidak bisa hapus diri sendiri; tidak bisa hapus satu-satunya Super Admin.
-     */
     public function destroy(User $user): RedirectResponse
     {
         if ($user->is(Auth::user())) {
@@ -105,19 +106,19 @@ class AdminUserController extends Controller
         }
 
         $name = $user->name;
-        // Hapus file avatar dari storage jika ada
+        $userId = $user->id;
+
         if ($user->avatar) {
             Storage::disk('public')->delete($user->avatar);
         }
         $user->delete();
 
+        AdminActivityLog::log('delete', 'Menghapus pengguna admin: '.$name, 'User', $userId);
+
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna "'.$name.'" berhasil dihapus dari sistem.');
     }
 
-    /**
-     * Reset password pengguna admin oleh Super Admin.
-     */
     public function resetPassword(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
@@ -128,20 +129,18 @@ class AdminUserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        AdminActivityLog::log('update', 'Mereset password untuk: '.$user->name, 'User', $user->id);
+
         return redirect()->route('admin.users.index')
             ->with('success', 'Password untuk "'.$user->name.'" berhasil direset.');
     }
 
-    /**
-     * Upload / ganti foto profil pengguna admin.
-     */
     public function updateAvatar(Request $request, User $user): RedirectResponse
     {
         $request->validate([
             'avatar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        // Hapus avatar lama
         if ($user->avatar) {
             Storage::disk('public')->delete($user->avatar);
         }
@@ -149,7 +148,29 @@ class AdminUserController extends Controller
         $path = $request->file('avatar')->store('avatars', 'public');
         $user->update(['avatar' => $path]);
 
+        AdminActivityLog::log('update', 'Mengubah foto profil: '.$user->name, 'User', $user->id);
+
         return redirect()->route('admin.users.index')
             ->with('success', 'Foto profil "'.$user->name.'" berhasil diperbarui.');
+    }
+
+    public function toggleVerification(User $user): RedirectResponse
+    {
+        if ($user->is(Auth::user())) {
+            return redirect()->route('admin.users.index')
+                ->withErrors(['role' => 'Anda tidak dapat mengubah status verifikasi akun Anda sendiri.']);
+        }
+
+        if ($user->email_verified_at) {
+            $user->update(['email_verified_at' => null]);
+            AdminActivityLog::log('update', 'Membatalkan verifikasi akun admin: '.$user->name.' ('.$user->email.')', 'User', $user->id);
+            $msg = 'Verifikasi akun "'.$user->name.'" berhasil dibatalkan. Akun ini tidak aktif.';
+        } else {
+            $user->update(['email_verified_at' => now()]);
+            AdminActivityLog::log('update', 'Memverifikasi akun admin: '.$user->name.' ('.$user->email.')', 'User', $user->id);
+            $msg = 'Akun "'.$user->name.'" berhasil diverifikasi dan sekarang aktif.';
+        }
+
+        return redirect()->route('admin.users.index')->with('success', $msg);
     }
 }
