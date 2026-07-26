@@ -31,7 +31,7 @@
                 </select>
             </div>
             <button type="submit" class="w-full px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm transition">
-                🖨️ Cetak Rekap Presensi PDF
+                Cetak Rekap Presensi PDF
             </button>
         </form>
     </div>
@@ -56,7 +56,7 @@
                 </select>
             </div>
             <button type="submit" class="w-full px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-lg text-xs font-semibold shadow-sm transition">
-                🖨️ Cetak Rekap Nilai PDF
+                Cetak Rekap Nilai PDF
             </button>
         </form>
     </div>
@@ -81,7 +81,7 @@
                 </select>
             </div>
             <button onclick="printSantriRapor()" class="w-full px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm transition">
-                🖨️ Cetak Rapor Santri (PDF)
+                Cetak Rapor Santri (PDF)
             </button>
         </div>
     </div>

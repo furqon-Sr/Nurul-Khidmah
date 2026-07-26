@@ -159,7 +159,7 @@
 </head>
 <body>
 
-    <button onclick="window.print()" class="no-print-btn">🖨️ Cetak / Download PDF</button>
+    <button onclick="window.print()" class="no-print-btn">Cetak / Download PDF</button>
 
     {{-- Kop Pesantren --}}
     <div class="header">
