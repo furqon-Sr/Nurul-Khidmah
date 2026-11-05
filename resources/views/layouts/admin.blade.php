@@ -36,7 +36,6 @@
             document.documentElement.classList.toggle('dark', isDark);
         })();
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 font-sans antialiased text-gray-900 dark:text-gray-100 transition-colors duration-200">
     {{-- Gunakan h-dvh (Dynamic Viewport Height) agar bar alamat browser HP tidak menutupi tombol Logout di bawah --}}

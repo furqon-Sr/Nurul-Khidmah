@@ -61,7 +61,7 @@
             </thead>
             <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-slate-700">
                 @forelse($logs as $log)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-900/60 transition-colors">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-900/60 transition-colors log-row-item" data-search="{{ strtolower($log->user_name . ' ' . $log->description . ' ' . ($log->ip_address ?? '')) }}">
                         <td class="px-5 py-3.5 whitespace-nowrap text-xs text-gray-500 dark:text-slate-400">
                             <div>{{ $log->created_at->timezone(config('app.timezone'))->format('d M Y') }}</div>
                             <div class="text-gray-400 dark:text-slate-500">{{ $log->created_at->timezone(config('app.timezone'))->format('H:i:s') }}</div>
@@ -102,4 +102,24 @@
         </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.querySelector('input[name="search"]');
+        if (input) {
+            let timer = null;
+            input.addEventListener('input', function () {
+                const q = this.value.toLowerCase().trim();
+                document.querySelectorAll('.log-row-item').forEach(r => {
+                    const t = (r.getAttribute('data-search') || '').toLowerCase();
+                    r.style.display = (!q || t.includes(q)) ? '' : 'none';
+                });
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    input.closest('form')?.submit();
+                }, 600);
+            });
+        }
+    });
+</script>
 @endsection

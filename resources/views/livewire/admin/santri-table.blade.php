@@ -28,7 +28,14 @@
                         </svg>
                     </div>
                     <input type="text" 
-                           wire:model.live.debounce.300ms="search"
+                           wire:model.live.debounce.250ms="search"
+                           x-on:input="
+                               const q = $event.target.value.toLowerCase().trim();
+                               document.querySelectorAll('.santri-row-item').forEach(r => {
+                                   const t = (r.getAttribute('data-search') || '').toLowerCase();
+                                   r.style.display = (!q || t.includes(q)) ? '' : 'none';
+                               });
+                           "
                            placeholder="Ketik NIS, NISN, Nama, Wali..."
                            autocorrect="off" autocapitalize="off" spellcheck="false"
                            class="w-full min-h-11 pl-9 pr-9 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500 text-gray-900 dark:text-gray-100 placeholder-gray-400">
@@ -124,7 +131,7 @@
                             'edit_url' => route('admin.santri.edit', $item->id),
                         ];
                     @endphp
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150 santri-row-item" data-search="{{ strtolower($item->nama_lengkap . ' ' . $item->nis . ' ' . ($item->nisn ?? '') . ' ' . ($item->nama_wali ?? '') . ' ' . ($item->no_hp_wali ?? '')) }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="font-mono text-xs font-bold px-2.5 py-1 rounded bg-purple-50 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                                 {{ $item->nis }}

@@ -85,7 +85,14 @@
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
                         <input type="text" 
-                               wire:model.live.debounce.300ms="search"
+                               wire:model.live.debounce.250ms="search"
+                               x-on:input="
+                                   const q = $event.target.value.toLowerCase().trim();
+                                   document.querySelectorAll('.registration-row-item').forEach(r => {
+                                       const t = (r.getAttribute('data-search') || '').toLowerCase();
+                                       r.style.display = (!q || t.includes(q)) ? '' : 'none';
+                                   });
+                               "
                                autocorrect="off" autocapitalize="off" spellcheck="false"
                                placeholder="Ketik nama, no. registrasi, wali..." 
                                class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm pl-10 pr-9 py-2">
@@ -232,7 +239,7 @@
                 </thead>
                 <tbody class="bg-white dark:bg-slate-950 divide-y divide-gray-200 dark:divide-slate-700">
                     @forelse($registrations as $item)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/40 transition">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/40 transition registration-row-item" data-search="{{ strtolower($item->student_name . ' ' . $item->registration_number . ' ' . ($item->guardian_name ?? '') . ' ' . ($item->target_class ?? '')) }}">
                         <td class="px-4 py-4 whitespace-nowrap">
                             <input type="checkbox" wire:model.live="selectedIds" value="{{ (string) $item->id }}" class="rounded border-gray-300 dark:border-slate-700 text-green-700 focus:ring-green-500 w-4 h-4">
                         </td>

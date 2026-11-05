@@ -46,7 +46,7 @@
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 @forelse($classes as $item)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150 class-row-item" data-search="{{ strtolower($item->kode_kelas . ' ' . $item->nama_kelas . ' ' . ($item->waliKelas->nama_lengkap ?? '')) }}">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="font-semibold text-gray-900 dark:text-gray-100">{{ $item->nama_kelas }}</div>
                         <span class="font-mono text-xs text-gray-500">{{ $item->kode_kelas }}</span>
@@ -90,4 +90,24 @@
     </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.querySelector('input[name="search"]');
+        if (input) {
+            let timer = null;
+            input.addEventListener('input', function () {
+                const q = this.value.toLowerCase().trim();
+                document.querySelectorAll('.class-row-item').forEach(r => {
+                    const t = (r.getAttribute('data-search') || '').toLowerCase();
+                    r.style.display = (!q || t.includes(q)) ? '' : 'none';
+                });
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    input.closest('form')?.submit();
+                }, 600);
+            });
+        }
+    });
+</script>
 @endsection

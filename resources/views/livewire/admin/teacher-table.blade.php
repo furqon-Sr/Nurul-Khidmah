@@ -7,7 +7,14 @@
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <input type="text" 
-                       wire:model.live.debounce.300ms="search" 
+                       wire:model.live.debounce.250ms="search" 
+                       x-on:input="
+                           const q = $event.target.value.toLowerCase().trim();
+                           document.querySelectorAll('.teacher-row-item').forEach(r => {
+                               const t = (r.getAttribute('data-search') || '').toLowerCase();
+                               r.style.display = (!q || t.includes(q)) ? '' : 'none';
+                           });
+                       "
                        placeholder="Cari NIP / Nama / Email..."
                        autocorrect="off" autocapitalize="off" spellcheck="false"
                        class="w-full min-h-11 pl-9 pr-9 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500 text-gray-900 dark:text-gray-100 placeholder-gray-400">
@@ -66,7 +73,7 @@
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 @forelse($teachers as $item)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150 teacher-row-item" data-search="{{ strtolower($item->nama_lengkap . ' ' . $item->nomor_identitas . ' ' . ($item->user->email ?? '')) }}">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="font-mono text-xs font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                             {{ $item->nomor_identitas }}

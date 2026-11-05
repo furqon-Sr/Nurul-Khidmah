@@ -294,7 +294,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     @forelse($evalSantris as $s)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 santri-eval-row" data-search="{{ strtolower($s->nama_lengkap . ' ' . $s->nis) }}">
                         <th scope="row" class="sm:sticky sm:left-0 z-[1] bg-white dark:bg-gray-800 px-4 sm:px-5 py-3.5 whitespace-nowrap text-left font-normal border-b border-gray-100 dark:border-gray-700/60">
                             <div class="font-semibold text-gray-900 dark:text-gray-100 text-sm">{{ $s->nama_lengkap }}</div>
                             <div class="flex items-center gap-2 mt-0.5">
@@ -398,6 +398,24 @@
                 });
             }
         });
+
+        const searchInput = document.getElementById('filter_search_santri');
+        if (searchInput) {
+            let searchTimeout = null;
+            searchInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase().trim();
+                const evalRows = document.querySelectorAll('.santri-eval-row');
+                evalRows.forEach(row => {
+                    const searchData = row.getAttribute('data-search') || '';
+                    row.style.display = (!query || searchData.includes(query)) ? '' : 'none';
+                });
+
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (filterForm) filterForm.submit();
+                }, 600);
+            });
+        }
 
         const btnPreview = document.getElementById('btn-quick-rapor-preview');
         const btnDownload = document.getElementById('btn-quick-rapor-download');

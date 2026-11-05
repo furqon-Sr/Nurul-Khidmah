@@ -44,7 +44,7 @@
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 @forelse($subjects as $item)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150 subject-row-item" data-search="{{ strtolower($item->kode_mapel . ' ' . $item->nama_mapel) }}">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="font-mono text-xs font-bold px-2.5 py-1 rounded bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             {{ $item->kode_mapel }}
@@ -81,4 +81,24 @@
     </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.querySelector('input[name="search"]');
+        if (input) {
+            let timer = null;
+            input.addEventListener('input', function () {
+                const q = this.value.toLowerCase().trim();
+                document.querySelectorAll('.subject-row-item').forEach(r => {
+                    const t = (r.getAttribute('data-search') || '').toLowerCase();
+                    r.style.display = (!q || t.includes(q)) ? '' : 'none';
+                });
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    input.closest('form')?.submit();
+                }, 600);
+            });
+        }
+    });
+</script>
 @endsection
