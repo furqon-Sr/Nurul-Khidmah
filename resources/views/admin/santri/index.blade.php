@@ -3,108 +3,303 @@
 @section('title', 'Manajemen Data Santri')
 
 @section('content')
-<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div>
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Manajemen Data Santri</h1>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">Kelola data induk santri, kelas, dan akun portal wali santri.</p>
-    </div>
-    <a href="{{ route('admin.santri.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition shadow-sm font-medium text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Tambah Santri Baru
-    </a>
-</div>
-
-@if(session('success'))
-<div class="mb-4 p-4 bg-emerald-100 dark:bg-emerald-950/50 border-l-4 border-emerald-500 text-emerald-700 dark:text-emerald-300 rounded shadow-sm text-sm">
-    {{ session('success') }}
-</div>
-@endif
-
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
-        <form method="GET" action="{{ route('admin.santri.index') }}" class="flex flex-wrap items-center gap-3">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NIS / Nama..."
-                   class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500 w-full max-w-xs">
-
-            <select name="kelas_id" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option value="">-- Semua Kelas --</option>
-                @foreach($kelasses as $k)
-                    <option value="{{ $k->id }}" {{ request('kelas_id') == $k->id ? 'selected' : '' }}>{{ $k->nama_kelas }}</option>
-                @endforeach
-            </select>
-
-            <select name="status" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option value="">-- Semua Status --</option>
-                <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                <option value="Lulus" {{ in_array(request('status'), ['Lulus', 'Alumni']) ? 'selected' : '' }}>Lulus / Alumni</option>
-                <option value="Mutasi" {{ in_array(request('status'), ['Mutasi', 'Non-Aktif']) ? 'selected' : '' }}>Mutasi / Non-Aktif</option>
-            </select>
-
-            <button type="submit" class="px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-900">Filter</button>
-            @if(request('search') || request('kelas_id') || request('status'))
-                <a href="{{ route('admin.santri.index') }}" class="text-xs text-gray-500 hover:underline">Reset</a>
-            @endif
-        </form>
+<div x-data="{ showPhotoModal: false, activeSantri: null }" class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Manajemen Data Santri</h1>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">Kelola data induk santri, kelas, dan akun portal wali santri. Klik foto atau nama untuk melihat profil lengkap.</p>
+        </div>
+        <a href="{{ route('admin.santri.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition shadow-sm font-medium text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah Santri Baru
+        </a>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900/50">
-                <tr>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">NIS</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama Santri</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kelas</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama Wali</th>
-                    <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                @forelse($santris as $item)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="font-mono text-xs font-bold px-2.5 py-1 rounded bg-purple-50 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                            {{ $item->nis }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="font-semibold text-gray-900 dark:text-gray-100">{{ $item->nama_lengkap }}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $item->jenis_kelamin }} • Masuk: {{ $item->tahun_masuk ?? '-' }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">
-                        {{ $item->kelas->nama_kelas ?? 'Belum Ditentukan' }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                        {{ $item->nama_wali ?? '-' }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $item->status_santri === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : (in_array($item->status_santri, ['Lulus', 'Alumni']) ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300') }}">
-                            {{ $item->status_santri === 'Alumni' ? 'Lulus (Alumni)' : $item->status_santri }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('admin.santri.edit', $item->id) }}" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-3">Edit</a>
-                        <form action="{{ route('admin.santri.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Menghapus data santri akan sekaligus menghapus akun user terhubung. Yakin?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-rose-600 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
-                        Belum ada data santri.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    @if($santris->hasPages())
-    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-        {{ $santris->links() }}
+    @if(session('success'))
+    <div class="p-4 bg-emerald-100 dark:bg-emerald-950/50 border-l-4 border-emerald-500 text-emerald-700 dark:text-emerald-300 rounded shadow-sm text-sm">
+        {{ session('success') }}
     </div>
     @endif
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
+            <form method="GET" action="{{ route('admin.santri.index') }}" class="flex flex-wrap items-center gap-3">
+                <div class="relative w-full max-w-xs">
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="Cari NIS, NISN, Nama, Wali..."
+                           autocorrect="off" autocapitalize="off" spellcheck="false"
+                           class="w-full min-h-11 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <select name="kelas_id" onchange="this.form.submit()" 
+                        class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+                    <option value="">-- Semua Kelas --</option>
+                    <option value="unassigned" {{ request('kelas_id') === 'unassigned' ? 'selected' : '' }}>-- Belum Ditentukan --</option>
+                    @foreach($kelasses as $k)
+                        <option value="{{ $k->id }}" {{ (string) request('kelas_id') === (string) $k->id ? 'selected' : '' }}>
+                            {{ $k->nama_kelas }} ({{ $k->tahunAjaran->nama_tahun_ajaran ?? '-' }})
+                        </option>
+                    @endforeach
+                </select>
+
+                <select name="status" onchange="this.form.submit()" 
+                        class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+                    <option value="">-- Semua Status --</option>
+                    <option value="Aktif" {{ strtolower(request('status')) === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="Lulus" {{ in_array(strtolower(request('status')), ['lulus', 'alumni']) ? 'selected' : '' }}>Lulus / Alumni</option>
+                    <option value="Mutasi" {{ in_array(strtolower(request('status')), ['mutasi', 'non-aktif']) ? 'selected' : '' }}>Mutasi / Non-Aktif</option>
+                </select>
+
+                <button type="submit" class="min-h-11 px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition shadow-sm">
+                    Filter
+                </button>
+                @if(request('search') || request('kelas_id') || request('status'))
+                    <a href="{{ route('admin.santri.index') }}" class="min-h-11 px-3 py-2 inline-flex items-center text-xs text-gray-500 dark:text-gray-400 hover:text-emerald-600 hover:underline">
+                        Reset Filter
+                    </a>
+                @endif
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900/50">
+                    <tr>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">NIS &amp; NISN</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Santri &amp; Foto</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kelas</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama Wali &amp; Kontak</th>
+                        <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse($santris as $item)
+                    @php
+                        $santriPayload = [
+                            'nama' => $item->nama_lengkap,
+                            'nis' => $item->nis,
+                            'nisn' => $item->nisn ?? '-',
+                            'foto' => $item->fotoUrl(),
+                            'initials' => $item->initials(),
+                            'kelas' => $item->kelas->nama_kelas ?? 'Belum Ditentukan',
+                            'tahun_ajaran' => $item->kelas?->tahunAjaran?->nama_tahun_ajaran ?? '-',
+                            'status' => $item->status_santri,
+                            'gender' => $item->genderLabel(),
+                            'ttl' => ($item->tempat_lahir ? $item->tempat_lahir . ', ' : '') . ($item->tanggal_lahir ? $item->tanggal_lahir->format('d M Y') : '-'),
+                            'wali' => $item->nama_wali ?? '-',
+                            'no_hp' => $item->no_hp_wali ?? '-',
+                            'alamat' => $item->alamat ?? '-',
+                            'asal_sekolah' => $item->previous_school ?? '-',
+                            'mukim' => $item->boarding_status ? ($item->boarding_status === 'mukim' ? 'Mukim di Pondok' : 'Tidak Mukim (Laju)') : '-',
+                            'edit_url' => route('admin.santri.edit', $item->id),
+                        ];
+                    @endphp
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="font-mono text-xs font-bold px-2.5 py-1 rounded bg-purple-50 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                                {{ $item->nis }}
+                            </span>
+                            @if($item->nisn)
+                                <div class="text-[11px] font-mono text-gray-500 dark:text-gray-400 mt-1">
+                                    NISN: {{ $item->nisn }}
+                                </div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <button type="button" 
+                                        @click="activeSantri = {{ json_encode($santriPayload) }}; showPhotoModal = true"
+                                        class="shrink-0 relative group focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-full"
+                                        title="Klik untuk melihat foto profil santri">
+                                    @if($item->fotoUrl())
+                                        <img src="{{ $item->fotoUrl() }}" 
+                                             alt="{{ $item->nama_lengkap }}" 
+                                             class="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-500/80 group-hover:ring-4 group-hover:scale-105 transition duration-150 shadow-sm">
+                                    @else
+                                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold flex items-center justify-center text-xs ring-2 ring-emerald-500/80 group-hover:ring-4 group-hover:scale-105 transition duration-150 shadow-sm">
+                                            {{ $item->initials() }}
+                                        </div>
+                                    @endif
+                                    <span class="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5 shadow">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                                    </span>
+                                </button>
+                                <div>
+                                    <button type="button" 
+                                            @click="activeSantri = {{ json_encode($santriPayload) }}; showPhotoModal = true"
+                                            class="text-left font-semibold text-gray-900 dark:text-gray-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+                                            title="Klik untuk membuka profil">
+                                        {{ $item->nama_lengkap }}
+                                    </button>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $item->genderLabel() }} • Masuk: {{ $item->tahun_masuk ?? '-' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">
+                            <div>{{ $item->kelas->nama_kelas ?? 'Belum Ditentukan' }}</div>
+                            @if($item->kelas?->tahunAjaran)
+                                <div class="text-xs text-gray-500 dark:text-gray-400">TA: {{ $item->kelas->tahunAjaran->nama_tahun_ajaran }}</div>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                            <div class="font-medium text-gray-800 dark:text-gray-200">{{ $item->nama_wali ?? '-' }}</div>
+                            @if($item->no_hp_wali)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $item->no_hp_wali) }}" target="_blank" class="text-xs text-emerald-600 hover:underline inline-flex items-center gap-1">
+                                    {{ $item->no_hp_wali }}
+                                </a>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $item->status_santri === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : (in_array($item->status_santri, ['Lulus', 'Alumni']) ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300') }}">
+                                {{ $item->status_santri === 'Alumni' ? 'Lulus (Alumni)' : $item->status_santri }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button type="button" 
+                                    @click="activeSantri = {{ json_encode($santriPayload) }}; showPhotoModal = true"
+                                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 text-xs font-semibold">
+                                Profil
+                            </button>
+                            <a href="{{ route('admin.santri.edit', $item->id) }}" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-3 text-xs font-semibold">Edit</a>
+                            <form action="{{ route('admin.santri.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Menghapus data santri akan sekaligus menghapus akun user terhubung. Yakin?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-rose-600 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-semibold">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
+                            Belum ada data santri yang cocok dengan filter.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        @if($santris->hasPages())
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
+            {{ $santris->links() }}
+        </div>
+        @endif
+    </div>
+
+    <!-- Modal Pratinjau Foto Profil Santri -->
+    <div x-show="showPhotoModal" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+         @keydown.escape.window="showPhotoModal = false">
+        
+        <div @click.away="showPhotoModal = false" 
+             x-show="showPhotoModal"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+             class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-lg w-full overflow-hidden">
+            
+            <!-- Header Modal -->
+            <div class="px-6 py-4 bg-emerald-800 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    <h3 class="font-bold text-base">Profil &amp; Pasfoto Santri</h3>
+                </div>
+                <button type="button" @click="showPhotoModal = false" class="text-white/80 hover:text-white text-xl font-bold leading-none p-1 focus:outline-none">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-6 space-y-6" x-show="activeSantri">
+                <div class="flex flex-col items-center text-center">
+                    <template x-if="activeSantri && activeSantri.foto">
+                        <img :src="activeSantri.foto" 
+                             :alt="activeSantri.nama" 
+                             x-on:error="activeSantri.foto = null"
+                             class="w-36 h-48 object-cover rounded-xl shadow-lg border-4 border-emerald-600/30">
+                    </template>
+                    <template x-if="activeSantri && !activeSantri.foto">
+                        <div class="w-36 h-48 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-extrabold flex flex-col items-center justify-center shadow-lg border-4 border-emerald-600/30">
+                            <span class="text-4xl" x-text="activeSantri ? activeSantri.initials : 'S'"></span>
+                            <span class="text-[11px] mt-2 font-normal opacity-80">(Belum ada pasfoto)</span>
+                        </div>
+                    </template>
+
+                    <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-4" x-text="activeSantri ? activeSantri.nama : ''"></h4>
+                    
+                    <div class="mt-1 flex flex-wrap items-center justify-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" x-text="activeSantri ? activeSantri.status : ''"></span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 font-mono" x-text="activeSantri ? ('NIS: ' + activeSantri.nis) : ''"></span>
+                    </div>
+                </div>
+
+                <!-- Detail Grid -->
+                <div class="grid grid-cols-2 gap-3 p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-xs">
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">NISN</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.nisn : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Kelas &amp; TA</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? (activeSantri.kelas + ' (' + activeSantri.tahun_ajaran + ')') : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Jenis Kelamin</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.gender : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Tempat, Tanggal Lahir</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.ttl : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Wali Santri</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.wali : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">No. Telepon / WA</span>
+                        <span class="font-semibold text-emerald-600" x-text="activeSantri ? activeSantri.no_hp : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Asal Sekolah</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.asal_sekolah : '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Status Mukim</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.mukim : '-'"></span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Alamat Lengkap</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.alamat : '-'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <a :href="activeSantri ? activeSantri.edit_url : '#'" 
+                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    Edit Data Santri
+                </a>
+                <button type="button" @click="showPhotoModal = false" 
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg text-xs font-semibold transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

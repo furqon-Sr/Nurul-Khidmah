@@ -73,7 +73,12 @@ class User extends Authenticatable implements PasskeyUser
     public function avatarUrl(): ?string
     {
         if ($this->avatar) {
-            return \Illuminate\Support\Facades\Storage::disk('public')->url($this->avatar);
+            if (\Illuminate\Support\Str::startsWith($this->avatar, ['http://', 'https://', 'data:'])) {
+                return $this->avatar;
+            }
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->avatar)) {
+                return '/storage/' . ltrim($this->avatar, '/');
+            }
         }
         return null;
     }

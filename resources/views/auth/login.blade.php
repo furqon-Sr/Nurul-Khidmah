@@ -28,13 +28,7 @@
                 @endif
 
                 <div>
-                    <span class="inline-block px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold uppercase tracking-wider mb-1">
-                        Akses Internal Terotorisasi
-                    </span>
                     <h1 class="text-2xl sm:text-3xl font-bold text-[#045F33]">Portal Staf &amp; Dewan Guru</h1>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1.5">
-                        Pengurus Akademik, Dewan Ustaz/Ustazah, Staf Yayasan, &amp; Pimpinan Pondok Pesantren Nurul Khidmah Lamongan.
-                    </p>
                 </div>
             </div>
 
@@ -100,12 +94,6 @@
             </form>
 
             <div class="mt-6 pt-5 border-t border-slate-100 text-center space-y-2.5 text-xs sm:text-sm text-slate-500">
-                <p>
-                    Bapak/Ibu Wali Santri?
-                    <a href="{{ route('wali.login') }}" class="font-bold text-[#045F33] hover:underline">
-                        Masuk lewat Portal Wali Santri →
-                    </a>
-                </p>
                 <p>
                     <a href="{{ route('home') }}" class="text-slate-500 hover:text-slate-700 hover:underline">
                         ← Kembali ke Beranda Website

@@ -35,7 +35,7 @@
                 </p>
 
                 <div class="mt-auto pb-4">
-                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center justify-center px-6 py-2 rounded-full bg-[#E8F81D] text-gray-900 font-bold text-sm hover:bg-yellow-400 transition shadow-sm">
+                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center justify-center px-6 py-2 rounded-md bg-[#E8F81D] text-gray-900 font-bold text-sm hover:bg-yellow-400 transition shadow-sm">
                         Selengkapnya
                     </a>
                 </div>

@@ -10,7 +10,7 @@
 @endphp
 
 {{-- 1. Bar Filter & Pencarian Cepat Mode Pantau Pengurus Akademik (Mendukung Ratusan / Ribuan Santri) --}}
-@if(auth()->user()->isPengurusAkademik())
+@if(auth()->user()->isPengurusAkademik() || auth()->user()->isKepalaSekolah() || auth()->user()->isPimpinan() || auth()->user()->isSuperAdmin())
     <div class="mb-5 p-4 sm:p-5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -35,7 +35,7 @@
 
             <div class="lg:col-span-2">
                 <label for="portal-tingkat" class="block text-[11px] font-bold uppercase text-indigo-800 dark:text-indigo-200 mb-1">Tingkat</label>
-                <select id="portal-tingkat" name="tingkat" onchange="this.form.submit()"
+                <select id="portal-tingkat" name="tingkat" onchange="const s = document.getElementById('portal-santri-id'); if(s) s.value=''; this.form.submit()"
                         class="w-full min-h-11 px-3 py-2 text-sm rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                     <option value="">Semua Tingkat</option>
                     <option value="7" {{ request('tingkat') === '7' ? 'selected' : '' }}>Kelas 7 (Ula)</option>
@@ -46,7 +46,7 @@
 
             <div class="lg:col-span-3">
                 <label for="portal-kelas" class="block text-[11px] font-bold uppercase text-indigo-800 dark:text-indigo-200 mb-1">Filter Kelas</label>
-                <select id="portal-kelas" name="filter_kelas_id" onchange="this.form.submit()"
+                <select id="portal-kelas" name="filter_kelas_id" onchange="const s = document.getElementById('portal-santri-id'); if(s) s.value=''; this.form.submit()"
                         class="w-full min-h-11 px-3 py-2 text-sm rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                     <option value="">Semua Kelas</option>
                     @foreach($previewClasses ?? [] as $cls)
@@ -62,9 +62,10 @@
                 <div class="flex gap-1.5">
                     <input type="text" id="portal-search" name="search" value="{{ request('search') }}"
                            autocorrect="off" autocapitalize="off" spellcheck="false"
+                           onkeydown="if(event.key === 'Enter') { const s = document.getElementById('portal-santri-id'); if(s) s.value = ''; }"
                            placeholder="Nama / NIS..."
                            class="w-full min-h-11 px-3 py-2 text-sm rounded-xl border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                    <button type="submit" class="min-h-11 px-3.5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold shrink-0">
+                    <button type="submit" onclick="const s = document.getElementById('portal-santri-id'); if(s) s.value = '';" class="min-h-11 px-3.5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold shrink-0">
                         Cari
                     </button>
                 </div>

@@ -299,28 +299,7 @@
                 </ul>
             </nav>
 
-            {{-- Profil singkat sidebar --}}
-            @auth
-                <div class="px-4 py-3 border-t border-emerald-950/40 bg-emerald-950/30 shrink-0">
-                    <div class="flex items-center gap-3">
-                        @if(auth()->user()->avatarUrl())
-                            <img src="{{ auth()->user()->avatarUrl() }}"
-                                 alt="{{ auth()->user()->name }}"
-                                 class="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-emerald-600/80">
-                        @else
-                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-sm font-bold text-white ring-2 ring-emerald-600/80">
-                                {{ auth()->user()->initials() }}
-                            </span>
-                        @endif
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-semibold text-white truncate" title="{{ auth()->user()->name }}">{{ auth()->user()->name }}</p>
-                            <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                                @include('partials.admin-role-badge', ['user' => auth()->user()])
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endauth
+
 
             <!-- Bottom profile actions -->
             <div class="p-3 bg-emerald-900 dark:bg-emerald-900 shadow-inner space-y-1.5 shrink-0">

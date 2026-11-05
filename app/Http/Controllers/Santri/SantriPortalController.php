@@ -248,7 +248,7 @@ class SantriPortalController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isPengurusAkademik() || $user->isKepalaSekolah()) {
+        if ($user->isPengurusAkademik() || $user->isKepalaSekolah() || $user->isPimpinan()) {
             $previewClasses = Kelas::with('tahunAjaran')
                 ->orderBy('tingkat_kelas')
                 ->orderBy('nama_kelas')
@@ -272,7 +272,8 @@ class SantriPortalController extends Controller
                 $search = trim($request->input('search'));
                 $query->where(function ($sq) use ($search) {
                     $sq->where('nama_lengkap', 'like', "%{$search}%")
-                        ->orWhere('nis', 'like', "%{$search}%");
+                        ->orWhere('nis', 'like', "%{$search}%")
+                        ->orWhere('nisn', 'like', "%{$search}%");
                 });
             }
 
@@ -282,17 +283,29 @@ class SantriPortalController extends Controller
             $requestedId = $request->input('santri_id');
             $santri = null;
 
-            if ($requestedId) {
-                $santri = $filteredSantris->firstWhere('id', (int) $requestedId)
-                    ?? Santri::with('kelas')->find((int) $requestedId);
-
-                if ($santri && ! $filteredSantris->contains('id', $santri->id)) {
-                    $filteredSantris->prepend($santri);
+            if ($request->filled('search') || $request->filled('filter_kelas_id') || $request->filled('tingkat')) {
+                // Saat ada filter atau pencarian aktif: utamakan santri hasil pencarian
+                if ($requestedId) {
+                    $santri = $filteredSantris->firstWhere('id', (int) $requestedId);
                 }
-            }
 
-            if (! $santri) {
-                $santri = $filteredSantris->firstWhere('status_santri', 'Aktif') ?? $filteredSantris->first();
+                // Jika santri_id lama tidak ada dalam hasil pencarian, ambil santri pertama yang cocok
+                if (! $santri) {
+                    $santri = $filteredSantris->firstWhere('status_santri', 'Aktif') ?? $filteredSantris->first();
+                }
+            } else {
+                if ($requestedId) {
+                    $santri = $filteredSantris->firstWhere('id', (int) $requestedId)
+                        ?? Santri::with('kelas')->find((int) $requestedId);
+
+                    if ($santri && ! $filteredSantris->contains('id', $santri->id)) {
+                        $filteredSantris->prepend($santri);
+                    }
+                }
+
+                if (! $santri) {
+                    $santri = $filteredSantris->firstWhere('status_santri', 'Aktif') ?? $filteredSantris->first();
+                }
             }
 
             return [$santri, $filteredSantris, $previewClasses, $totalMatchingSantris];

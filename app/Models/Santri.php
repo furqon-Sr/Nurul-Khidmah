@@ -126,4 +126,42 @@ class Santri extends Model
             ? 'Laki-laki'
             : 'Perempuan';
     }
+
+    public function fotoUrl(): ?string
+    {
+        $path = null;
+
+        if ($this->foto && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->foto)) {
+            $path = $this->foto;
+        } elseif ($this->relationLoaded('registration') && $this->registration) {
+            $regPhoto = $this->registration->file_pasfoto ?: $this->registration->student_photo;
+            if ($regPhoto && \Illuminate\Support\Facades\Storage::disk('public')->exists($regPhoto)) {
+                $path = $regPhoto;
+            }
+        } elseif ($this->registration) {
+            $regPhoto = $this->registration->file_pasfoto ?: $this->registration->student_photo;
+            if ($regPhoto && \Illuminate\Support\Facades\Storage::disk('public')->exists($regPhoto)) {
+                $path = $regPhoto;
+            }
+        }
+
+        if ($path) {
+            if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://', 'data:'])) {
+                return $path;
+            }
+            return '/storage/' . ltrim($path, '/');
+        }
+
+        return null;
+    }
+
+    public function initials(): string
+    {
+        $words = preg_split('/\s+/', trim($this->nama_lengkap ?? ''));
+        $initials = '';
+        foreach (array_slice($words, 0, 2) as $w) {
+            $initials .= mb_strtoupper(mb_substr($w, 0, 1));
+        }
+        return $initials ?: 'S';
+    }
 }

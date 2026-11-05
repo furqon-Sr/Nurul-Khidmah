@@ -47,12 +47,12 @@
                     </p>
                     
                     <div class="flex flex-wrap gap-4">
-                        <a href="{{ route('registration') }}" class="inline-flex items-center justify-center px-8 py-3 rounded-full bg-[#F2C94C] text-[#045F33] font-bold text-lg hover:bg-yellow-400 transition shadow-lg">
+                        <a href="{{ route('registration') }}" class="inline-flex items-center justify-center px-8 py-3 rounded-md bg-[#F2C94C] text-[#045F33] font-bold text-lg hover:bg-yellow-400 transition shadow-lg">
                             Daftar PPDB
                         </a>
                         @if(isset($contents['education_fee_pdf']) && $contents['education_fee_pdf']?->image_path)
                             <a href="{{ route('education.download-fee') }}" target="_blank"
-                               class="inline-flex items-center gap-2 justify-center px-8 py-3 rounded-full border-2 border-white text-white font-bold text-lg hover:bg-white/10 transition">
+                               class="inline-flex items-center gap-2 justify-center px-8 py-3 rounded-md border-2 border-white text-white font-bold text-lg hover:bg-white/10 transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 Biaya Pendidikan
                             </a>
@@ -101,17 +101,17 @@
                 </p>
                 
                 <div class="flex flex-wrap gap-4">
-                    <a href="{{ route('registration') }}" class="inline-flex items-center justify-center px-8 py-3 rounded-full bg-[#F2C94C] text-[#045F33] font-bold text-lg hover:bg-yellow-400 transition shadow-lg">
+                    <a href="{{ route('registration') }}" class="inline-flex items-center justify-center px-8 py-3 rounded-md bg-[#F2C94C] text-[#045F33] font-bold text-lg hover:bg-yellow-400 transition shadow-lg">
                         Daftar PPDB
                     </a>
                     @if(isset($contents['education_fee_pdf']) && $contents['education_fee_pdf']?->image_path)
                         <a href="{{ route('education.download-fee') }}" target="_blank"
-                           class="inline-flex items-center gap-2 justify-center px-8 py-3 rounded-full border-2 border-white text-white font-bold text-lg hover:bg-white/10 transition">
+                           class="inline-flex items-center gap-2 justify-center px-8 py-3 rounded-md border-2 border-white text-white font-bold text-lg hover:bg-white/10 transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             Biaya Pendidikan
                         </a>
                     @else
-                        <span class="inline-flex items-center gap-2 justify-center px-8 py-3 rounded-full border-2 border-white/50 text-white/50 font-bold text-lg">
+                        <span class="inline-flex items-center gap-2 justify-center px-8 py-3 rounded-md border-2 border-white/50 text-white/50 font-bold text-lg">
                             Biaya Pendidikan
                         </span>
                     @endif

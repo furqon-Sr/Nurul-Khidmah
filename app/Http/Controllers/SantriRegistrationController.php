@@ -67,7 +67,11 @@ class SantriRegistrationController extends Controller
 
         // Filter berdasarkan status pendaftaran
         if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+            $status = strtolower($request->input('status'));
+            if ($status === 'approved') {
+                $status = 'accepted';
+            }
+            $query->where('status', $status);
         }
 
         // Ekspor ke file Excel (CSV terpisah semicolon dengan UTF-8 BOM & sep=;) jika parameter action = export

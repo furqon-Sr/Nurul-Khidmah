@@ -23,7 +23,9 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div class="flex flex-col lg:flex-row gap-12 items-start">
                 <div class="w-full lg:w-1/2 space-y-6">
-                    <span class="inline-block px-3 py-1 bg-[#E8F81D] text-xs font-bold text-gray-900 tracking-wide rounded-sm">REKAM JEJAK PERJUANGAN</span>
+                    <span class="inline-block px-3 py-1 bg-[#E8F81D] text-xs font-bold text-gray-900 tracking-wide rounded-s
+                    
+                    m">REKAM JEJAK PERJUANGAN</span>
                     <h1 class="text-3xl md:text-4xl font-bold text-[#0D6B3A] leading-snug">
                         {{ $contents['about_title']?->content_text ?? 'Berawal dari Langkah Nyata Merangkul Umat demi Perubahan Spiritual' }}
                     </h1>

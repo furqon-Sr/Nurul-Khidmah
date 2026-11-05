@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendaftaran Santri Baru (PPDB) - Pondok Pesantren Nurul Khidmah Lamongan</title>
+    <title>Pendaftaran Santri Baru - Pondok Pesantren Nurul Khidmah Lamongan</title>
     @include('partials.site-favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -124,7 +124,7 @@
                                 Program Pendidikan Dituju <span class="text-red-500">*</span>
                             </label>
                             <select id="target_class" name="target_class" required class="w-full min-h-12 rounded-2xl bg-white border-0 px-4 py-3 text-base font-medium shadow-sm focus:ring-2 focus:ring-[#0D6B3A]">
-                                <option value="" disabled {{ !old('target_class') && !$program ? 'selected' : '' }}>-- Pilih Program Pendidikan --</option>
+                                <option value="" disabled {{ !old('target_class') && !$program ? 'selected' : '' }}>Pilih Program Pendidikan</option>
                                 @foreach($educationPrograms as $programOption)
                                     @php
                                         $isSelected = old('target_class') == $programOption->name ||
@@ -167,7 +167,7 @@
                         {{-- 6. Asal Sekolah --}}
                         <div>
                             <label for="previous_school" class="block text-xs font-bold text-[#0D6B3A] mb-2">
-                                Asal Sekolah (SD / MI) <span class="text-red-500">*</span>
+                                Asal Sekolah  <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="previous_school" name="previous_school" value="{{ old('previous_school') }}" placeholder="Contoh: MI Mansyaul Ulum Lamongan" required
                                    class="w-full min-h-12 rounded-2xl bg-white border-0 px-4 py-3 text-base shadow-sm focus:ring-2 focus:ring-[#0D6B3A]">

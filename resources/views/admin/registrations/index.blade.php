@@ -16,39 +16,67 @@
 </div>
 @endif
 
-<!-- Statistics Cards -->
+<!-- Statistics Cards (Klik untuk filter instan berdasarkan status) -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden">
-        <div class="absolute right-4 bottom-4 text-white opacity-20">
+    <a href="{{ route('admin.registrations.index', array_merge(request()->except('status', 'page'), ['academic_year' => $selectedYear])) }}" 
+       class="group bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md {{ !request()->filled('status') ? 'ring-4 ring-offset-2 ring-blue-500' : 'opacity-90 hover:opacity-100' }}">
+        <div class="absolute right-4 bottom-4 text-white opacity-20 group-hover:scale-110 transition-transform">
             <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
         </div>
-        <p class="text-xs font-semibold uppercase tracking-wider opacity-75">Total Pendaftar</p>
+        <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-90">Total Pendaftar</p>
+            @if(!request()->filled('status'))
+                <span class="text-[10px] bg-white/20 font-bold px-2 py-0.5 rounded-full">Aktif</span>
+            @endif
+        </div>
         <h3 class="text-3xl font-extrabold mt-1">{{ $stats['total'] }}</h3>
-    </div>
+        <p class="text-[11px] mt-2 text-blue-100 group-hover:underline">Klik tampilkan semua &rarr;</p>
+    </a>
     
-    <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden">
-        <div class="absolute right-4 bottom-4 text-white opacity-20">
+    <a href="{{ route('admin.registrations.index', array_merge(request()->except('page'), ['status' => 'pending', 'academic_year' => $selectedYear])) }}" 
+       class="group bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md {{ request('status') === 'pending' ? 'ring-4 ring-offset-2 ring-amber-500' : 'opacity-90 hover:opacity-100' }}">
+        <div class="absolute right-4 bottom-4 text-white opacity-20 group-hover:scale-110 transition-transform">
             <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 11h-2V7h2v6zm0 4h-2v-2h2v2z"/></svg>
         </div>
-        <p class="text-xs font-semibold uppercase tracking-wider opacity-75">Menunggu (Pending)</p>
+        <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-90">Menunggu (Pending)</p>
+            @if(request('status') === 'pending')
+                <span class="text-[10px] bg-white/20 font-bold px-2 py-0.5 rounded-full">Aktif</span>
+            @endif
+        </div>
         <h3 class="text-3xl font-extrabold mt-1">{{ $stats['pending'] }}</h3>
-    </div>
+        <p class="text-[11px] mt-2 text-amber-100 group-hover:underline">Klik filter pending &rarr;</p>
+    </a>
 
-    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden">
-        <div class="absolute right-4 bottom-4 text-white opacity-20">
+    <a href="{{ route('admin.registrations.index', array_merge(request()->except('page'), ['status' => 'accepted', 'academic_year' => $selectedYear])) }}" 
+       class="group bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md {{ in_array(request('status'), ['accepted', 'approved']) ? 'ring-4 ring-offset-2 ring-emerald-500' : 'opacity-90 hover:opacity-100' }}">
+        <div class="absolute right-4 bottom-4 text-white opacity-20 group-hover:scale-110 transition-transform">
             <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
         </div>
-        <p class="text-xs font-semibold uppercase tracking-wider opacity-75">Diterima (Approved)</p>
+        <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-90">Diterima (Approved)</p>
+            @if(in_array(request('status'), ['accepted', 'approved']))
+                <span class="text-[10px] bg-white/20 font-bold px-2 py-0.5 rounded-full">Aktif</span>
+            @endif
+        </div>
         <h3 class="text-3xl font-extrabold mt-1">{{ $stats['accepted'] }}</h3>
-    </div>
+        <p class="text-[11px] mt-2 text-emerald-100 group-hover:underline">Klik filter diterima &rarr;</p>
+    </a>
 
-    <div class="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden">
-        <div class="absolute right-4 bottom-4 text-white opacity-20">
+    <a href="{{ route('admin.registrations.index', array_merge(request()->except('page'), ['status' => 'rejected', 'academic_year' => $selectedYear])) }}" 
+       class="group bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-5 text-white shadow-sm relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md {{ request('status') === 'rejected' ? 'ring-4 ring-offset-2 ring-rose-500' : 'opacity-90 hover:opacity-100' }}">
+        <div class="absolute right-4 bottom-4 text-white opacity-20 group-hover:scale-110 transition-transform">
             <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </div>
-        <p class="text-xs font-semibold uppercase tracking-wider opacity-75">Ditolak (Rejected)</p>
+        <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider opacity-90">Ditolak (Rejected)</p>
+            @if(request('status') === 'rejected')
+                <span class="text-[10px] bg-white/20 font-bold px-2 py-0.5 rounded-full">Aktif</span>
+            @endif
+        </div>
         <h3 class="text-3xl font-extrabold mt-1">{{ $stats['rejected'] }}</h3>
-    </div>
+        <p class="text-[11px] mt-2 text-rose-100 group-hover:underline">Klik filter ditolak &rarr;</p>
+    </a>
 </div>
 
 <!-- Search & Filter Form -->
@@ -73,7 +101,7 @@
             <!-- Filter Program Pendidikan -->
             <div>
                 <label for="target_class" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Program Pendidikan</label>
-                <select name="target_class" id="target_class" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
+                <select name="target_class" id="target_class" onchange="this.form.submit()" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                     <option value="">-- Semua Program --</option>
                     @foreach($classes as $class)
                         <option value="{{ $class }}" {{ request('target_class') == $class ? 'selected' : '' }}>{{ $class }}</option>
@@ -84,18 +112,18 @@
             <!-- Filter Status -->
             <div>
                 <label for="status" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
-                <select name="status" id="status" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
+                <select name="status" id="status" onchange="this.form.submit()" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                     <option value="">-- Semua Status --</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Approved</option>
-                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending (Menunggu)</option>
+                    <option value="accepted" {{ in_array(request('status'), ['accepted', 'approved']) ? 'selected' : '' }}>Approved (Diterima)</option>
+                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected (Ditolak)</option>
                 </select>
             </div>
 
             <!-- Filter Tahun Ajaran -->
             <div>
                 <label for="academic_year" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Tahun Ajaran</label>
-                <select name="academic_year" id="academic_year" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
+                <select name="academic_year" id="academic_year" onchange="this.form.submit()" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                     <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>-- Semua Tahun --</option>
                     @foreach($academicYears as $year)
                         <option value="{{ $year }}" {{ $selectedYear === $year ? 'selected' : '' }}>

@@ -14,15 +14,15 @@ class ScheduleController extends Controller
 {
     public function index(Request $request)
     {
-        $query = JadwalPelajaran::with(['tahunAjaran', 'kelas', 'mataPelajaran', 'pengajar']);
+        $query = JadwalPelajaran::with(['tahunAjaran', 'kelas.tahunAjaran', 'mataPelajaran', 'pengajar']);
 
-        if ($request->filled('tahun_ajaran_id')) {
-            $query->where('tahun_ajaran_id', $request->tahun_ajaran_id);
-        } else {
-            $taAktif = TahunAjaran::getAktif();
-            if ($taAktif) {
-                $query->where('tahun_ajaran_id', $taAktif->id);
-            }
+        $taAktif = TahunAjaran::getAktif();
+        $selectedTahunAjaranId = $request->has('tahun_ajaran_id')
+            ? $request->input('tahun_ajaran_id')
+            : ($taAktif?->id ?? 'all');
+
+        if ($selectedTahunAjaranId && $selectedTahunAjaranId !== 'all') {
+            $query->where('tahun_ajaran_id', $selectedTahunAjaranId);
         }
 
         if ($request->filled('kelas_id')) {
@@ -39,13 +39,14 @@ class ScheduleController extends Controller
 
         $schedules = $query->orderByHari()
                            ->orderBy('waktu_mulai', 'asc')
-                           ->paginate(15);
+                           ->paginate(15)
+                           ->withQueryString();
 
         $tahunAjarans = TahunAjaran::orderBy('id', 'desc')->get();
-        $kelasses = Kelas::orderBy('nama_kelas')->get();
+        $kelasses = Kelas::with('tahunAjaran')->orderBy('nama_kelas')->get();
         $pengajars = Pengajar::where('status_pengajar', 'Aktif')->orderBy('nama_lengkap')->get();
 
-        return view('admin.schedules.index', compact('schedules', 'tahunAjarans', 'kelasses', 'pengajars'));
+        return view('admin.schedules.index', compact('schedules', 'tahunAjarans', 'kelasses', 'pengajars', 'selectedTahunAjaranId', 'taAktif'));
     }
 
     public function create()

@@ -129,13 +129,17 @@
                     @endforelse
                 </select>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2 mt-4">
                 <button type="submit" {{ $classOptions->isEmpty() ? 'disabled' : '' }}
-                        class="w-full min-h-11 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                        class="w-full min-h-11 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        style="background-color: #047857 !important; color: #ffffff !important;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     Pratinjau / Cetak
                 </button>
                 <button type="submit" formaction="{{ route('admin.reports.attendance.download') }}" {{ $classOptions->isEmpty() ? 'disabled' : '' }}
-                        class="w-full min-h-11 px-3 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                        class="w-full min-h-11 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        style="background-color: #2563eb !important; color: #ffffff !important;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Download PDF
                 </button>
             </div>
@@ -179,13 +183,17 @@
                     @endforeach
                 </select>
             </div>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-2 mt-4">
                 <button type="submit" {{ $classOptions->isEmpty() ? 'disabled' : '' }}
-                        class="w-full min-h-11 px-3 py-2 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                        class="w-full min-h-11 px-3 py-2 bg-purple-700 hover:bg-purple-800 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        style="background-color: #6d28d9 !important; color: #ffffff !important;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     Pratinjau / Cetak
                 </button>
                 <button type="submit" formaction="{{ route('admin.reports.grades.download') }}" {{ $classOptions->isEmpty() ? 'disabled' : '' }}
-                        class="w-full min-h-11 px-3 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm transition">
+                        class="w-full min-h-11 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        style="background-color: #2563eb !important; color: #ffffff !important;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Download PDF
                 </button>
             </div>
@@ -215,10 +223,20 @@
                     @endforelse
                 </select>
             </div>
-            <button type="submit" {{ $santris->isEmpty() ? 'disabled' : '' }}
-                    class="w-full min-h-11 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-sm transition">
-                Cetak Lembar Rapor Santri (PDF)
-            </button>
+            <div class="grid grid-cols-2 gap-2 mt-4">
+                <button type="button" id="btn-quick-rapor-preview" {{ $santris->isEmpty() ? 'disabled' : '' }}
+                        class="w-full min-h-11 px-3 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        style="background-color: #d97706 !important; color: #ffffff !important;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    Pratinjau / Cetak
+                </button>
+                <button type="button" id="btn-quick-rapor-download" {{ $santris->isEmpty() ? 'disabled' : '' }}
+                        class="w-full min-h-11 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        style="background-color: #2563eb !important; color: #ffffff !important;">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Download PDF
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -271,7 +289,7 @@
                         <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-36 border-b border-gray-200 dark:border-gray-700">Kelas</th>
                         <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-52 border-b border-gray-200 dark:border-gray-700">Predikat Sikap</th>
                         <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase min-w-[260px] border-b border-gray-200 dark:border-gray-700">Catatan Wali Kelas di Rapor</th>
-                        <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-40 border-b border-gray-200 dark:border-gray-700">Aksi Rapor</th>
+                        <th scope="col" class="sticky right-0 z-20 bg-gray-100 dark:bg-gray-900 px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-200 uppercase min-w-[260px] shadow-[-3px_0_6px_-2px_rgba(0,0,0,0.1)] border-b border-gray-200 dark:border-gray-700">Aksi Rapor</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -305,35 +323,37 @@
                                    placeholder="Contoh: Rajin jamaah & hafalan baik, tingkatkan murojaah..."
                                    class="w-full min-h-10 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base sm:text-xs">
                         </td>
-                        <td class="px-4 py-3.5 text-right whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
+                        <td class="sticky right-0 z-10 bg-white dark:bg-gray-800 px-4 py-3.5 text-center whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60 shadow-[-3px_0_6px_-2px_rgba(0,0,0,0.06)]">
                             @php
                                 $rSem = $s->raporSemesterForYear($selectedYear?->id);
                                 $isApproved = $rSem && in_array($rSem->status_publikasi, ['approved', 'published'], true);
                             @endphp
-                            <div class="inline-flex items-center gap-1.5">
+                            <div class="inline-flex items-center justify-center gap-1.5">
                                 @if($isApproved)
-                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800" title="Rapor telah disetujui & data terkunci">
-                                        <svg class="w-3 h-3 text-emerald-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-sm" title="Rapor telah disetujui & data terkunci">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                                         Approved
                                     </span>
                                 @elseif(auth()->user()->isKepalaSekolah() || auth()->user()->isPimpinan() || auth()->user()->isSuperAdmin())
                                     <form action="{{ route('admin.reports.approve-santri', $s->id) }}" method="POST" class="inline" onsubmit="return confirm('Setujui rapor santri {{ $s->nama_lengkap }}? Nilai dan presensi akan terkunci.')">
                                         @csrf
                                         <input type="hidden" name="tahun_ajaran_id" value="{{ $selectedYear?->id }}">
-                                        <button type="submit" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition" title="Setujui (Approve) Rapor">
+                                        <button type="submit" class="inline-flex items-center gap-1 min-h-9 px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition" style="background-color: #047857 !important; color: #ffffff !important;" title="Setujui (Approve) Rapor">
                                             ✓ Approve
                                         </button>
                                     </form>
                                 @endif
                                 <a href="{{ route('admin.reports.santri-rapor-pdf', array_filter(['santri' => $s->id, 'tahun_ajaran_id' => $selectedYear?->id])) }}"
                                    target="_blank"
-                                   class="inline-flex items-center justify-center gap-1 min-h-9 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition"
+                                   class="inline-flex items-center justify-center gap-1 min-h-9 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition"
+                                   style="background-color: #d97706 !important; color: #ffffff !important;"
                                    title="Buka Pratinjau Cetak">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     Pratinjau
                                 </a>
                                 <a href="{{ route('admin.reports.santri-rapor.download', array_filter(['santri' => $s->id, 'tahun_ajaran_id' => $selectedYear?->id])) }}"
-                                   class="inline-flex items-center justify-center gap-1 min-h-9 px-2.5 py-1 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-sm transition"
+                                   class="inline-flex items-center justify-center gap-1.5 min-h-9 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition"
+                                   style="background-color: #2563eb !important; color: #ffffff !important;"
                                    title="Download File PDF Sejati">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     Download PDF
@@ -379,16 +399,27 @@
             }
         });
 
-        const quickRaporForm = document.getElementById('quick-santri-rapor-form');
-        if (quickRaporForm) {
-            quickRaporForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const selectEl = document.getElementById('santri_select_id');
-                const tahunId = document.getElementById('quick_rapor_tahun_id')?.value;
+        const btnPreview = document.getElementById('btn-quick-rapor-preview');
+        const btnDownload = document.getElementById('btn-quick-rapor-download');
+        const selectEl = document.getElementById('santri_select_id');
+        const tahunId = document.getElementById('quick_rapor_tahun_id')?.value;
+
+        if (btnPreview) {
+            btnPreview.addEventListener('click', function () {
                 if (selectEl && selectEl.value) {
                     const baseUrl = `{{ url('/admin/reports/santri-rapor-pdf') }}/${encodeURIComponent(selectEl.value)}`;
                     const targetUrl = tahunId ? `${baseUrl}?tahun_ajaran_id=${encodeURIComponent(tahunId)}` : baseUrl;
                     window.open(targetUrl, '_blank');
+                }
+            });
+        }
+
+        if (btnDownload) {
+            btnDownload.addEventListener('click', function () {
+                if (selectEl && selectEl.value) {
+                    const baseUrl = `{{ url('/admin/reports/santri-rapor-pdf') }}/${encodeURIComponent(selectEl.value)}/download`;
+                    const targetUrl = tahunId ? `${baseUrl}?tahun_ajaran_id=${encodeURIComponent(tahunId)}` : baseUrl;
+                    window.location.href = targetUrl;
                 }
             });
         }

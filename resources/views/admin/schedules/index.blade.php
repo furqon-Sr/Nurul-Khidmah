@@ -23,39 +23,41 @@
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
     <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
         <form method="GET" action="{{ route('admin.schedules.index') }}" class="flex flex-wrap items-center gap-3">
-            <select name="tahun_ajaran_id" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option value="">-- Semua Thn Ajaran --</option>
+            <select name="tahun_ajaran_id" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+                <option value="all" {{ (string)($selectedTahunAjaranId ?? '') === 'all' ? 'selected' : '' }}>-- Semua Thn Ajaran --</option>
                 @foreach($tahunAjarans as $ta)
-                    <option value="{{ $ta->id }}" {{ request('tahun_ajaran_id') == $ta->id ? 'selected' : '' }}>
-                        {{ $ta->nama_tahun_ajaran }} ({{ $ta->semester }})
+                    <option value="{{ $ta->id }}" {{ (string)($selectedTahunAjaranId ?? '') === (string)$ta->id ? 'selected' : '' }}>
+                        {{ $ta->nama_tahun_ajaran }} ({{ $ta->semester }}){{ $ta->status_aktif ? ' - Aktif' : '' }}
                     </option>
                 @endforeach
             </select>
 
-            <select name="kelas_id" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+            <select name="kelas_id" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
                 <option value="">-- Semua Kelas --</option>
                 @foreach($kelasses as $k)
-                    <option value="{{ $k->id }}" {{ request('kelas_id') == $k->id ? 'selected' : '' }}>{{ $k->nama_kelas }}</option>
+                    <option value="{{ $k->id }}" {{ request('kelas_id') == $k->id ? 'selected' : '' }}>
+                        {{ $k->nama_kelas }} ({{ $k->tahunAjaran->nama_tahun_ajaran ?? '-' }})
+                    </option>
                 @endforeach
             </select>
 
-            <select name="hari" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+            <select name="hari" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
                 <option value="">-- Semua Hari --</option>
                 @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
                     <option value="{{ $h }}" {{ request('hari') == $h ? 'selected' : '' }}>{{ $h }}</option>
                 @endforeach
             </select>
 
-            <select name="pengajar_id" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
+            <select name="pengajar_id" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
                 <option value="">-- Semua Ustaz / Pengajar --</option>
                 @foreach($pengajars as $p)
                     <option value="{{ $p->id }}" {{ request('pengajar_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_lengkap }}</option>
                 @endforeach
             </select>
 
-            <button type="submit" class="px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-900">Filter</button>
+            <button type="submit" class="min-h-11 px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition shadow-sm">Filter</button>
             @if(request('tahun_ajaran_id') || request('kelas_id') || request('hari') || request('pengajar_id'))
-                <a href="{{ route('admin.schedules.index') }}" class="text-xs text-gray-500 hover:underline">Reset</a>
+                <a href="{{ route('admin.schedules.index', ['tahun_ajaran_id' => 'all']) }}" class="min-h-11 px-3 py-2 inline-flex items-center text-xs text-gray-500 dark:text-gray-400 hover:text-emerald-600 hover:underline">Reset Filter</a>
             @endif
         </form>
     </div>
