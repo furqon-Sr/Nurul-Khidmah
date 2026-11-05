@@ -17,6 +17,7 @@
     <title>@yield('title', 'Panel Sistem') - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     <style>
         [x-cloak] { display: none !important; }
         /* Mencegah iOS Safari / Chrome Mobile auto-zoom saat staf/wali mengetuk kolom input di HP */
@@ -383,5 +384,6 @@
     </div>
 
     @include('partials.image-cropper-modal')
+    @livewireScripts
 </body>
 </html>

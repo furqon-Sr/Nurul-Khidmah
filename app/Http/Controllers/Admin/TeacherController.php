@@ -11,24 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Pengajar::with('user');
-
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('nomor_identitas', 'like', "%{$search}%")
-                    ->orWhere('nama_lengkap', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status_pengajar', $request->status);
-        }
-
-        $teachers = $query->orderBy('nama_lengkap', 'asc')->paginate(10);
-        return view('admin.teachers.index', compact('teachers'));
+        return view('admin.teachers.index');
     }
 
     public function create()
