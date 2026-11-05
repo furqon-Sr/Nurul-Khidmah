@@ -15,49 +15,9 @@ use Illuminate\Support\Facades\Hash;
 
 class SantriManagementController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $query = Santri::with(['user', 'kelas.tahunAjaran', 'registration', 'educationalUnit']);
-
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('nis', 'like', "%{$search}%")
-                    ->orWhere('nisn', 'like', "%{$search}%")
-                    ->orWhere('nama_lengkap', 'like', "%{$search}%")
-                    ->orWhere('nama_wali', 'like', "%{$search}%")
-                    ->orWhere('no_hp_wali', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($uq) use ($search) {
-                        $uq->where('email', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        if ($request->filled('kelas_id')) {
-            if ($request->kelas_id === 'unassigned') {
-                $query->whereNull('kelas_id');
-            } else {
-                $query->where('kelas_id', $request->kelas_id);
-            }
-        }
-
-        if ($request->filled('status')) {
-            $status = strtolower($request->status);
-            if (in_array($status, ['lulus', 'alumni'], true)) {
-                $query->whereIn('status_santri', ['Lulus', 'Alumni']);
-            } elseif (in_array($status, ['mutasi', 'non-aktif'], true)) {
-                $query->whereIn('status_santri', ['Mutasi', 'Non-Aktif']);
-            } elseif ($status === 'aktif') {
-                $query->where('status_santri', 'Aktif');
-            } else {
-                $query->where('status_santri', $request->status);
-            }
-        }
-
-        $santris = $query->orderBy('nama_lengkap', 'asc')->paginate(10)->withQueryString();
-        $kelasses = Kelas::with('tahunAjaran')->orderBy('nama_kelas')->get();
-
-        return view('admin.santri.index', compact('santris', 'kelasses'));
+        return view('admin.santri.index');
     }
 
     public function create()
