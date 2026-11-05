@@ -51,30 +51,57 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-indigo-500">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Jadwal Mengajar</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $mySchedules->count() }}</p>
             <p class="text-xs text-indigo-600 mt-1 font-medium">Sesi Pelajaran</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-emerald-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Kelas Diampu</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $myClassesCount }}</p>
             <p class="text-xs text-emerald-600 mt-1 font-medium">Kelompok Belajar</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-purple-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Mata Pelajaran</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $mySubjectsCount }}</p>
             <p class="text-xs text-purple-600 mt-1 font-medium">Bidang Studi</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-amber-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Total Santri Diajar</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $mySantriCount }}</p>
             <p class="text-xs text-amber-600 mt-1 font-medium">Santri Aktif</p>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">Ringkasan pengajaran</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Beban ajar pada periode aktif</p>
+                </div>
+                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3v18h18M7 16l4-5 3 3 5-7"/></svg>
+                </span>
+            </div>
+            <div class="h-64"><canvas id="teacherWorkloadChart" role="img" aria-label="Grafik ringkasan beban pengajaran"></canvas></div>
+        </div>
+
+        <div class="bg-indigo-600 rounded-2xl shadow-sm p-6 text-white flex flex-col justify-between">
+            <div>
+                <p class="text-sm font-medium text-indigo-100">Kelas wali</p>
+                <p class="text-3xl font-bold mt-2">{{ ($myWaliKelas ?? null)?->nama_kelas ?? '—' }}</p>
+                <p class="text-sm text-indigo-100 mt-2">{{ isset($myWaliKelas) && $myWaliKelas ? 'Pantau kebutuhan kelas Anda.' : 'Belum ada kelas perwalian.' }}</p>
+            </div>
+            <a href="{{ route('teacher.attendance.index') }}" class="mt-6 inline-flex items-center justify-between rounded-xl bg-white/15 hover:bg-white/25 px-4 py-3 text-sm font-semibold transition">
+                Presensi kelas
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 flex items-center justify-between">
             <h3 id="teacher-schedule-heading" class="font-bold text-gray-800 dark:text-gray-100 text-base">Jadwal Mengajar Anda</h3>
             <span class="text-xs text-gray-500">{{ $activeYear?->nama_tahun_ajaran ?? 'Semester Aktif' }}</span>
@@ -153,9 +180,6 @@
                         {{ auth()->user()->email }}
                     </span>
                 </div>
-                <p class="text-xs text-cyan-100/90 mt-2">
-                    Panel Pemantauan Kepatuhan Guru, Rekapitulasi Pembelajaran Santri, dan Validasi Rapor Akademik.
-                </p>
             </div>
 
             <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 shrink-0 w-full sm:w-auto">
@@ -175,30 +199,53 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-cyan-600">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Kepatuhan Nilai Guru</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $complianceRate }}%</p>
             <p class="text-xs text-cyan-600 mt-1 font-medium">{{ $gradedSchedulesCount }} dari {{ $totalSchedules }} Kelas Dinilai</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-indigo-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Total Guru Aktif</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalTeachers }}</p>
             <p class="text-xs text-indigo-600 mt-1 font-medium">Tenaga Pengajar</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-emerald-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Santri Aktif</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeSantriCount }}</p>
             <p class="text-xs text-emerald-600 mt-1 font-medium">Dalam {{ $totalClasses }} Rombel Aktif</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-amber-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-xs font-semibold text-gray-500 uppercase">Tahun Ajaran Aktif</h3>
             <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeYear?->nama_tahun_ajaran ?? '-' }}</p>
             <p class="text-xs text-amber-600 mt-1 font-medium">{{ $activeYear?->semester ?? 'Semester Belum Diset' }}</p>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">Kepatuhan input nilai</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Status entri nilai pada seluruh jadwal aktif</p>
+                </div>
+                <span class="text-2xl font-bold text-cyan-700 dark:text-cyan-300">{{ $complianceRate }}%</span>
+            </div>
+            <div class="h-64"><canvas id="complianceChart" role="img" aria-label="Grafik kepatuhan input nilai"></canvas></div>
+        </div>
+
+        <div class="rounded-2xl bg-slate-900 p-6 text-white shadow-sm">
+            <p class="text-sm font-medium text-slate-300">Periode aktif</p>
+            <p class="mt-2 text-2xl font-bold">{{ $activeYear?->nama_tahun_ajaran ?? 'Belum diatur' }}</p>
+            <p class="mt-1 text-sm text-slate-300">{{ $activeYear?->semester ?? 'Semester belum dipilih' }}</p>
+            <div class="mt-6 border-t border-white/10 pt-5">
+                <p class="text-3xl font-bold">{{ count($ungradedSchedules ?? []) }}</p>
+                <p class="mt-1 text-sm text-slate-300">jadwal perlu ditindaklanjuti</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 flex items-center justify-between">
             <div>
                 <h3 class="font-bold text-gray-800 dark:text-gray-100 text-sm sm:text-base">Jadwal Belum Diinput Nilai Oleh Guru</h3>
@@ -269,9 +316,6 @@
                     @include('partials.admin-role-badge', ['user' => auth()->user()])
                     <span class="text-sky-200 text-xs break-all">{{ auth()->user()->email }}</span>
                 </div>
-                <p class="text-xs text-emerald-100/90 mt-2">
-                    Akses terisolasi khusus manajemen berita, dokumentasi foto, banner beranda, logo/ikon situs, dan profil Yayasan Pondok Pesantren Nurul Khidmah Lamongan.
-                </p>
             </div>
 
             <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 shrink-0 w-full sm:w-auto">
@@ -283,50 +327,65 @@
     </div>
 
     <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Aksi Cepat Pengelola Website Yayasan</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aksi cepat</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <a href="{{ route('admin.news.create') }}" class="min-h-12 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 px-4 py-3.5 rounded-xl font-semibold transition border border-emerald-200 dark:border-emerald-800">
-                <span class="text-lg">📰</span> + Tulis Berita Baru
+                <span class="text-lg">+</span> Tulis berita
             </a>
             <a href="{{ route('settings.index') }}" class="min-h-12 flex items-center gap-3 bg-sky-50 dark:bg-sky-500/10 hover:bg-sky-100 text-sky-800 dark:text-sky-300 px-4 py-3.5 rounded-xl font-semibold transition border border-sky-200 dark:border-sky-800">
-                <span class="text-lg">🖼️</span> Ganti Foto, Banner &amp; Ikon
+                Kelola identitas situs
             </a>
             <a href="{{ route('admin.facilities.index') }}" class="min-h-12 flex items-center gap-3 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 text-amber-800 dark:text-amber-300 px-4 py-3.5 rounded-xl font-semibold transition border border-amber-200 dark:border-amber-800">
-                <span class="text-lg">🕌</span> Kelola Foto Fasilitas
+                Kelola fasilitas
             </a>
             <a href="{{ route('admin.programs.index') }}" class="min-h-12 flex items-center gap-3 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 text-purple-800 dark:text-purple-300 px-4 py-3.5 rounded-xl font-semibold transition border border-purple-200 dark:border-purple-800">
-                <span class="text-lg">📚</span> Program &amp; Brosur Biaya
+                Program &amp; biaya
             </a>
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-emerald-500">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs font-semibold uppercase">Total Berita</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalNews ?? 0 }}</p>
             <p class="text-xs font-medium text-emerald-600 mt-1">Artikel Terpublikasi</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-sky-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs font-semibold uppercase">Galeri Fasilitas</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalFacilities ?? 0 }}</p>
             <p class="text-xs font-medium text-sky-600 mt-1">Sarana Pesantren</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs font-semibold uppercase">Program Pendidikan</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeProgramsCount ?? 0 }}</p>
             <p class="text-xs font-medium text-purple-600 mt-1">Ditampilkan di Website</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 border-l-4 border-amber-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs font-semibold uppercase">Rincian Biaya</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalFees ?? 0 }}</p>
             <p class="text-xs font-medium text-amber-600 mt-1">Komponen Informasi Biaya</p>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+            <div class="mb-5">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Komposisi konten</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Konten yang tersedia untuk website publik</p>
+            </div>
+            <div class="h-64"><canvas id="contentDistributionChart" role="img" aria-label="Grafik komposisi konten website"></canvas></div>
+        </div>
+        <a href="{{ route('home') }}" target="_blank" class="rounded-2xl bg-emerald-600 p-6 text-white shadow-sm transition hover:bg-emerald-700">
+            <p class="text-sm font-medium text-emerald-100">Website publik</p>
+            <p class="mt-2 text-2xl font-bold">Tinjau hasil publikasi</p>
+            <p class="mt-6 inline-flex items-center gap-2 text-sm font-semibold">Buka situs <span aria-hidden="true">↗</span></p>
+        </a>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 flex items-center justify-between">
             <h3 class="font-bold text-gray-800 dark:text-gray-100 text-sm sm:text-base">Publikasi Berita Terbaru</h3>
             <a href="{{ route('admin.news.index') }}" class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">Lihat Semua →</a>
@@ -390,7 +449,7 @@
     </div>
 
     <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-4">Aksi Cepat Akademik &amp; SIAKAD</h2>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aksi cepat</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <a href="{{ route('admin.santri.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 text-purple-700 dark:text-purple-300 px-4 py-3 rounded-xl font-semibold transition border border-purple-200 dark:border-purple-800">
                 + Tambah Santri
@@ -407,31 +466,235 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 sm:p-6 border-l-4 border-amber-500">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Pendaftar Pending</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $newRegistrantsCount ?? 0 }}</p>
             <p class="text-xs sm:text-sm font-medium text-amber-600 mt-1">Butuh Tindakan</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 sm:p-6 border-l-4 border-emerald-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Santri Aktif SIAKAD</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeSantriCount ?? 0 }}</p>
             <p class="text-xs sm:text-sm font-medium text-emerald-600 mt-1">Diterima PPDB: {{ $totalSantri ?? 0 }}</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 sm:p-6 border-l-4 border-blue-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Program Aktif</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeProgramsCount ?? 0 }}</p>
             <p class="text-xs sm:text-sm font-medium text-blue-600 mt-1">Berjalan</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-5 sm:p-6 border-l-4 border-purple-500">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-gray-500 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Tahun Ajaran</h3>
             <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeYear?->nama_tahun_ajaran ?? '-' }}</p>
             <p class="text-xs sm:text-sm font-medium text-purple-600 mt-1">{{ $activeYear?->semester ?? 'Belum Aktif' }}</p>
         </div>
     </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+            <div class="mb-5">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">Ringkasan operasional</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Snapshot data akademik saat ini</p>
+            </div>
+            <div class="h-64"><canvas id="academicOverviewChart" role="img" aria-label="Grafik ringkasan operasional akademik"></canvas></div>
+        </div>
+        <div class="rounded-2xl bg-amber-400 p-6 text-amber-950 shadow-sm flex flex-col justify-between">
+            <div>
+                <p class="text-sm font-semibold text-amber-900/80">Perlu perhatian</p>
+                <p class="mt-2 text-4xl font-bold">{{ $newRegistrantsCount ?? 0 }}</p>
+                <p class="mt-2 text-sm font-medium text-amber-950/75">pendaftar menunggu verifikasi</p>
+            </div>
+            <a href="{{ route('admin.registrations.index') }}" class="mt-6 inline-flex items-center justify-between rounded-xl bg-amber-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-900">
+                Tinjau pendaftar
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
+    </div>
 @endif
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+
+            const chartTextColor = '#64748b';
+            const chartGridColor = 'rgba(148, 163, 184, 0.18)';
+            const baseOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: chartTextColor,
+                            boxWidth: 10,
+                            boxHeight: 10,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 18,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        padding: 12,
+                        cornerRadius: 10,
+                        displayColors: true
+                    }
+                }
+            };
+
+            const renderChart = function (id, config) {
+                const canvas = document.getElementById(id);
+
+                if (canvas) {
+                    new Chart(canvas, config);
+                }
+            };
+
+            renderChart('teacherWorkloadChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Jadwal', 'Kelas', 'Mapel', 'Santri'],
+                    datasets: [{
+                        data: [
+                            {{ count($mySchedules ?? []) }},
+                            {{ $myClassesCount ?? 0 }},
+                            {{ $mySubjectsCount ?? 0 }},
+                            {{ $mySantriCount ?? 0 }}
+                        ],
+                        backgroundColor: ['#4f46e5', '#0ea5e9', '#8b5cf6', '#f59e0b'],
+                        borderRadius: 10,
+                        borderSkipped: false,
+                        maxBarThickness: 42
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    plugins: {
+                        ...baseOptions.plugins,
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { color: chartTextColor, font: { size: 12, weight: '600' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: chartGridColor },
+                            border: { display: false },
+                            ticks: { color: chartTextColor, precision: 0 }
+                        }
+                    }
+                }
+            });
+
+            renderChart('complianceChart', {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sudah diinput', 'Belum diinput'],
+                    datasets: [{
+                        data: [
+                            {{ $gradedSchedulesCount ?? 0 }},
+                            {{ max(0, ($totalSchedules ?? 0) - ($gradedSchedulesCount ?? 0)) }}
+                        ],
+                        backgroundColor: ['#0891b2', '#e2e8f0'],
+                        borderWidth: 0,
+                        spacing: 4,
+                        borderRadius: 8,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    cutout: '72%',
+                    plugins: {
+                        ...baseOptions.plugins,
+                        legend: {
+                            ...baseOptions.plugins.legend,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            renderChart('contentDistributionChart', {
+                type: 'doughnut',
+                data: {
+                    labels: ['Berita', 'Fasilitas', 'Program', 'Rincian biaya'],
+                    datasets: [{
+                        data: [
+                            {{ $totalNews ?? 0 }},
+                            {{ $totalFacilities ?? 0 }},
+                            {{ $activeProgramsCount ?? 0 }},
+                            {{ $totalFees ?? 0 }}
+                        ],
+                        backgroundColor: ['#059669', '#0ea5e9', '#8b5cf6', '#f59e0b'],
+                        borderWidth: 0,
+                        spacing: 4,
+                        borderRadius: 8,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    cutout: '66%',
+                    plugins: {
+                        ...baseOptions.plugins,
+                        legend: {
+                            ...baseOptions.plugins.legend,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            renderChart('academicOverviewChart', {
+                type: 'bar',
+                data: {
+                    labels: ['Pendaftar', 'Santri aktif', 'Program aktif'],
+                    datasets: [{
+                        label: 'Jumlah',
+                        data: [
+                            {{ $newRegistrantsCount ?? 0 }},
+                            {{ $activeSantriCount ?? 0 }},
+                            {{ $activeProgramsCount ?? 0 }}
+                        ],
+                        backgroundColor: ['#f59e0b', '#059669', '#2563eb'],
+                        borderRadius: 10,
+                        borderSkipped: false,
+                        maxBarThickness: 58
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    plugins: {
+                        ...baseOptions.plugins,
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: { color: chartTextColor, font: { size: 12, weight: '600' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: chartGridColor },
+                            border: { display: false },
+                            ticks: { color: chartTextColor, precision: 0 }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 @endsection
