@@ -54,8 +54,8 @@
                     <p class="font-medium text-gray-900 dark:text-slate-100">{{ \Carbon\Carbon::parse($registration->birth_date)->format('d F Y') }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Tujuan Kelas & Cabang</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->target_class }} - Cabang {{ $registration->branch }}</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Program Pendidikan</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->target_class }} — Lamongan</p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Tahun Ajaran</p>
@@ -84,10 +84,6 @@
                     <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Email Pendaftar</p>
                     <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->guardian_email ?? '-' }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Hubungan Keluarga Wali</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ str_replace('Hubungan Wali: ', '', $registration->education_qualification) }}</p>
-                </div>
             </div>
         </div>
 
@@ -108,15 +104,77 @@
             @endif
         </div>
 
-        <!-- Cetak Bukti Pendaftaran -->
+        <!-- Cetak Bukti Pendaftaran & Distribusi Akun Wali -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden p-6">
-            <h3 class="text-sm text-gray-500 dark:text-slate-400 font-semibold mb-3 uppercase tracking-wide">Dokumen Pendaftaran</h3>
+            <h3 class="text-sm text-gray-500 dark:text-slate-400 font-semibold mb-3 uppercase tracking-wide">Dokumen Pendaftaran & Daftar Ulang</h3>
             <a href="{{ route('admin.registrations.pdf', $registration->id) }}" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-[#0D6B3A] hover:bg-[#09502b] text-white font-medium py-2.5 px-4 rounded-md transition shadow-sm text-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                Cetak Bukti Pendaftaran
+                {{ $registration->status === 'accepted' ? 'Cetak Bukti & Akun Wali (PDF)' : 'Cetak Bukti Pendaftaran' }}
             </a>
-            <p class="text-xs text-gray-500 mt-2 text-center">Membuka lembar bukti pendaftaran dengan kop surat pesantren dalam format siap cetak/PDF.</p>
+            <p class="text-xs text-gray-500 mt-2 text-center">Membuka lembar resmi ber-kop surat pesantren (lengkap dengan kartu akun Wali Santri jika sudah diterima).</p>
         </div>
+
+        @if($registration->status === 'accepted' && $registration->santri)
+        @php
+            $santriLinked = $registration->santri;
+            $waliEmail = $santriLinked->user->email ?? $registration->guardian_email;
+            $rawPhone = preg_replace('/[^0-9]/', '', (string) $registration->guardian_phone);
+            if (str_starts_with($rawPhone, '0')) {
+                $waPhone = '62' . substr($rawPhone, 1);
+            } elseif (str_starts_with($rawPhone, '8')) {
+                $waPhone = '62' . $rawPhone;
+            } else {
+                $waPhone = $rawPhone;
+            }
+            $portalUrl = url('/portal-wali');
+            $waText = rawurlencode(
+                "Assalamu'alaikum Wr. Wb.\n\n" .
+                "Bapak/Ibu Wali dari Ananda *{$santriLinked->nama_lengkap}*,\n" .
+                "Selamat! Pendaftaran PPDB Pondok Pesantren Nurul Khidmah Lamongan dinyatakan *DITERIMA*.\n\n" .
+                "Berikut informasi Nomor Induk Santri (NIS) & Akun Portal Pemantauan Wali Santri:\n" .
+                "• Link Portal Wali: {$portalUrl}\n" .
+                "• Login via NIS Ananda: *{$santriLinked->nis}*\n" .
+                "• Alternatif Email: *{$waliEmail}*\n" .
+                "• Password Awal: *wali123*\n" .
+                "• Kelas Awal: *" . ($santriLinked->kelas->nama_kelas ?? 'Menunggu Pembagian Kelas') . "*\n\n" .
+                "Cukup buka website pesantren, ketuk tombol *Portal Wali*, lalu masukkan NIS Ananda dan Password di atas.\n" .
+                "Wassalamu'alaikum Wr. Wb.\n— Tata Usaha Ponpes Nurul Khidmah Lamongan"
+            );
+        @endphp
+        <div class="bg-emerald-50 dark:bg-emerald-950/30 rounded-xl shadow-sm border border-emerald-200 dark:border-emerald-800 overflow-hidden p-6">
+            <h3 class="text-sm text-emerald-800 dark:text-emerald-300 font-bold mb-3 uppercase tracking-wide">Akun Portal Wali Santri Aktif</h3>
+            <div class="space-y-2 text-xs text-gray-700 dark:text-slate-200 mb-4 bg-white dark:bg-slate-900 p-3.5 rounded-lg border border-emerald-200 dark:border-emerald-800/60">
+                <div class="flex justify-between gap-2">
+                    <span class="text-gray-500">NIS Terbit:</span>
+                    <span class="font-mono font-bold text-emerald-700 dark:text-emerald-400">{{ $santriLinked->nis }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                    <span class="text-gray-500">Kelas:</span>
+                    <span class="font-semibold">{{ $santriLinked->kelas->nama_kelas ?? 'Belum Diplot' }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                    <span class="text-gray-500">Email Login:</span>
+                    <span class="font-mono font-semibold break-all text-right">{{ $waliEmail }}</span>
+                </div>
+                <div class="flex justify-between gap-2">
+                    <span class="text-gray-500">Password Awal:</span>
+                    <span class="font-mono font-bold">wali123</span>
+                </div>
+            </div>
+            <div class="space-y-2">
+                @if($waPhone)
+                <a href="https://wa.me/{{ $waPhone }}?text={{ $waText }}" target="_blank" rel="noopener noreferrer"
+                   class="w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-md transition shadow-sm text-xs">
+                    Kirim Akun Wali via WhatsApp
+                </a>
+                @endif
+                <a href="{{ route('admin.santri.edit', $santriLinked->id) }}"
+                   class="w-full inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 hover:bg-gray-50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 font-semibold py-2 px-4 rounded-md transition text-xs">
+                    Lihat / Atur Kelas di Data Master Santri
+                </a>
+            </div>
+        </div>
+        @endif
 
         <!-- Aksi Perubahan Status -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
@@ -155,7 +213,7 @@
                 <form action="{{ route('admin.registrations.destroy', $registration->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pendaftar ini secara permanen?')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="w-full bg-red-650 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition shadow-sm text-sm">
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition shadow-sm text-sm">
                         Hapus Pendaftar Secara Permanen
                     </button>
                 </form>

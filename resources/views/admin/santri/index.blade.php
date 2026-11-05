@@ -6,7 +6,7 @@
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Manajemen Data Santri</h1>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">Kelola data induk santri, kelas, dan akun portal santri.</p>
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Kelola data induk santri, kelas, dan akun portal wali santri.</p>
     </div>
     <a href="{{ route('admin.santri.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition shadow-sm font-medium text-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -36,8 +36,8 @@
             <select name="status" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
                 <option value="">-- Semua Status --</option>
                 <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                <option value="Alumni" {{ request('status') == 'Alumni' ? 'selected' : '' }}>Alumni</option>
-                <option value="Non-Aktif" {{ request('status') == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                <option value="Lulus" {{ in_array(request('status'), ['Lulus', 'Alumni']) ? 'selected' : '' }}>Lulus / Alumni</option>
+                <option value="Mutasi" {{ in_array(request('status'), ['Mutasi', 'Non-Aktif']) ? 'selected' : '' }}>Mutasi / Non-Aktif</option>
             </select>
 
             <button type="submit" class="px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-900">Filter</button>
@@ -78,8 +78,8 @@
                         {{ $item->nama_wali ?? '-' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $item->status_santri === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
-                            {{ $item->status_santri }}
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $item->status_santri === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : (in_array($item->status_santri, ['Lulus', 'Alumni']) ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300') }}">
+                            {{ $item->status_santri === 'Alumni' ? 'Lulus (Alumni)' : $item->status_santri }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

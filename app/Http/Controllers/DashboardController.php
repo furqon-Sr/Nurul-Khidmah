@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EducationFee;
 use App\Models\EducationProgram;
+use App\Models\Facility;
 use App\Models\JadwalPelajaran;
+use App\Models\Kelas;
 use App\Models\News;
+use App\Models\Pengajar;
 use App\Models\Santri;
 use App\Models\SantriRegistration;
+use App\Models\TahunAjaran;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -17,17 +21,46 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Redirect Santri ke Portal Santri
+        // Redirect Wali Santri ke Portal Wali (FR-11)
         if ($user->isSantri()) {
-            return redirect()->route('santri.dashboard');
+            return redirect()->route('wali.dashboard');
         }
 
-        // Redirect Pimpinan ke Dashboard Pimpinan
+        // Redirect Pimpinan ke Dashboard Eksekutif Pimpinan (FR-13)
         if ($user->isPimpinan()) {
             return redirect()->route('pimpinan.dashboard');
         }
 
-        // Data khusus Tenaga Pengajar (Ustaz / Ustazah)
+        $activeYear = TahunAjaran::getAktif();
+
+        // 1. Data khusus Kepala Sekolah (Monitoring Kepatuhan Guru & Akademik)
+        if ($user->isKepalaSekolah()) {
+            $totalTeachers = Pengajar::where('status_pengajar', 'Aktif')->count();
+            $totalClasses = Kelas::when($activeYear, fn ($q) => $q->where('tahun_ajaran_id', $activeYear->id))->count();
+            $activeSantriCount = Santri::where('status_santri', 'Aktif')->count();
+
+            $schedulesQuery = JadwalPelajaran::with(['kelas', 'mataPelajaran', 'pengajar'])
+                ->when($activeYear, fn ($q) => $q->where('tahun_ajaran_id', $activeYear->id));
+
+            $totalSchedules = (clone $schedulesQuery)->count();
+            $gradedSchedulesCount = (clone $schedulesQuery)->has('nilais')->count();
+            $ungradedSchedules = (clone $schedulesQuery)->doesntHave('nilais')->take(6)->get();
+
+            $complianceRate = $totalSchedules > 0 ? round(($gradedSchedulesCount / $totalSchedules) * 100) : 100;
+
+            return view('dashboard.index', compact(
+                'activeYear',
+                'totalTeachers',
+                'totalClasses',
+                'activeSantriCount',
+                'totalSchedules',
+                'gradedSchedulesCount',
+                'complianceRate',
+                'ungradedSchedules'
+            ));
+        }
+
+        // 2. Data khusus Tenaga Pengajar (Ustaz / Ustazah)
         if ($user->isTenagaPengajar()) {
             $pengajar = $user->pengajar;
             $mySchedules = collect();
@@ -39,7 +72,8 @@ class DashboardController extends Controller
             if ($pengajar) {
                 $mySchedules = JadwalPelajaran::with(['kelas', 'mataPelajaran', 'tahunAjaran'])
                     ->where('pengajar_id', $pengajar->id)
-                    ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+                    ->when($activeYear, fn ($q) => $q->where('tahun_ajaran_id', $activeYear->id))
+                    ->orderByHari()
                     ->orderBy('waktu_mulai')
                     ->get();
 
@@ -49,11 +83,14 @@ class DashboardController extends Controller
                 $classIds = $mySchedules->pluck('kelas_id')->unique()->filter();
                 $mySantriCount = Santri::whereIn('kelas_id', $classIds)->where('status_santri', 'Aktif')->count();
 
-                $myWaliKelas = $pengajar->kelasWali()->first();
+                $myWaliKelas = $pengajar->kelasWali()
+                    ->when($activeYear, fn ($q) => $q->where('tahun_ajaran_id', $activeYear->id))
+                    ->first() ?? $pengajar->kelasWali()->first();
             }
 
             return view('dashboard.index', compact(
                 'pengajar',
+                'activeYear',
                 'mySchedules',
                 'myClassesCount',
                 'mySubjectsCount',
@@ -62,11 +99,14 @@ class DashboardController extends Controller
             ));
         }
 
-        // Data Admin / Pengurus Akademik / Super Admin
+        // 3. Data Pengurus Akademik (Staf TU / Admin) & Super Admin (SIAKAD, PPDB, & Konten Website)
         $newRegistrantsCount = SantriRegistration::where('status', 'pending')->count();
-        $totalSantri         = SantriRegistration::where('status', 'accepted')->count();
+        $totalSantri = SantriRegistration::where('status', 'accepted')->count();
+        $activeSantriCount = Santri::where('status_santri', 'Aktif')->count();
         $activeProgramsCount = EducationProgram::where('is_active', true)->count();
-        $totalNews           = News::count();
+        $totalNews = News::count();
+        $totalFacilities = Facility::count();
+        $totalFees = EducationFee::count();
 
         $pendingRegistrants = SantriRegistration::where('status', 'pending')
             ->latest()
@@ -79,10 +119,14 @@ class DashboardController extends Controller
             ->get(['id', 'name', 'email', 'role', 'avatar']);
 
         return view('dashboard.index', compact(
+            'activeYear',
             'newRegistrantsCount',
             'totalSantri',
+            'activeSantriCount',
             'activeProgramsCount',
             'totalNews',
+            'totalFacilities',
+            'totalFees',
             'pendingRegistrants',
             'adminUsers'
         ));

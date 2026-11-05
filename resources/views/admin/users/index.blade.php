@@ -70,11 +70,12 @@
                 <select name="role" onchange="this.form.submit()" class="px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-emerald-500">
                     <option value="">Semua Peran (Role)</option>
                     <option value="super_admin" {{ request('role') === 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin / Staff</option>
-                    <option value="pengurus_akademik" {{ request('role') === 'pengurus_akademik' ? 'selected' : '' }}>Pengurus Akademik</option>
-                    <option value="tenaga_pengajar" {{ request('role') === 'tenaga_pengajar' ? 'selected' : '' }}>Tenaga Pengajar (Ustaz)</option>
-                    <option value="pimpinan" {{ request('role') === 'pimpinan' ? 'selected' : '' }}>Pimpinan Pesantren</option>
-                    <option value="santri" {{ request('role') === 'santri' ? 'selected' : '' }}>Santri</option>
+                    <option value="pimpinan" {{ request('role') === 'pimpinan' ? 'selected' : '' }}>Pimpinan Yayasan</option>
+                    <option value="kepala_sekolah" {{ request('role') === 'kepala_sekolah' ? 'selected' : '' }}>Kepala Madrasah</option>
+                    <option value="pengurus_akademik" {{ request('role') === 'pengurus_akademik' ? 'selected' : '' }}>Staf TU / Pengurus Akademik</option>
+                    <option value="tenaga_pengajar" {{ request('role') === 'tenaga_pengajar' ? 'selected' : '' }}>Tenaga Pengajar (Guru)</option>
+                    <option value="santri" {{ request('role') === 'santri' ? 'selected' : '' }}>Wali Santri</option>
+                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin Konten (Legacy)</option>
                 </select>
 
                 {{-- Status Verification Filter --}}
@@ -196,11 +197,14 @@
                                 <select name="role"
                                         class="text-xs rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 py-1.5 pr-8">
                                     <option value="super_admin" @selected($user->role === \App\Models\User::ROLE_SUPER_ADMIN)>Super Admin</option>
-                                    <option value="admin" @selected($user->role === \App\Models\User::ROLE_ADMIN)>Admin / Staff</option>
-                                    <option value="pengurus_akademik" @selected($user->role === \App\Models\User::ROLE_PENGURUS_AKADEMIK)>Pengurus Akademik</option>
-                                    <option value="tenaga_pengajar" @selected($user->role === \App\Models\User::ROLE_TENAGA_PENGAJAR)>Tenaga Pengajar (Ustaz)</option>
-                                    <option value="pimpinan" @selected($user->role === \App\Models\User::ROLE_PIMPINAN)>Pimpinan Pesantren</option>
-                                    <option value="santri" @selected($user->role === \App\Models\User::ROLE_SANTRI)>Santri</option>
+                                    <option value="pimpinan" @selected($user->role === \App\Models\User::ROLE_PIMPINAN)>Pimpinan Yayasan</option>
+                                    <option value="kepala_sekolah" @selected($user->role === \App\Models\User::ROLE_KEPALA_SEKOLAH)>Kepala Madrasah</option>
+                                    <option value="pengurus_akademik" @selected($user->role === \App\Models\User::ROLE_PENGURUS_AKADEMIK)>Staf TU / Akademik</option>
+                                    <option value="tenaga_pengajar" @selected($user->role === \App\Models\User::ROLE_TENAGA_PENGAJAR)>Guru / Pengajar</option>
+                                    <option value="santri" @selected($user->role === \App\Models\User::ROLE_SANTRI)>Wali Santri</option>
+                                    @if($user->role === 'admin')
+                                        <option value="admin" selected>Admin Konten Yayasan (Legacy)</option>
+                                    @endif
                                 </select>
                                 <button type="submit"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-md transition">

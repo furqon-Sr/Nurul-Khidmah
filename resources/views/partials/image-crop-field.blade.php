@@ -38,6 +38,7 @@
     <input type="hidden" name="{{ $name }}_crop_y" value="{{ old($name.'_crop_y') }}">
     <input type="hidden" name="{{ $name }}_crop_width" value="{{ old($name.'_crop_width') }}">
     <input type="hidden" name="{{ $name }}_crop_height" value="{{ old($name.'_crop_height') }}">
+    <input type="hidden" name="{{ $name }}_cropped_data" value="{{ old($name.'_cropped_data') }}">
 
     <div class="image-crop-status hidden rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 p-3">
         <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-2">✓ Area crop sudah dipilih</p>
@@ -46,4 +47,5 @@
 
     @error($name) <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
     @error($name.'_crop_width') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+    @error($name.'_cropped_data') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
 </div>

@@ -19,6 +19,7 @@ class UserFactory extends Factory
 
     /**
      * Define the model's default state.
+     * Role default aman: role terendah (santri / wali santri).
      *
      * @return array<string, mixed>
      */
@@ -29,12 +30,55 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'role' => User::ROLE_ADMIN,
+            'role' => User::ROLE_SANTRI,
+            'must_change_password' => false,
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
         ];
+    }
+
+    public function superAdmin(): static
+    {
+        return $this->state(fn () => [
+            'role' => User::ROLE_SUPER_ADMIN,
+        ]);
+    }
+
+    public function pimpinan(): static
+    {
+        return $this->state(fn () => [
+            'role' => User::ROLE_PIMPINAN,
+        ]);
+    }
+
+    public function kepalaSekolah(): static
+    {
+        return $this->state(fn () => [
+            'role' => User::ROLE_KEPALA_SEKOLAH,
+        ]);
+    }
+
+    public function pengurusAkademik(): static
+    {
+        return $this->state(fn () => [
+            'role' => User::ROLE_PENGURUS_AKADEMIK,
+        ]);
+    }
+
+    public function guru(): static
+    {
+        return $this->state(fn () => [
+            'role' => User::ROLE_TENAGA_PENGAJAR,
+        ]);
+    }
+
+    public function wali(): static
+    {
+        return $this->state(fn () => [
+            'role' => User::ROLE_SANTRI,
+        ]);
     }
 
     /**

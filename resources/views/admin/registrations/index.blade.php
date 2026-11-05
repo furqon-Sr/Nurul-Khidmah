@@ -54,15 +54,16 @@
 <!-- Search & Filter Form -->
 <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5 mb-6">
     <form action="{{ route('admin.registrations.index') }}" method="GET" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             
             <!-- Search Input -->
             <div class="lg:col-span-2">
                 <label for="search" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Pencarian</label>
                 <div class="relative">
                     <input type="text" name="search" id="search" value="{{ request('search') }}" 
-                           placeholder="Cari nama, no. registrasi, wali..." 
-                           class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm pl-10 py-2">
+                           autocorrect="off" autocapitalize="off" spellcheck="false"
+                           placeholder="Cari nama, no. registrasi, orang tua..." 
+                           class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm pl-10 py-2">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
@@ -72,7 +73,7 @@
             <!-- Filter Program Pendidikan -->
             <div>
                 <label for="target_class" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Program Pendidikan</label>
-                <select name="target_class" id="target_class" class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
+                <select name="target_class" id="target_class" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                     <option value="">-- Semua Program --</option>
                     @foreach($classes as $class)
                         <option value="{{ $class }}" {{ request('target_class') == $class ? 'selected' : '' }}>{{ $class }}</option>
@@ -80,21 +81,10 @@
                 </select>
             </div>
 
-            <!-- Filter Cabang -->
-            <div>
-                <label for="branch" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Cabang</label>
-                <select name="branch" id="branch" class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
-                    <option value="">-- Semua Cabang --</option>
-                    @foreach($branches as $b)
-                        <option value="{{ $b }}" {{ request('branch') == $b ? 'selected' : '' }}>{{ $b }}</option>
-                    @endforeach
-                </select>
-            </div>
-
             <!-- Filter Status -->
             <div>
                 <label for="status" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
-                <select name="status" id="status" class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
+                <select name="status" id="status" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                     <option value="">-- Semua Status --</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="accepted" {{ request('status') == 'accepted' ? 'selected' : '' }}>Approved</option>
@@ -105,7 +95,7 @@
             <!-- Filter Tahun Ajaran -->
             <div>
                 <label for="academic_year" class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Tahun Ajaran</label>
-                <select name="academic_year" id="academic_year" class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
+                <select name="academic_year" id="academic_year" class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                     <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>-- Semua Tahun --</option>
                     @foreach($academicYears as $year)
                         <option value="{{ $year }}" {{ $selectedYear === $year ? 'selected' : '' }}>
@@ -120,11 +110,11 @@
         <!-- Action Buttons -->
         <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100 dark:border-slate-700">
             <div class="flex items-center gap-3">
-                <button type="submit" class="px-5 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg transition shadow-sm font-semibold text-sm">
+                <button type="submit" class="min-h-11 px-5 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg transition shadow-sm font-semibold text-sm">
                     Cari & Filter
                 </button>
-                @if(request()->anyFilled(['search', 'target_class', 'branch', 'status']) || $selectedYear !== $activeYear)
-                    <a href="{{ route('admin.registrations.index') }}" class="px-4 py-2 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition text-sm">
+                @if(request()->anyFilled(['search', 'target_class', 'status']) || $selectedYear !== $activeYear)
+                    <a href="{{ route('admin.registrations.index') }}" class="min-h-11 inline-flex items-center px-4 py-2 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition text-sm">
                         Clear Filter
                     </a>
                 @endif
@@ -204,7 +194,7 @@
                         <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $item->student_name }}</div>
                             <div class="text-xs text-gray-500 dark:text-slate-400">
-                                JK: {{ $item->gender == 'L' ? 'Laki-laki' : 'Perempuan' }} | {{ $item->target_class }} (Cabang {{ $item->branch }}) | TA: {{ $item->academic_year }}
+                                JK: {{ $item->gender == 'L' ? 'Laki-laki' : 'Perempuan' }} | {{ $item->target_class }} | TA: {{ $item->academic_year }}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

@@ -37,7 +37,7 @@ class ScheduleController extends Controller
             $query->where('hari', $request->hari);
         }
 
-        $schedules = $query->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+        $schedules = $query->orderByHari()
                            ->orderBy('waktu_mulai', 'asc')
                            ->paginate(15);
 
@@ -80,7 +80,8 @@ class ScheduleController extends Controller
             $validated['kelas_id'],
             $validated['hari'],
             $validated['waktu_mulai'],
-            $validated['waktu_selesai']
+            $validated['waktu_selesai'],
+            $validated['ruang'] ?? null
         );
 
         if ($conflictError) {
@@ -128,6 +129,7 @@ class ScheduleController extends Controller
             $validated['hari'],
             $validated['waktu_mulai'],
             $validated['waktu_selesai'],
+            $validated['ruang'] ?? null,
             $schedule->id
         );
 
@@ -147,9 +149,9 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Algoritma Deteksi Benturan Jadwal (Conflict Checking System)
+     * Algoritma Deteksi Benturan Jadwal (Pengajar, Kelas, dan Ruang Kelas — FR-08)
      */
-    private function checkScheduleConflict($tahunAjaranId, $pengajarId, $kelasId, $hari, $mulai, $selesai, $ignoreId = null)
+    private function checkScheduleConflict($tahunAjaranId, $pengajarId, $kelasId, $hari, $mulai, $selesai, $ruang = null, $ignoreId = null)
     {
         // 1. Cek Benturan Jadwal Ustaz / Pengajar
         $conflictPengajar = JadwalPelajaran::with(['pengajar', 'kelas'])
@@ -187,6 +189,28 @@ class ScheduleController extends Controller
             return [
                 'kelas_id' => "BENTURAN KELAS: {$namaKelas} sudah memiliki mata pelajaran ({$namaMapel}) pada hari {$hari} jam {$conflictKelas->waktu_mulai} - {$conflictKelas->waktu_selesai}."
             ];
+        }
+
+        // 3. Cek Benturan Ruang Kelas (FR-08)
+        $cleanRuang = trim((string) $ruang);
+        if ($cleanRuang !== '') {
+            $conflictRuang = JadwalPelajaran::with(['kelas', 'mataPelajaran'])
+                ->where('tahun_ajaran_id', $tahunAjaranId)
+                ->where('hari', $hari)
+                ->whereRaw('LOWER(TRIM(ruang)) = ?', [strtolower($cleanRuang)])
+                ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+                ->where(function ($q) use ($mulai, $selesai) {
+                    $q->where('waktu_mulai', '<', $selesai)
+                      ->where('waktu_selesai', '>', $mulai);
+                })->first();
+
+            if ($conflictRuang) {
+                $namaKelas = $conflictRuang->kelas->nama_kelas ?? 'Kelas lain';
+                $namaMapel = $conflictRuang->mataPelajaran->nama_mapel ?? 'Mapel lain';
+                return [
+                    'ruang' => "BENTURAN RUANG: Ruang '{$cleanRuang}' sudah digunakan oleh {$namaKelas} ({$namaMapel}) pada hari {$hari} jam {$conflictRuang->waktu_mulai} - {$conflictRuang->waktu_selesai}."
+                ];
+            }
         }
 
         return null;

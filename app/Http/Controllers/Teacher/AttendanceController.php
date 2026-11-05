@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Absensi;
 use App\Models\JadwalPelajaran;
-use App\Models\Santri;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,17 +14,24 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = JadwalPelajaran::with(['tahunAjaran', 'kelas', 'mataPelajaran', 'pengajar']);
+        $activeYear = TahunAjaran::getAktif();
 
-        // If user is teacher, filter schedules by their teacher profile
-        if ($user->isTenagaPengajar() && $user->pengajar) {
-            $query->where('pengajar_id', $user->pengajar->id);
+        $query = JadwalPelajaran::with(['tahunAjaran', 'kelas', 'mataPelajaran', 'pengajar', 'santris']);
+
+        if ($activeYear && ! $request->filled('semua_periode')) {
+            $query->where('tahun_ajaran_id', $activeYear->id);
         }
 
-        $schedules = $query->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
-                           ->get();
+        if ($user->isTenagaPengajar()) {
+            $pengajarId = $user->pengajar?->id ?? 0;
+            $query->where('pengajar_id', $pengajarId);
+        }
 
-        return view('teacher.attendance.index', compact('schedules'));
+        $schedules = $query->orderByHari()
+            ->orderBy('waktu_mulai')
+            ->get();
+
+        return view('teacher.attendance.index', compact('schedules', 'activeYear'));
     }
 
     public function create(Request $request)
@@ -34,22 +41,15 @@ class AttendanceController extends Controller
             'tanggal' => 'required|date',
         ]);
 
-        $schedule = JadwalPelajaran::with(['kelas', 'mataPelajaran', 'pengajar', 'tahunAjaran'])->findOrFail($request->schedule_id);
+        $schedule = JadwalPelajaran::findOrFail($request->schedule_id);
+        $this->authorizeScheduleAccess($schedule);
         $tanggal = $request->tanggal;
 
-        // Get santris in this class
-        $santris = Santri::where('kelas_id', $schedule->kelas_id)
-                         ->where('status_santri', 'Aktif')
-                         ->orderBy('nama_lengkap')
-                         ->get();
-
-        // Get existing attendance records for this date & schedule
-        $existingAbsensi = Absensi::where('jadwal_pelajaran_id', $schedule->id)
-                                  ->where('tanggal', $tanggal)
-                                  ->get()
-                                  ->keyBy('santri_id');
-
-        return view('teacher.attendance.create', compact('schedule', 'tanggal', 'santris', 'existingAbsensi'));
+        return view('teacher.attendance.create', [
+            'schedule' => $schedule,
+            'jadwal' => $schedule,
+            'tanggal' => $tanggal,
+        ]);
     }
 
     public function store(Request $request)
@@ -58,28 +58,55 @@ class AttendanceController extends Controller
             'jadwal_pelajaran_id' => 'required|exists:jadwal_pelajarans,id',
             'tanggal' => 'required|date',
             'absensi' => 'required|array',
-            'absensi.*.status' => 'required|in:Hadir,Izin,Sakit,Alpa',
-            'absensi.*.keterangan' => 'nullable|string',
+            'absensi.*.status' => 'required|in:Hadir,Izin,Sakit,Alpa,Terlambat,Bolos',
+            'absensi.*.keterangan' => 'nullable|string|max:255',
         ]);
 
-        $scheduleId = $validated['jadwal_pelajaran_id'];
+        $schedule = JadwalPelajaran::with(['tahunAjaran', 'absensis' => fn ($q) => $q->where('tanggal', $validated['tanggal'])])
+            ->findOrFail($validated['jadwal_pelajaran_id']);
+        $this->authorizeScheduleAccess($schedule);
+
         $tanggal = $validated['tanggal'];
 
         foreach ($validated['absensi'] as $santriId => $data) {
+            $absensi = $schedule->absensis->firstWhere('santri_id', (int) $santriId)
+                ?? Absensi::where('jadwal_pelajaran_id', $schedule->id)
+                    ->where('santri_id', $santriId)
+                    ->where('tanggal', $tanggal)
+                    ->first()
+                ?? new Absensi([
+                    'jadwal_pelajaran_id' => $schedule->id,
+                    'santri_id' => $santriId,
+                    'tanggal' => $tanggal,
+                ]);
+
+            $absensi->setRelation('jadwalPelajaran', $schedule);
+
+            // Validasi hak akses & status penguncian absensi via AbsensiPolicy
+            $this->authorize('update', $absensi);
+
             Absensi::updateOrCreate(
                 [
-                    'jadwal_pelajaran_id' => $scheduleId,
+                    'jadwal_pelajaran_id' => $schedule->id,
                     'santri_id' => $santriId,
                     'tanggal' => $tanggal,
                 ],
                 [
                     'status_kehadiran' => $data['status'],
-                    'keterangan' => $data['keterangan'] ?? null,
+                    'keterangan' => filled($data['keterangan'] ?? null) ? trim($data['keterangan']) : null,
                     'created_by' => Auth::id(),
                 ]
             );
         }
 
-        return redirect()->route('teacher.attendance.index')->with('success', "Absensi santri tanggal {$tanggal} berhasil disimpan.");
+        return redirect()->route('teacher.attendance.index')->with('success', "Presensi santri tanggal {$tanggal} berhasil disimpan.");
+    }
+
+    private function authorizeScheduleAccess(JadwalPelajaran $schedule): void
+    {
+        $user = Auth::user();
+        if ($user->isTenagaPengajar() && $schedule->pengajar_id !== ($user->pengajar?->id ?? 0)) {
+            abort(403, 'Anda hanya dapat mengelola presensi pada jadwal mengajar Anda sendiri.');
+        }
     }
 }

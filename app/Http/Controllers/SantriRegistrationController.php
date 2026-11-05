@@ -2,25 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AcceptSantriRegistration;
+use App\Models\AdminActivityLog;
+use App\Models\EducationProgram;
+use App\Models\Kelas;
+use App\Models\PageContent;
+use App\Models\Santri;
 use App\Models\SantriRegistration;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SantriRegistrationController extends Controller
 {
+    public function __construct(
+        protected AcceptSantriRegistration $acceptSantriRegistration = new AcceptSantriRegistration
+    ) {}
+
     /**
      * Menampilkan daftar semua pendaftar dengan fitur pencarian dan filter
      */
     public function index(Request $request)
     {
-        $query = SantriRegistration::query();
+        $query = SantriRegistration::with('santri');
 
-        // Ambil tahun ajaran aktif dari database (default ke tahun sekarang/depan)
-        $activeYear = \App\Models\PageContent::where('section_key', 'active_academic_year')->value('content_text')
-            ?? (date('Y') . '/' . (date('Y') + 1));
+        // Ambil tahun ajaran aktif dari database (sinkron PageContent & SIAKAD TahunAjaran)
+        $activeYear = PageContent::where('section_key', 'active_academic_year')->value('content_text')
+            ?: TahunAjaran::getAktif()?->nama_tahun_ajaran
+            ?: (date('Y').'/'.(date('Y') + 1));
 
         // Ambil semua daftar unik tahun ajaran dari database untuk filter
         $academicYears = SantriRegistration::distinct()->pluck('academic_year')->filter()->toArray();
-        if (!in_array($activeYear, $academicYears)) {
+        if (! in_array($activeYear, $academicYears)) {
             $academicYears[] = $activeYear;
         }
         sort($academicYears);
@@ -29,16 +42,21 @@ class SantriRegistrationController extends Controller
         $selectedYear = $request->input('academic_year', $activeYear);
 
         if ($selectedYear !== 'all') {
-            $query->where('academic_year', $selectedYear);
+            $query->where(function ($q) use ($selectedYear, $activeYear) {
+                $q->where('academic_year', $selectedYear);
+                if ($selectedYear === $activeYear) {
+                    $q->orWhereNull('academic_year');
+                }
+            });
         }
 
         // Pencarian berdasarkan nama, nomor registrasi, atau nama wali
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('student_name', 'like', "%{$search}%")
-                  ->orWhere('registration_number', 'like', "%{$search}%")
-                  ->orWhere('guardian_name', 'like', "%{$search}%");
+                    ->orWhere('registration_number', 'like', "%{$search}%")
+                    ->orWhere('guardian_name', 'like', "%{$search}%");
             });
         }
 
@@ -52,27 +70,25 @@ class SantriRegistrationController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        // Filter berdasarkan cabang pesantren
-        if ($request->filled('branch')) {
-            $query->where('branch', $request->input('branch'));
-        }
-
         // Ekspor ke file Excel (CSV terpisah semicolon dengan UTF-8 BOM & sep=;) jika parameter action = export
         if ($request->input('action') === 'export') {
+            AdminActivityLog::log('export', 'Mengekspor data pendaftar PPDB ke CSV/Excel ('.$selectedYear.')', 'SantriRegistration');
+
             return $this->exportExcel($query->latest()->get());
         }
 
-        // Mengambil data pendaftar, diurutkan dari yang terbaru dengan pagination
         $registrations = $query->latest()->paginate(15)->withQueryString();
 
-        // Mengambil daftar program pendidikan aktif dari database untuk opsi filter
-        $classes = \App\Models\EducationProgram::active()->orderBy('order')->pluck('name');
-        $branches = ['Surabaya', 'Lamongan'];
+        $classes = EducationProgram::active()->orderBy('order')->pluck('name');
 
-        // Menghitung statistik pendaftaran untuk dasbor ringkasan berdasarkan filter tahun ajaran yang dipilih
         $statsQuery = SantriRegistration::query();
         if ($selectedYear !== 'all') {
-            $statsQuery->where('academic_year', $selectedYear);
+            $statsQuery->where(function ($q) use ($selectedYear, $activeYear) {
+                $q->where('academic_year', $selectedYear);
+                if ($selectedYear === $activeYear) {
+                    $q->orWhereNull('academic_year');
+                }
+            });
         }
 
         $stats = [
@@ -82,7 +98,7 @@ class SantriRegistrationController extends Controller
             'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
 
-        return view('admin.registrations.index', compact('registrations', 'classes', 'branches', 'stats', 'academicYears', 'selectedYear', 'activeYear'));
+        return view('admin.registrations.index', compact('registrations', 'classes', 'stats', 'academicYears', 'selectedYear', 'activeYear'));
     }
 
     /**
@@ -90,59 +106,53 @@ class SantriRegistrationController extends Controller
      */
     protected function exportExcel($registrations)
     {
-        $filename = 'Data_Pendaftar_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = 'Data_Pendaftar_'.date('Y-m-d_H-i-s').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             'Pragma' => 'no-cache',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => '0',
         ];
 
-        $callback = function() use ($registrations) {
+        $callback = function () use ($registrations) {
             $file = fopen('php://output', 'w');
-            
-            // UTF-8 BOM
+
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
-            // Sinyalkan separator titik koma (;) ke Excel secara native
             fwrite($file, "sep=;\n");
 
-            // Header kolom Excel
             fputcsv($file, [
                 'No. Registrasi',
+                'NIS (Jika Diterima)',
                 'Nama Lengkap',
                 'Jenis Kelamin',
                 'Tanggal Lahir',
                 'Tujuan Kelas / Jenjang',
                 'Tahun Ajaran',
-                'Cabang Pesantren',
-                'Nama Orang Tua / Wali',
+                'Nama Orang Tua (Ayah & Ibu)',
                 'Email Pendaftar',
                 'No. WhatsApp Pendaftar',
-                'Hubungan Keluarga Wali',
                 'Alamat Domisili',
                 'Tanggal Pendaftaran',
-                'Status'
+                'Status',
             ], ';');
 
             foreach ($registrations as $reg) {
                 fputcsv($file, [
                     $reg->registration_number,
+                    $reg->santri->nis ?? '-',
                     $reg->student_name,
                     $reg->gender === 'L' ? 'Laki-laki' : 'Perempuan',
                     $reg->birth_date,
                     $reg->target_class,
                     $reg->academic_year,
-                    $reg->branch,
                     $reg->guardian_name,
                     $reg->guardian_email,
                     $reg->guardian_phone,
-                    str_replace('Hubungan Wali: ', '', $reg->education_qualification),
                     str_replace(["\r", "\n"], ' ', $reg->residential_address),
                     $reg->created_at->format('Y-m-d H:i:s'),
-                    strtoupper($reg->status)
+                    strtoupper($reg->status),
                 ], ';');
             }
             fclose($file);
@@ -152,15 +162,17 @@ class SantriRegistrationController extends Controller
     }
 
     /**
-     * Menampilkan detail pendaftar spesifik
+     * Menampilkan detail pendaftar spesifik beserta info akun Wali jika sudah diterima
      */
     public function show(SantriRegistration $registration)
     {
+        $registration->load(['santri.user', 'santri.kelas']);
+
         return view('admin.registrations.show', compact('registration'));
     }
 
     /**
-     * Mengubah status pendaftar
+     * Mengubah status pendaftar & konversi otomatis ke akun Wali Santri saat diterima (FR-02)
      */
     public function updateStatus(Request $request, SantriRegistration $registration)
     {
@@ -168,17 +180,28 @@ class SantriRegistrationController extends Controller
             'status' => 'required|in:pending,accepted,rejected',
         ]);
 
-        $registration->update([
-            'status' => $validated['status']
-        ]);
-
         $credentialMsg = '';
         if ($validated['status'] === 'accepted') {
-            $info = $this->convertToSantriAccount($registration);
-            $credentialMsg = " Akun login Santri berhasil dibuat! NIS: {$info['nis']} | Email: {$info['email']} | Password: {$info['password']}";
+            $info = $this->acceptSantriRegistration->execute($registration);
+            if (! empty($info['is_new_user'])) {
+                $credentialMsg = " Akun Portal Wali Santri baru diterbitkan! NIS: {$info['nis']} | Email: {$info['email']} | Password Sementara: {$info['password']} (Wajib ganti password saat login pertama).";
+            } else {
+                $credentialMsg = " Santri berhasil dihubungkan ke akun Wali Santri yang sudah ada ({$info['email']})! NIS: {$info['nis']} (Gunakan kata sandi wali yang telah terdaftar).";
+            }
+        } else {
+            $registration->update([
+                'status' => $validated['status'],
+            ]);
         }
 
-        return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.' . $credentialMsg);
+        AdminActivityLog::log(
+            'update',
+            "Mengubah status PPDB {$registration->student_name} ({$registration->registration_number}) menjadi ".strtoupper($validated['status']),
+            'SantriRegistration',
+            $registration->id
+        );
+
+        return redirect()->back()->with('success', 'Status pendaftaran berhasil diperbarui.'.$credentialMsg);
     }
 
     /**
@@ -195,82 +218,49 @@ class SantriRegistrationController extends Controller
         if ($validated['status'] === 'delete') {
             $registrations = SantriRegistration::whereIn('id', $validated['registration_ids'])->get();
             $count = $registrations->count();
-            
+
             foreach ($registrations as $reg) {
-                if ($reg->student_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($reg->student_photo)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($reg->student_photo);
+                if ($reg->student_photo && Storage::disk('public')->exists($reg->student_photo)) {
+                    Storage::disk('public')->delete($reg->student_photo);
                 }
                 $reg->delete();
             }
 
-            return redirect()->back()->with('success', $count . ' data pendaftar berhasil dihapus secara permanen.');
+            AdminActivityLog::log('delete', "Menghapus massal {$count} data pendaftar PPDB", 'SantriRegistration');
+
+            return redirect()->back()->with('success', $count.' data pendaftar berhasil dihapus secara permanen.');
         }
 
         $registrations = SantriRegistration::whereIn('id', $validated['registration_ids'])->get();
         foreach ($registrations as $reg) {
-            $reg->update(['status' => $validated['status']]);
             if ($validated['status'] === 'accepted') {
-                $this->convertToSantriAccount($reg);
+                $this->acceptSantriRegistration->execute($reg);
+            } else {
+                $reg->update(['status' => $validated['status']]);
             }
         }
 
+        AdminActivityLog::log(
+            'update',
+            'Mengubah status massal '.count($validated['registration_ids']).' pendaftar PPDB menjadi '.strtoupper($validated['status']),
+            'SantriRegistration'
+        );
+
         $statusLabel = match ($validated['status']) {
-            'accepted' => 'diterima & dibuatkan akun Santri otomatis',
+            'accepted' => 'diterima & diproses akun Portal Wali',
             'rejected' => 'ditolak (rejected)',
             default => 'menunggu (pending)',
         };
 
-        return redirect()->back()->with('success', 'Status untuk ' . count($validated['registration_ids']) . ' pendaftar berhasil diubah menjadi ' . $statusLabel . '.');
+        return redirect()->back()->with('success', 'Status untuk '.count($validated['registration_ids']).' pendaftar berhasil diubah menjadi '.$statusLabel.'.');
     }
 
     /**
-     * Otomatis membuatkan akun User & profil Santri saat PPDB Diterima
+     * Otomatis menerbitkan NIS, menyimpan data Santri aktif, dan akun Wali via AcceptSantriRegistration (FR-02).
      */
-    private function convertToSantriAccount(SantriRegistration $registration): array
+    public function convertToSantriAccount(SantriRegistration $registration): array
     {
-        $email = strtolower($registration->email);
-        if (empty($email) || \App\Models\User::where('email', $email)->exists()) {
-            $cleanName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $registration->full_name));
-            $email = $cleanName . rand(100, 999) . '@santri.nurulkhidmah.org';
-        }
-
-        $password = 'santri123';
-
-        $user = \App\Models\User::firstOrCreate(
-            ['email' => $email],
-            [
-                'name' => $registration->full_name,
-                'password' => \Illuminate\Support\Facades\Hash::make($password),
-                'role' => \App\Models\User::ROLE_SANTRI,
-                'email_verified_at' => now(),
-            ]
-        );
-
-        $year = date('Y');
-        $lastSantri = \App\Models\Santri::where('nis', 'like', $year . '%')->orderBy('id', 'desc')->first();
-        $sequence = $lastSantri ? (intval(substr($lastSantri->nis, 4)) + 1) : 1;
-        $nis = $year . str_pad($sequence, 4, '0', STR_PAD_LEFT);
-
-        $defaultKelas = \App\Models\Kelas::first();
-
-        $santri = \App\Models\Santri::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'nis' => $nis,
-                'kelas_id' => $defaultKelas?->id,
-                'nama_lengkap' => $registration->full_name,
-                'jenis_kelamin' => $registration->gender == 'L' ? 'L' : 'P',
-                'nama_wali' => $registration->guardian_name ?? 'Wali Santri',
-                'tahun_masuk' => $year,
-                'status_santri' => 'Aktif',
-            ]
-        );
-
-        return [
-            'email' => $email,
-            'password' => $password,
-            'nis' => $nis,
-        ];
+        return $this->acceptSantriRegistration->execute($registration);
     }
 
     /**
@@ -278,21 +268,27 @@ class SantriRegistrationController extends Controller
      */
     public function destroy(SantriRegistration $registration)
     {
-        if ($registration->student_photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($registration->student_photo)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($registration->student_photo);
+        if ($registration->student_photo && Storage::disk('public')->exists($registration->student_photo)) {
+            Storage::disk('public')->delete($registration->student_photo);
         }
 
+        $name = $registration->student_name;
+        $regNo = $registration->registration_number;
         $registration->delete();
+
+        AdminActivityLog::log('delete', "Menghapus data pendaftar PPDB: {$name} ({$regNo})", 'SantriRegistration');
 
         return redirect()->route('admin.registrations.index')->with('success', 'Data pendaftar berhasil dihapus secara permanen.');
     }
 
     /**
-     * Merender halaman bukti pendaftaran khusus cetak/PDF
+     * Merender halaman bukti pendaftaran & informasi akun daftar ulang khusus cetak/PDF
      */
     public function downloadPdf(SantriRegistration $registration)
     {
-        $contents = \App\Models\PageContent::all()->keyBy('section_key');
+        $registration->load(['santri.user', 'santri.kelas']);
+        $contents = PageContent::all()->keyBy('section_key');
+
         return view('admin.registrations.pdf', compact('registration', 'contents'));
     }
 }

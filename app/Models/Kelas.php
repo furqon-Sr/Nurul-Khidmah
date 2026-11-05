@@ -19,8 +19,14 @@ class Kelas extends Model
         'tingkat_kelas',
         'wali_kelas_id',
         'tahun_ajaran_id',
+        'educational_unit_id',
         'keterangan',
     ];
+
+    public function educationalUnit(): BelongsTo
+    {
+        return $this->belongsTo(EducationalUnit::class, 'educational_unit_id');
+    }
 
     public function waliKelas(): BelongsTo
     {
@@ -35,5 +41,10 @@ class Kelas extends Model
     public function santris(): HasMany
     {
         return $this->hasMany(Santri::class, 'kelas_id');
+    }
+
+    public function jadwalPelajarans(): HasMany
+    {
+        return $this->hasMany(JadwalPelajaran::class, 'kelas_id');
     }
 }

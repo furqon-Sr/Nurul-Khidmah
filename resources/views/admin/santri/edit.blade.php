@@ -66,10 +66,15 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Orang Tua / Wali</label>
                     <input type="text" name="nama_wali" value="{{ old('nama_wali', $santri->nama_wali) }}"
+                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. WhatsApp Wali</label>
+                    <input type="text" name="no_hp_wali" value="{{ old('no_hp_wali', $santri->no_hp_wali) }}" placeholder="0812xxxxxxxx"
                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
                 <div>
@@ -80,10 +85,10 @@
             </div>
 
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-400 mb-3">Informasi Akun Portal Santri</h3>
+                <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-400 mb-3">Informasi Akun Portal Wali Santri</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Portal Santri <span class="text-rose-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Portal Wali Santri <span class="text-rose-500">*</span></label>
                         <input type="email" name="email" value="{{ old('email', optional($santri->user)->email) }}" required
                                class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
                         @error('email') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -97,13 +102,31 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status Santri <span class="text-rose-500">*</span></label>
+                    <select name="status_santri" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
+                        <option value="Aktif" {{ old('status_santri', $santri->status_santri) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Lulus" {{ in_array(old('status_santri', $santri->status_santri), ['Lulus', 'Alumni']) ? 'selected' : '' }}>Lulus (Alumni)</option>
+                        <option value="Mutasi" {{ old('status_santri', $santri->status_santri) == 'Mutasi' ? 'selected' : '' }}>Mutasi / Boyong</option>
+                        <option value="Non-Aktif" {{ old('status_santri', $santri->status_santri) == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Predikat Sikap / Kepesantrenan (Rapor)</label>
+                    <select name="nilai_sikap" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
+                        <option value="">-- Belum Diisi --</option>
+                        @foreach(['Sangat Baik (A)', 'Baik (B)', 'Cukup (C)', 'Perlu Bimbingan (D)'] as $sikapOpt)
+                            <option value="{{ $sikapOpt }}" {{ old('nilai_sikap', $santri->nilai_sikap) == $sikapOpt ? 'selected' : '' }}>{{ $sikapOpt }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status Santri <span class="text-rose-500">*</span></label>
-                <select name="status_santri" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
-                    <option value="Aktif" {{ old('status_santri', $santri->status_santri) == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="Alumni" {{ old('status_santri', $santri->status_santri) == 'Alumni' ? 'selected' : '' }}>Alumni</option>
-                    <option value="Non-Aktif" {{ old('status_santri', $santri->status_santri) == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
-                </select>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catatan Evaluasi Wali Kelas (Tampil di Rapor)</label>
+                <textarea name="catatan_wali_kelas" rows="2" placeholder="Catatan perkembangan akhlak, ibadah, dan kedisiplinan santri..."
+                          class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">{{ old('catatan_wali_kelas', $santri->catatan_wali_kelas) }}</textarea>
             </div>
 
             <div>

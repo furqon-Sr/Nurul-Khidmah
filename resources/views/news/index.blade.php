@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Inter', sans-serif; }

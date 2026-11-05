@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,10 +34,11 @@ class CheckRole
         }
 
         if (empty($roles)) {
-            $roles = ['super_admin', 'admin'];
+            $roles = [User::ROLE_SUPER_ADMIN];
         }
 
-        $userRole = $user->role ?? 'admin';
+        // Fallback aman: role terendah (santri / wali santri)
+        $userRole = $user->role ?? User::ROLE_SANTRI;
 
         if (! in_array($userRole, $roles, true)) {
             abort(403, 'Forbidden. You do not have the required role.');

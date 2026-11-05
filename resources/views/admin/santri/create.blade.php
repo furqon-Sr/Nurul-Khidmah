@@ -7,7 +7,7 @@
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Tambah Data Santri Baru</h1>
-            <p class="text-gray-600 dark:text-gray-400 text-sm">Registrasikan santri baru dan buatkan akun login portal.</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">Registrasikan santri baru dan buatkan akun login portal wali santri.</p>
         </div>
         <a href="{{ route('admin.santri.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition text-sm font-medium">
             ← Kembali
@@ -64,25 +64,30 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Orang Tua / Wali</label>
                     <input type="text" name="nama_wali" value="{{ old('nama_wali') }}" placeholder="Nama wali..."
                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. WhatsApp Wali</label>
+                    <input type="text" name="no_hp_wali" value="{{ old('no_hp_wali') }}" placeholder="0812xxxxxxxx"
+                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun Masuk</label>
-                    <input type="text" name="tahun_masuk" value="{{ old('tahun_masuk', date('Y')) }}" placeholder="2025"
+                    <input type="text" name="tahun_masuk" value="{{ old('tahun_masuk', date('Y')) }}" placeholder="2026"
                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
                 </div>
             </div>
 
             <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-400 mb-3">Informasi Akun Portal Santri</h3>
+                <h3 class="text-sm font-semibold text-emerald-800 dark:text-emerald-400 mb-3">Informasi Akun Portal Wali Santri</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Portal Santri <span class="text-rose-500">*</span></label>
-                        <input type="email" name="email" value="{{ old('email') }}" placeholder="santri@nurulkhidmah.org" required
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Portal Wali Santri <span class="text-rose-500">*</span></label>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="wali@nurulkhidmah.org" required
                                class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
                         @error('email') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -99,7 +104,8 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status Santri <span class="text-rose-500">*</span></label>
                 <select name="status_santri" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 text-sm">
                     <option value="Aktif" {{ old('status_santri') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="Alumni" {{ old('status_santri') == 'Alumni' ? 'selected' : '' }}>Alumni</option>
+                    <option value="Lulus" {{ old('status_santri') == 'Lulus' ? 'selected' : '' }}>Lulus (Alumni)</option>
+                    <option value="Mutasi" {{ old('status_santri') == 'Mutasi' ? 'selected' : '' }}>Mutasi / Boyong</option>
                     <option value="Non-Aktif" {{ old('status_santri') == 'Non-Aktif' ? 'selected' : '' }}>Non-Aktif</option>
                 </select>
             </div>

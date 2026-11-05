@@ -22,8 +22,6 @@
         html, body {
             margin: 0;
             padding: 0;
-            width: 210mm;
-            height: 297mm;
             background-color: #f3f4f6;
             font-family: 'Times New Roman', Times, serif;
             -webkit-print-color-adjust: exact;
@@ -37,8 +35,29 @@
             align-items: center;
             justify-content: flex-start;
             min-height: 100vh;
-            padding-top: 60px; /* Jarak untuk navbar melayang */
+            min-height: 100dvh;
+            padding-top: 64px;
+            padding-bottom: 24px;
             box-sizing: border-box;
+        }
+
+        @media screen and (max-width: 840px) {
+            body {
+                align-items: flex-start;
+                overflow-x: auto;
+                padding: 66px 12px 24px;
+            }
+            .preview-navbar {
+                padding: 6px 12px !important;
+                gap: 8px;
+            }
+            .preview-title {
+                font-size: 12px !important;
+                min-width: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
         }
 
         .print-page {
@@ -221,11 +240,6 @@
                     <td style="padding: 4px 6px; vertical-align: top; font-weight: bold;">{{ $registration->academic_year }}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Cabang Pesantren</td>
-                    <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
-                    <td style="padding: 4px 6px; vertical-align: top;">Cabang {{ $registration->branch }}</td>
-                </tr>
-                <tr>
                     <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Alamat Domisili</td>
                     <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
                     <td style="padding: 4px 6px; vertical-align: top; text-align: justify; line-height: 1.4;">{{ $registration->residential_address }}</td>
@@ -239,14 +253,9 @@
                 </tr>
                 
                 <tr>
-                    <td style="padding: 6px 6px 4px 6px; font-weight: bold; vertical-align: top;">Nama Orang Tua / Wali</td>
+                    <td style="padding: 6px 6px 4px 6px; font-weight: bold; vertical-align: top;">Nama Orang Tua (Ayah &amp; Ibu)</td>
                     <td style="padding: 6px 0 4px 0; vertical-align: top; text-align: center;">:</td>
                     <td style="padding: 6px 6px 4px 6px; vertical-align: top;">{{ $registration->guardian_name }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Hubungan Keluarga</td>
-                    <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
-                    <td style="padding: 4px 6px; vertical-align: top;">{{ str_replace('Hubungan Wali: ', '', $registration->education_qualification) }}</td>
                 </tr>
                 <tr>
                     <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">No. WhatsApp Wali</td>
@@ -278,9 +287,33 @@
                 </tr>
             </table>
 
+            @if($registration->status == 'accepted' && $registration->santri)
+            <!-- Kotak Informasi Akun Portal Wali Santri (Daftar Ulang) -->
+            <div style="border: 1.5px solid #0d6b3a; background-color: #f0fdf4; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 12px; color: #000;">
+                <div style="font-weight: bold; color: #065f46; text-transform: uppercase; margin-bottom: 4px; font-size: 11.5px;">
+                    Informasi NIS &amp; Akun Login Portal Pemantauan Wali Santri
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <tr>
+                        <td style="width: 28%; padding: 2px 0; font-weight: bold;">Nomor Induk Santri (NIS)</td>
+                        <td style="width: 3%;">:</td>
+                        <td style="width: 25%; font-weight: bold;">{{ $registration->santri->nis }}</td>
+                        <td style="width: 18%; padding: 2px 0; font-weight: bold;">Kata Sandi</td>
+                        <td style="width: 3%;">:</td>
+                        <td style="width: 23%; font-size: 11px;">Diberikan oleh Panitia PSB / Staf TU</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; font-weight: bold;">Portal Wali Santri</td>
+                        <td>:</td>
+                        <td colspan="4" style="font-family: monospace;">{{ url('/portal-wali') }} &nbsp;(Login cukup pakai NIS <strong>{{ $registration->santri->nis }}</strong>)</td>
+                    </tr>
+                </table>
+            </div>
+            @endif
+
             <!-- Pernyataan Penutup -->
-            <p style="margin: 0 0 28px 0; text-indent: 40px; text-align: justify; font-size: 13px; line-height: 1.5; color: #000;">
-                Demikian bukti pendaftaran ini diterbitkan secara sah oleh sistem untuk dipergunakan sebagai dokumen kelengkapan administrasi. Calon santri wajib membawa cetakan lembar bukti ini beserta berkas persyaratan penunjang lainnya saat melakukan pendaftaran ulang dan seleksi fisik di Pondok Pesantren Nurul Khidmah Lamongan.
+            <p style="margin: 0 0 18px 0; text-indent: 40px; text-align: justify; font-size: 12.5px; line-height: 1.45; color: #000;">
+                Demikian bukti pendaftaran ini diterbitkan secara sah oleh sistem untuk dipergunakan sebagai dokumen kelengkapan administrasi. Calon santri wajib membawa cetakan lembar bukti ini beserta berkas persyaratan penunjang lainnya saat melakukan pendaftaran ulang di Pondok Pesantren Nurul Khidmah Lamongan.
             </p>
 
             <!-- Blok Penandatangan & Pas Foto -->

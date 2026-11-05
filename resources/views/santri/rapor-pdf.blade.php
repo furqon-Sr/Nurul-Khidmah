@@ -1,301 +1,255 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAPOR HASIL BELAJAR - {{ $santri->nama_lengkap }} ({{ $santri->nis }})</title>
-    <style>
-        body {
-            font-family: 'Times New Roman', Times, serif;
-            color: #111827;
-            background-color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
+@extends('layouts.pdf-letterhead')
 
-        .header {
-            text-align: center;
-            border-bottom: 3px double #111827;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-            position: relative;
-        }
+@section('title', 'RAPOR HASIL BELAJAR - ' . $santri->nama_lengkap . ' (' . $santri->nis . ')')
+@section('toolbar_title', 'Pratinjau Lembar Rapor Santri — ' . $santri->nama_lengkap . ' (' . $santri->nis . ')')
 
-        .header h1 {
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 0;
-            color: #065f46;
-        }
+@section('styles')
+<style>
+    .student-info {
+        width: 100%;
+        margin-bottom: 12px;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+    .student-info td {
+        padding: 2.5px 6px;
+        vertical-align: top;
+    }
+    .eval-grid {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 14px;
+    }
+    .eval-grid td.panel {
+        vertical-align: top;
+        padding: 0;
+    }
+    .sub-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .sub-table th, .sub-table td {
+        border: 1px solid #1f2937;
+        padding: 5px 8px;
+        font-size: 11.5px;
+    }
+    .sub-table th {
+        background-color: #f3f4f6;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 10.5px;
+        text-align: left;
+    }
+</style>
+@endsection
 
-        .header h2 {
-            font-size: 16px;
-            font-weight: bold;
-            margin: 4px 0;
-        }
+@section('content')
+@php
+    $kelasRapor = $kelasPeriode ?? $santri->kelas;
+    $kepalaMadrasah = $kelasRapor?->educationalUnit?->headmaster?->name ?: ($siteInfo->get('kepala_madrasah_name')?->content_text ?: 'Ibu Uswatun Hasanah SP, S.Pd.I.');
 
-        .header p {
-            font-size: 12px;
-            margin: 2px 0;
-            color: #4b5563;
-        }
+    if (isset($subjectRows) && $subjectRows instanceof \Illuminate\Support\Collection) {
+        $rows = $subjectRows;
+    } else {
+        $rows = ($nilais ?? collect())->map(fn ($item) => (object) [
+            'kode_mapel' => $item->jadwalPelajaran->mataPelajaran->kode_mapel ?? '-',
+            'nama_mapel' => $item->jadwalPelajaran->mataPelajaran->nama_mapel ?? '-',
+            'pengajar_nama' => $item->jadwalPelajaran->pengajar->nama_lengkap ?? '-',
+            'has_nilai' => true,
+            'nilai_tugas' => $item->nilai_tugas,
+            'nilai_uts' => $item->nilai_uts,
+            'nilai_uas' => $item->nilai_uas,
+            'nilai_akhir' => $item->nilai_akhir,
+            'grade' => $item->grade,
+            'keterangan' => $item->keterangan,
+        ]);
+    }
 
-        .title {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .title h3 {
-            font-size: 16px;
-            font-weight: bold;
-            text-decoration: underline;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .student-info {
-            width: 100%;
-            margin-bottom: 20px;
-            border-collapse: collapse;
-        }
-
-        .student-info td {
-            padding: 4px 8px;
-            vertical-align: top;
-        }
-
-        .table-data {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .table-data th, .table-data td {
-            border: 1px solid #374151;
-            padding: 8px 10px;
-            text-align: left;
-        }
-
-        .table-data th {
-            background-color: #f3f4f6;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .text-center { text-align: center !important; }
-        .text-right { text-align: right !important; }
-        .font-bold { font-weight: bold; }
-
-        .summary-box {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .attendance-table {
-            width: 48%;
-            border-collapse: collapse;
-        }
-
-        .attendance-table th, .attendance-table td {
-            border: 1px solid #374151;
-            padding: 6px 10px;
-            font-size: 13px;
-        }
-
-        .signature-section {
-            width: 100%;
-            margin-top: 40px;
-            page-break-inside: avoid;
-        }
-
-        .signature-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-        }
-
-        .signature-table td {
-            vertical-align: top;
-            width: 33%;
-            padding: 10px;
-        }
-
-        .signature-space {
-            height: 70px;
-        }
-
-        .no-print-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #059669;
-            color: #ffffff;
-            border: none;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            z-index: 9999;
-        }
-
-        .no-print-btn:hover {
-            background-color: #047857;
-        }
-
-        @media print {
-            .no-print-btn { display: none; }
-            body { padding: 0; }
-        }
-    </style>
-</head>
-<body>
-
-    <button onclick="window.print()" class="no-print-btn">Cetak / Download PDF</button>
-
-    {{-- Kop Pesantren --}}
-    <div class="header">
-        <h1>PONDOK PESANTREN NURUL KHIDMAH</h1>
-        <h2>SISTEM INFORMASI AKADEMIK (SIAKAD)</h2>
-        <p>Jl. Raya Surabaya - Sidoarjo, Jawa Timur | Telp: (031) 889977 | Website: nurulkhidmah.org</p>
-    </div>
+    $gradedRows = $rows->where('has_nilai', true);
+    $computedJumlah = isset($jumlahNilai)
+        ? (float) $jumlahNilai
+        : ($gradedRows->isNotEmpty() ? round((float) $gradedRows->sum('nilai_akhir'), 2) : 0.0);
+    $computedRata = isset($rataRata)
+        ? (float) $rataRata
+        : ($gradedRows->isNotEmpty() ? round((float) $gradedRows->avg('nilai_akhir'), 2) : 0.0);
+@endphp
 
     {{-- Judul Dokumen --}}
-    <div class="title">
-        <h3>KARTU HASIL STUDI (RAPOR SANTRI)</h3>
-        <p style="margin-top: 4px; font-size: 13px;">Tahun Ajaran: {{ $tahunAjaran->nama_tahun_ajaran ?? '-' }} — Semester {{ $tahunAjaran->semester ?? '-' }}</p>
+    <div class="doc-title">
+        <h3>LAPORAN HASIL BELAJAR SANTRI (RAPOR)</h3>
+        <p>Tahun Ajaran: <strong>{{ $tahunAjaran->nama_tahun_ajaran ?? '-' }}</strong> — Semester <strong>{{ $tahunAjaran->semester ?? '-' }}</strong></p>
     </div>
 
     {{-- Biodata Santri --}}
     <table class="student-info">
         <tr>
-            <td width="15%" class="font-bold">Nama Santri</td>
+            <td width="17%" class="font-bold">Nama Santri</td>
             <td width="35%">: <strong>{{ $santri->nama_lengkap }}</strong></td>
-            <td width="15%" class="font-bold">Kelas</td>
-            <td width="35%">: {{ $santri->kelas->nama_kelas ?? '-' }}</td>
+            <td width="16%" class="font-bold">Kelas</td>
+            <td width="32%">: {{ $kelasRapor->nama_kelas ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="font-bold">NIS / ID</td>
+            <td class="font-bold">NIS</td>
             <td>: {{ $santri->nis }}</td>
             <td class="font-bold">Wali Kelas</td>
-            <td>: {{ $santri->kelas->waliKelas->nama_lengkap ?? '-' }}</td>
+            <td>: {{ $kelasRapor->waliKelas->nama_lengkap ?? '-' }}</td>
         </tr>
         <tr>
             <td class="font-bold">Jenis Kelamin</td>
-            <td>: {{ $santri->jenis_kelamin == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
-            <td class="font-bold">Tahun Masuk</td>
-            <td>: {{ $santri->tahun_masuk ?? '-' }}</td>
+            <td>: {{ $santri->genderLabel() }}</td>
+            <td class="font-bold">Orang Tua / Wali</td>
+            <td>: {{ $santri->nama_wali ?? '-' }}</td>
         </tr>
     </table>
 
-    {{-- Tabel Nilai --}}
+    {{-- A. Capaian Nilai Spesifik Per Mata Pelajaran Akademik & Diniyah --}}
+    <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">
+        A. Capaian Nilai Spesifik Per Mata Pelajaran Akademik &amp; Diniyah
+    </div>
     <table class="table-data">
         <thead>
             <tr>
                 <th width="5%">No</th>
-                <th width="35%">Mata Pelajaran</th>
-                <th width="25%">Pengajar (Ustaz/Ustazah)</th>
-                <th width="10%">Tugas</th>
-                <th width="10%">UTS</th>
-                <th width="10%">UAS</th>
-                <th width="10%">Akhir</th>
-                <th width="8%">Grade</th>
+                <th width="27%">Mata Pelajaran</th>
+                <th width="20%">Pengajar (Ustaz/Ustazah)</th>
+                <th width="8%">Tugas<br><span style="font-size:8.5px; font-weight:normal;">(30%)</span></th>
+                <th width="8%">UTS<br><span style="font-size:8.5px; font-weight:normal;">(30%)</span></th>
+                <th width="8%">UAS<br><span style="font-size:8.5px; font-weight:normal;">(40%)</span></th>
+                <th width="9%">Nilai Akhir</th>
+                <th width="6%">Grade</th>
+                <th width="16%">Keterangan</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($nilais as $index => $item)
+            @forelse($rows as $index => $row)
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
-                <td>{{ $item->jadwalPelajaran->mataPelajaran->nama_mapel ?? '-' }}</td>
-                <td>{{ $item->jadwalPelajaran->pengajar->nama_lengkap ?? '-' }}</td>
-                <td class="text-center">{{ number_format($item->nilai_tugas, 2) }}</td>
-                <td class="text-center">{{ number_format($item->nilai_uts, 2) }}</td>
-                <td class="text-center">{{ number_format($item->nilai_uas, 2) }}</td>
-                <td class="text-center font-bold">{{ number_format($item->nilai_akhir, 2) }}</td>
-                <td class="text-center font-bold">{{ $item->grade ?? '-' }}</td>
+                <td>
+                    <strong>{{ $row->nama_mapel }}</strong>
+                    @if(!empty($row->kode_mapel) && $row->kode_mapel !== '-')
+                        <span style="font-size: 10px; color: #4b5563;">({{ $row->kode_mapel }})</span>
+                    @endif
+                </td>
+                <td>{{ $row->pengajar_nama }}</td>
+                <td class="text-center">{{ $row->has_nilai && $row->nilai_tugas !== null ? number_format($row->nilai_tugas, 2) : '-' }}</td>
+                <td class="text-center">{{ $row->has_nilai && $row->nilai_uts !== null ? number_format($row->nilai_uts, 2) : '-' }}</td>
+                <td class="text-center">{{ $row->has_nilai && $row->nilai_uas !== null ? number_format($row->nilai_uas, 2) : '-' }}</td>
+                <td class="text-center font-bold">{{ $row->has_nilai && $row->nilai_akhir !== null ? number_format($row->nilai_akhir, 2) : '-' }}</td>
+                <td class="text-center font-bold">{{ $row->has_nilai ? ($row->grade ?? '-') : '-' }}</td>
+                <td style="font-size: 11px;">
+                    @if($row->has_nilai)
+                        {{ $row->keterangan ?: '-' }}
+                    @else
+                        <span style="color: #6b7280; font-style: italic;">Belum diinput</span>
+                    @endif
+                </td>
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-center">Belum ada data nilai hasil belajar.</td>
+                <td colspan="9" class="text-center">Belum ada mata pelajaran / nilai pada periode semester ini.</td>
             </tr>
             @endforelse
         </tbody>
-        @if($nilais->isNotEmpty())
+        @if($gradedRows->isNotEmpty())
         <tfoot>
             <tr>
-                <td colspan="6" class="text-right font-bold">RATA-RATA NILAI AKHIR (IP):</td>
+                <td colspan="6" class="text-right font-bold">JUMLAH NILAI AKADEMIK ({{ $gradedRows->count() }} MATA PELAJARAN):</td>
                 <td class="text-center font-bold" style="background-color: #f9fafb;">
-                    {{ number_format($nilais->avg('nilai_akhir'), 2) }}
+                    {{ number_format($computedJumlah, 2) }}
                 </td>
-                <td class="text-center font-bold" style="background-color: #f9fafb;">
-                    {{ \App\Models\Nilai::calculateGrade($nilais->avg('nilai_akhir')) }}
+                <td colspan="2" style="background-color: #f9fafb;"></td>
+            </tr>
+            <tr>
+                <td colspan="6" class="text-right font-bold">RATA-RATA NILAI AKADEMIK:</td>
+                <td class="text-center font-bold" style="background-color: #f3f4f6;">
+                    {{ number_format($computedRata, 2) }}
                 </td>
+                <td class="text-center font-bold" style="background-color: #f3f4f6;">
+                    {{ \App\Models\Nilai::calculateGrade($computedRata) }}
+                </td>
+                <td style="background-color: #f3f4f6;"></td>
             </tr>
         </tfoot>
         @endif
     </table>
 
-    {{-- Ringkasan Presensi --}}
-    <div style="margin-bottom: 25px;">
-        <h4 style="margin-bottom: 8px; font-size: 14px; text-transform: uppercase;">Rekap Presensi & Kehadiran:</h4>
-        <table class="attendance-table" style="width: 50%;">
-            <tr>
-                <th>Status Kehadiran</th>
-                <th class="text-center">Jumlah Hari</th>
-            </tr>
-            <tr>
-                <td>Hadir (H)</td>
-                <td class="text-center font-bold">{{ $totalHadir }} Hari</td>
-            </tr>
-            <tr>
-                <td>Izin (I)</td>
-                <td class="text-center">{{ $totalIzin }} Hari</td>
-            </tr>
-            <tr>
-                <td>Sakit (S)</td>
-                <td class="text-center">{{ $totalSakit }} Hari</td>
-            </tr>
-            <tr>
-                <td>Tanpa Keterangan / Alpa (A)</td>
-                <td class="text-center">{{ $totalAlpa }} Hari</td>
-            </tr>
-        </table>
-    </div>
+    {{-- B. Penilaian Sikap / Kepesantrenan & C. Rekap Kehadiran --}}
+    <table class="eval-grid">
+        <tr>
+            <td class="panel" width="54%" style="padding-right: 10px;">
+                <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">
+                    B. Penilaian Sikap / Kepesantrenan &amp; Catatan Wali Kelas
+                </div>
+                <table class="sub-table">
+                    <tr>
+                        <th width="42%">Predikat Sikap &amp; Adab</th>
+                        <td><strong>{{ ($nilaiSikap ?? $santri->nilai_sikap) ?: 'Baik (B)' }}</strong></td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">Catatan Evaluasi Wali Kelas</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="min-height: 48px; line-height: 1.45;">
+                            {{ ($catatanWaliKelas ?? $santri->catatan_wali_kelas) ?: 'Tingkatkan terus semangat belajar, kedisiplinan jamaah, serta akhlaqul karimah di lingkungan pesantren maupun di rumah.' }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="panel" width="46%" style="padding-left: 10px;">
+                <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">
+                    C. Rekapitulasi Presensi Kehadiran
+                </div>
+                <table class="sub-table">
+                    <tr>
+                        <th>Status Kehadiran</th>
+                        <th class="text-center" width="35%">Jumlah</th>
+                    </tr>
+                    <tr>
+                        <td>Hadir (H)</td>
+                        <td class="text-center font-bold">{{ $totalHadir }} Sesi</td>
+                    </tr>
+                    <tr>
+                        <td>Sakit (S)</td>
+                        <td class="text-center">{{ $totalSakit }} Sesi</td>
+                    </tr>
+                    <tr>
+                        <td>Izin (I)</td>
+                        <td class="text-center">{{ $totalIzin }} Sesi</td>
+                    </tr>
+                    <tr>
+                        <td>Tanpa Keterangan / Alpa (A)</td>
+                        <td class="text-center">{{ $totalAlpa }} Sesi</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-    {{-- Tanda Tangan --}}
+    {{-- 3 Blok Tanda Tangan Resmi Tervalidasi Kepala Madrasah (FR-12) --}}
     <div class="signature-section">
         <table class="signature-table">
             <tr>
-                <td>
+                <td width="33%">
                     Mengetahui,<br>
                     Orang Tua / Wali Santri,
                     <div class="signature-space"></div>
-                    ( .................................................. )
+                    <strong>( {{ $santri->nama_wali ?: '........................................' }} )</strong>
                 </td>
-                <td>
+                <td width="33%">
+                    <br>
                     Wali Kelas,
                     <div class="signature-space"></div>
-                    <strong><u>{{ $santri->kelas->waliKelas->nama_lengkap ?? '................................................' }}</u></strong><br>
-                    NIY. {{ $santri->kelas->waliKelas->nomor_identitas ?? '-' }}
+                    <strong><u>{{ $kelasRapor->waliKelas->nama_lengkap ?? '........................................' }}</u></strong><br>
+                    NIY. {{ $kelasRapor->waliKelas->nomor_identitas ?? '-' }}
                 </td>
-                <td>
-                    Surabaya, {{ date('d F Y') }}<br>
-                    Pengurus Akademik Pesantren,
+                <td width="34%">
+                    Lamongan, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                    Pimpinan Pondok / Kepala Sekolah,
                     <div class="signature-space"></div>
-                    <strong><u>Ust. Fahruri Anafi, M.Pd</u></strong><br>
-                    Kepala Bidang Akademik
+                    <strong><u>{{ $kepalaMadrasah }}</u></strong><br>
+                    Pondok Pesantren Nurul Khidmah
                 </td>
             </tr>
         </table>
     </div>
-
-</body>
-</html>
+@endsection

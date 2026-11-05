@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Pengajar;
@@ -53,23 +54,25 @@ class AcademicMasterSeeder extends Seeder
         }
 
         // 3. Create Users & Teachers (Pengajar)
-        // User Pimpinan
+        // User Pimpinan (Pengasuh Pondok Pesantren)
         User::firstOrCreate(
             ['email' => 'pimpinan@nurulkhidmah.org'],
             [
-                'name' => 'K.H. Ahmad Muzakki, M.Ag.',
+                'name' => 'KH. Imam Machmudi',
                 'password' => Hash::make('password'),
                 'role' => User::ROLE_PIMPINAN,
+                'email_verified_at' => now(),
             ]
         );
 
-        // User Pengurus Akademik
+        // User Pengurus Akademik (Kepala Madrasah)
         User::firstOrCreate(
             ['email' => 'akademik@nurulkhidmah.org'],
             [
-                'name' => 'Ustaz Abdullah, S.Pd.I',
+                'name' => 'Ibu Uswatun Hasanah SP, S.Pd.I.',
                 'password' => Hash::make('password'),
                 'role' => User::ROLE_PENGURUS_AKADEMIK,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -80,6 +83,7 @@ class AcademicMasterSeeder extends Seeder
                 'name' => 'Ustaz Muhammad Faiz, S.H.I',
                 'password' => Hash::make('password'),
                 'role' => User::ROLE_TENAGA_PENGAJAR,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -102,6 +106,7 @@ class AcademicMasterSeeder extends Seeder
                 'name' => 'Ustazah Khairunnisa, S.Pd.',
                 'password' => Hash::make('password'),
                 'role' => User::ROLE_TENAGA_PENGAJAR,
+                'email_verified_at' => now(),
             ]
         );
 
@@ -119,23 +124,21 @@ class AcademicMasterSeeder extends Seeder
 
         // 4. Create Classes (Kelasses)
         $kelas7A = Kelas::firstOrCreate(
-            ['kode_kelas' => 'KLS-7A'],
+            ['kode_kelas' => 'KLS-7A', 'tahun_ajaran_id' => $taActive->id],
             [
                 'nama_kelas' => 'Kelas 7 Ula A',
                 'tingkat_kelas' => '7 Ula',
                 'wali_kelas_id' => $pengajar1->id,
-                'tahun_ajaran_id' => $taActive->id,
                 'keterangan' => 'Kelas santri baru tingkat Ula A',
             ]
         );
 
         $kelas8A = Kelas::firstOrCreate(
-            ['kode_kelas' => 'KLS-8A'],
+            ['kode_kelas' => 'KLS-8A', 'tahun_ajaran_id' => $taActive->id],
             [
                 'nama_kelas' => 'Kelas 8 Wustho A',
                 'tingkat_kelas' => '8 Wustho',
                 'wali_kelas_id' => $pengajar2->id,
-                'tahun_ajaran_id' => $taActive->id,
                 'keterangan' => 'Kelas santri tingkat Wustho A',
             ]
         );
@@ -157,7 +160,7 @@ class AcademicMasterSeeder extends Seeder
                 'email' => 'santri.fatimah@nurulkhidmah.org',
                 'nama' => 'Fatimah Az-Zahra',
                 'jk' => 'Perempuan',
-                'tmpt' => 'Surabaya',
+                'tmpt' => 'Lamongan',
                 'tgl' => '2011-09-25',
                 'wali' => 'Drs. Herman Prasetyo',
                 'kelas_id' => $kelas7A->id,
@@ -178,9 +181,10 @@ class AcademicMasterSeeder extends Seeder
             $userSantri = User::firstOrCreate(
                 ['email' => $s['email']],
                 [
-                    'name' => $s['nama'],
+                    'name' => 'Wali '.$s['nama'],
                     'password' => Hash::make('password'),
                     'role' => User::ROLE_SANTRI,
+                    'email_verified_at' => now(),
                 ]
             );
 
@@ -207,7 +211,7 @@ class AcademicMasterSeeder extends Seeder
         $mapelAlquran = MataPelajaran::where('kode_mapel', 'MP-003')->first();
 
         if ($mapelFiqih && $mapelAqidah && $mapelAlquran) {
-            \App\Models\JadwalPelajaran::firstOrCreate(
+            JadwalPelajaran::firstOrCreate(
                 [
                     'tahun_ajaran_id' => $taActive->id,
                     'kelas_id' => $kelas7A->id,
@@ -223,7 +227,7 @@ class AcademicMasterSeeder extends Seeder
                 ]
             );
 
-            \App\Models\JadwalPelajaran::firstOrCreate(
+            JadwalPelajaran::firstOrCreate(
                 [
                     'tahun_ajaran_id' => $taActive->id,
                     'kelas_id' => $kelas7A->id,
@@ -239,7 +243,7 @@ class AcademicMasterSeeder extends Seeder
                 ]
             );
 
-            \App\Models\JadwalPelajaran::firstOrCreate(
+            JadwalPelajaran::firstOrCreate(
                 [
                     'tahun_ajaran_id' => $taActive->id,
                     'kelas_id' => $kelas8A->id,

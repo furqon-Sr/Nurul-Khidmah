@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tentang Kami - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Inter', sans-serif; }
@@ -28,18 +28,18 @@
                         {{ $contents['about_title']?->content_text ?? 'Berawal dari Langkah Nyata Merangkul Umat demi Perubahan Spiritual' }}
                     </h1>
                     <div class="text-gray-700 leading-relaxed text-justify text-sm md:text-base space-y-4">
-                        {!! $contents['about_text_1']?->content_text ?? "Perjalanan Pondok Pesantren Nurul Khidmah dimulai pada tahun 2004 di Surabaya. KH Imam Machmudi Al Bantani mengawali langkah dakwahnya secara sederhana dengan mengajar mengaji anak-anak di kediaman istri beliau. Dorongan kuat untuk mendirikan lembaga formal lahir dari keprihatinan sosial yang mendalam saat menyaksikan kemerosotan moral dan spiritual para remaja di wilayah Tubanan, Surabaya pada masa itu." !!}
+                        {!! $contents['about_text_1']?->content_text ?? "Perjalanan Pondok Pesantren Nurul Khidmah diawali oleh KH Imam Machmudi Al Bantani dengan langkah dakwah secara sederhana, mengajar mengaji anak-anak dan generasi muda. Dorongan kuat untuk mendirikan lembaga formal lahir dari keprihatinan sosial yang mendalam serta komitmen untuk membina moral dan spiritual para remaja di wilayah Lamongan." !!}
                         {!! $contents['about_text_2']?->content_text ?? "Alih-alih menjauh atau menghakimi, beliau memilih metode dakwah yang merangkul langsung ke akar rumput. Para pemuda lokal yang saat itu akrab dengan dunia malam dan minuman keras didekati secara personal, diajak mengikuti istighosah, diajarkan tata cara berwudu, serta dituntun untuk kembali mendirikan salat wajib. Pendekatan humanis dan penuh kesabaran ini membuahkan hasil luar biasa. Para pemuda tersebut bertransformasi menjadi pribadi yang taat and justru berbalik menjadi garda terdepan dalam mendukung pembangunan fisik pesantren." !!}
                     </div>
                 </div>
                 <div class="w-full lg:w-1/2 flex flex-col">
                     <img src="{{ isset($contents['about_image']) && $contents['about_image']->image_path ? Storage::url($contents['about_image']->image_path) : 'https://images.unsplash.com/photo-1548625361-ec6e408c69fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="Bangunan Pesantren Nurul Khidmah" class="w-full h-auto rounded-xl shadow-md object-cover" style="max-height: 480px;">
-                    <p class="text-[10px] text-gray-400 text-center mt-2 italic">Pembangunan Gedung Utama Pondok Pesantren Nurul Khidmah Cabang Lamongan</p>
+                    <p class="text-[10px] text-gray-400 text-center mt-2 italic">Pembangunan Gedung Utama Pondok Pesantren Nurul Khidmah Lamongan</p>
                 </div>
             </div>
             
             <div class="mt-8 text-gray-700 leading-relaxed text-justify text-sm md:text-base">
-                {!! $contents['about_history_text']?->content_text ?? "Pada tahun 2009, lahan pertama berhasil dibeli untuk membangun fisik pesantren yang awalnya digunakan sebagai Pondok Putri, sebelum akhirnya berkembang luas hingga memiliki area Pondok Putra. Keberadaan lembaga ini diperkuat secara hukum melalui penerbitan akta notaris dan SK Kemenkumham dari Jakarta pada tahun 2011. Guna memperluas visi mencerdaskan kehidupan anak bangsa dan mengenalkan keluhuran agama, perjuangan kini diekspansi melalui pembangunan Pondok Pesantren Nurul Khidmah 2 di Lamongan yang memadukan pendidikan diniyah dengan kurikulum formal." !!}
+                {!! $contents['about_history_text']?->content_text ?? "Pada tahun 2009, lahan pertama berhasil dibeli untuk membangun fisik pesantren yang awalnya digunakan sebagai Pondok Putri, sebelum akhirnya berkembang luas hingga memiliki area Pondok Putra. Keberadaan lembaga ini diperkuat secara hukum melalui penerbitan akta notaris dan SK Kemenkumham dari Jakarta pada tahun 2011. Guna memperluas visi mencerdaskan kehidupan anak bangsa dan mengenalkan keluhuran agama, perjuangan difokuskan melalui Pondok Pesantren Nurul Khidmah di Lamongan yang memadukan pendidikan diniyah salafiyah dengan kurikulum formal." !!}
             </div>
         </div>
 

@@ -78,11 +78,15 @@
         </div>
 
         <div>
-            <label for="role" class="block text-sm font-medium text-gray-800 dark:text-slate-200">Role</label>
+            <label for="role" class="block text-sm font-medium text-gray-800 dark:text-slate-200">Role &amp; Hak Akses</label>
             <select name="role" id="role" required
                     class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                <option value="admin" @selected(old('role', 'admin') === 'admin')>Admin — mengelola konten (berita, program, pendaftar, dll.)</option>
-                <option value="super_admin" @selected(old('role') === 'super_admin')>Super Admin — termasuk pengaturan situs &amp; pengguna admin</option>
+                <option value="pengurus_akademik" @selected(old('role', 'pengurus_akademik') === 'pengurus_akademik')>Staf TU / Pengurus Akademik — kelola SIAKAD, PPDB, santri, jadwal, rapor, &amp; CMS website</option>
+                <option value="kepala_sekolah" @selected(old('role') === 'kepala_sekolah')>Kepala Sekolah / Madrasah — pantau absensi &amp; nilai guru, leger nilai, &amp; validasi rapor</option>
+                <option value="tenaga_pengajar" @selected(old('role') === 'tenaga_pengajar')>Tenaga Pengajar (Guru / Ustaz) — input presensi, pengolahan nilai santri, &amp; wali kelas</option>
+                <option value="pimpinan" @selected(old('role') === 'pimpinan')>Pimpinan Yayasan — dashboard eksekutif (read-only) &amp; track record santri PDF</option>
+                <option value="santri" @selected(old('role') === 'santri')>Wali Santri — akses portal informasi nilai &amp; presensi ananda</option>
+                <option value="super_admin" @selected(old('role') === 'super_admin')>Super Admin — akses penuh seluruh modul sistem &amp; manajemen pengguna</option>
             </select>
         </div>
 

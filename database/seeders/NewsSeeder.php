@@ -25,8 +25,8 @@ class NewsSeeder extends Seeder
                 'published_at' => now()->subDays(4),
             ],
             [
-                'title' => 'Rutinitas Manaqib: Mempererat Ukhuwah di Lamongan & Surabaya',
-                'content' => '<p>Kegiatan Manaqib rutin yang dilaksanakan setiap bulan di Lamongan dan Surabaya menjadi sarana pengikat tali persaudaraan. Selain doa bersama, kegiatan ini menjadi ajang koordinasi alumni dan wali santri.</p>',
+                'title' => 'Rutinitas Manaqib: Mempererat Ukhuwah Keluarga Besar Pesantren di Lamongan',
+                'content' => '<p>Kegiatan Manaqib rutin yang dilaksanakan setiap bulan di Pondok Pesantren Nurul Khidmah Lamongan menjadi sarana pengikat tali persaudaraan. Selain doa bersama, kegiatan ini menjadi ajang silaturahmi alumni, masyarakat, dan wali santri.</p>',
                 'main_image_path' => 'news/manaqib.png',
                 'category' => 'Kegiatan',
                 'published_at' => now()->subDays(3),

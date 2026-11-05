@@ -62,7 +62,7 @@ class AdminUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => $this->passwordRules(),
-            'role' => ['required', 'in:super_admin,admin,pengurus_akademik,tenaga_pengajar,pimpinan,santri'],
+            'role' => ['required', 'in:super_admin,pimpinan,kepala_sekolah,pengurus_akademik,tenaga_pengajar,santri,admin'],
         ]);
 
         $data = [
@@ -91,7 +91,7 @@ class AdminUserController extends Controller
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'role' => ['required', 'in:super_admin,admin,pengurus_akademik,tenaga_pengajar,pimpinan,santri'],
+            'role' => ['required', 'in:super_admin,pimpinan,kepala_sekolah,pengurus_akademik,tenaga_pengajar,santri,admin'],
         ]);
 
         if ($user->is(Auth::user()) && $user->isSuperAdmin() && $validated['role'] !== User::ROLE_SUPER_ADMIN) {

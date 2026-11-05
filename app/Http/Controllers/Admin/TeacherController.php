@@ -16,9 +16,11 @@ class TeacherController extends Controller
         $query = Pengajar::with('user');
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('nomor_identitas', 'like', "%{$search}%")
-                  ->orWhere('nama_lengkap', 'like', "%{$search}%");
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_identitas', 'like', "%{$search}%")
+                    ->orWhere('nama_lengkap', 'like', "%{$search}%");
+            });
         }
 
         if ($request->filled('status')) {
@@ -50,9 +52,10 @@ class TeacherController extends Controller
         DB::transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['nama_lengkap'],
-                'email' => $validated['email'],
+                'email' => strtolower(trim($validated['email'])),
                 'password' => Hash::make($validated['password']),
                 'role' => User::ROLE_TENAGA_PENGAJAR,
+                'email_verified_at' => now(),
             ]);
 
             Pengajar::create([

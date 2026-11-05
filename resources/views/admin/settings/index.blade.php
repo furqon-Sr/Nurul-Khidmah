@@ -154,7 +154,20 @@
                                             </div>
                                         @endif
                                         <input type="file" name="kop_surat" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: JPG, JPEG, PNG, WEBP. Maksimal 20MB.</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: JPG, JPEG, PNG, WEBP. Maksimal 20MB. Digunakan otomatis pada Bukti Pendaftaran, Rapor Santri, Rekap Kelas, dan Laporan Eksekutif Pimpinan.</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 dark:border-slate-700 pt-5">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Pejabat Penandatangan Rapor (Kepala Madrasah)</label>
+                                            <input type="text" name="kepala_madrasah_name" value="{{ old('kepala_madrasah_name', $contents['kepala_madrasah_name']->content_text ?? 'Ibu Uswatun Hasanah SP, S.Pd.I.') }}" placeholder="Contoh: Ibu Uswatun Hasanah SP, S.Pd.I." class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100">
+                                            <p class="text-xs text-gray-500 mt-1">Tercetak otomatis pada kolom pengesahan Rapor Hasil Belajar &amp; Rekap Akademik Kelas.</p>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Pengasuh / Pimpinan Pondok Pesantren</label>
+                                            <input type="text" name="pimpinan_pondok_name" value="{{ old('pimpinan_pondok_name', $contents['pimpinan_pondok_name']->content_text ?? 'KH. Imam Machmudi') }}" placeholder="Contoh: KH. Imam Machmudi" class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100">
+                                            <p class="text-xs text-gray-500 mt-1">Tercetak otomatis pada lembar pengesahan Laporan Eksekutif Track Record Pesantren.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

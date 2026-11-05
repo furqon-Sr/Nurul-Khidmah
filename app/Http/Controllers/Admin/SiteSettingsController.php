@@ -75,7 +75,7 @@ class SiteSettingsController extends Controller
         $definedKeys = [];
         if ($formType === 'identitas' || $formType === 'all') {
             $definedKeys = array_merge($definedKeys, [
-                'site_name', 'logo', 'favicon', 'contact_phone', 'contact_email', 'contact_address', 'footer_text', 'education_fee_pdf', 'kop_surat', 'active_academic_year'
+                'site_name', 'logo', 'favicon', 'contact_phone', 'contact_email', 'contact_address', 'footer_text', 'education_fee_pdf', 'kop_surat', 'active_academic_year', 'kepala_madrasah_name', 'pimpinan_pondok_name',
             ]);
         }
         if ($formType === 'konten' || $formType === 'konten_sejarah' || $formType === 'all') {
@@ -144,6 +144,7 @@ class SiteSettingsController extends Controller
         }
 
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
+        \App\Models\AdminActivityLog::log('update', "Memperbarui pengaturan situs (bagian: {$formType})");
 
         return redirect()->route('settings.index')->with('success', 'Pengaturan situs berhasil diperbarui.');
     }

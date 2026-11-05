@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('jadwal_pelajaran_id')->constrained('jadwal_pelajarans')->cascadeOnDelete();
             $table->foreignId('santri_id')->constrained('santris')->cascadeOnDelete();
             $table->date('tanggal');
-            $table->enum('status_kehadiran', ['Hadir', 'Izin', 'Sakit', 'Alpa'])->default('Hadir');
+            $table->enum('status_kehadiran', ['Hadir', 'Izin', 'Sakit', 'Alpa', 'Terlambat', 'Bolos'])->default('Hadir');
             $table->text('keterangan')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
