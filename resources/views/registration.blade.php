@@ -113,8 +113,8 @@
                                 Jenis Kelamin <span class="text-red-500">*</span>
                             </label>
                             <select id="gender" name="gender" required class="w-full min-h-12 rounded-2xl bg-white border-0 px-4 py-3 text-base font-medium shadow-sm focus:ring-2 focus:ring-[#0D6B3A]">
-                                <option value="L" {{ old('gender') == 'L' ? 'selected' : '' }}>Laki-laki (Putra)</option>
-                                <option value="P" {{ old('gender') == 'P' ? 'selected' : '' }}>Perempuan (Putri)</option>
+                                <option value="L" {{ old('gender') == 'L' ? 'selected' : '' }}>Laki-laki </option>
+                                <option value="P" {{ old('gender') == 'P' ? 'selected' : '' }}>Perempuan </option>
                             </select>
                         </div>
 
@@ -315,7 +315,7 @@
                                 1. Pasfoto Calon Santri <span class="text-red-500">*</span>
                             </label>
                             <input type="file" name="student_photo" id="student_photo" required accept="image/jpeg,image/png,image/jpg,image/webp"
-                                   class="image-crop-input w-full min-h-12 text-xs sm:text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer"
+                                   class="image-crop-input w-full min-h-12 text-xs sm:text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer"
                                    data-aspect-ratio="0.75" data-aspect-label="3:4 (Pasfoto)">
 
                             <input type="hidden" name="student_photo_crop_x" value="{{ old('student_photo_crop_x') }}">
@@ -334,11 +334,10 @@
                             {{-- 2. Kartu Keluarga (KK) --}}
                             <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-900/10">
                                 <label for="file_kk" class="block text-xs font-bold text-[#0D6B3A] mb-1">
-                                    2. Kartu Keluarga (KK)
+                                    2. Kartu Keluarga
                                 </label>
-                                <p class="text-[11px] text-gray-500 mb-2">Scan atau foto lembar Kartu Keluarga asli/legalisir.</p>
                                 <input type="file" id="file_kk" name="file_kk" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
+                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
 
                             {{-- 3. Akta Kelahiran --}}
@@ -346,29 +345,26 @@
                                 <label for="file_akta" class="block text-xs font-bold text-[#0D6B3A] mb-1">
                                     3. Akta Kelahiran
                                 </label>
-                                <p class="text-[11px] text-gray-500 mb-2">Scan atau foto Akta Kelahiran calon santri.</p>
                                 <input type="file" id="file_akta" name="file_akta" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                      class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
+                                      class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
 
                             {{-- 4. KTP Orang Tua / Wali --}}
                             <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-900/10">
                                 <label for="file_ktp" class="block text-xs font-bold text-[#0D6B3A] mb-1">
-                                    4. KTP Orang Tua (Ayah / Ibu)
+                                    4. KTP Orang Tua
                                 </label>
-                                <p class="text-[11px] text-gray-500 mb-2">Scan atau foto KTP Ayah atau Ibu kandung.</p>
                                 <input type="file" id="file_ktp" name="file_ktp" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
+                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
 
                             {{-- 5. Ijazah / SKL --}}
                             <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-900/10">
                                 <label for="file_ijazah" class="block text-xs font-bold text-[#0D6B3A] mb-1">
-                                    5. Ijazah / Surat Keterangan Lulus (SKL)
+                                    5. Ijazah / Surat Keterangan Lulus
                                 </label>
-                                <p class="text-[11px] text-gray-500 mb-2">Ijazah SD/MI atau Surat Keterangan Lulus.</p>
                                 <input type="file" id="file_ijazah" name="file_ijazah" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
+                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
                         </div>
                     </div>
@@ -383,7 +379,7 @@
                         </p>
                     </div>
 
-                    <button type="submit" class="w-full sm:w-auto min-h-12 inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#E8F81D] hover:bg-yellow-400 text-gray-900 font-extrabold text-base transition shadow-lg hover:shadow-xl shrink-0">
+                    <button type="submit" class="w-full sm:w-auto min-h-12 inline-flex items-center justify-center px-8 py-4 rounded-md bg-[#E8F81D] hover:bg-yellow-400 text-gray-900 font-extrabold text-base transition shadow-lg hover:shadow-xl shrink-0">
                         Kirim Formulir PPDB &gt;
                     </button>
                 </div>
