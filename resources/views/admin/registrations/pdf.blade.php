@@ -220,17 +220,34 @@
                     <td style="width: 65%; padding: 4px 6px; vertical-align: top; text-transform: uppercase; font-weight: bold;">{{ $registration->student_name }}</td>
                 </tr>
                 <tr>
+                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">NISN</td>
+                    <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
+                    <td style="padding: 4px 6px; vertical-align: top; font-family: monospace; font-weight: bold;">{{ $registration->nisn ?: '-' }}</td>
+                </tr>
+                <tr>
                     <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Jenis Kelamin</td>
                     <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
-                    <td style="padding: 4px 6px; vertical-align: top;">{{ $registration->gender == 'L' ? 'Laki-laki (Bani)' : 'Perempuan' }}</td>
+                    <td style="padding: 4px 6px; vertical-align: top;">{{ $registration->gender == 'L' ? 'Laki-laki (Putra)' : 'Perempuan (Putri)' }}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Tanggal Lahir</td>
+                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Tempat &amp; Tanggal Lahir</td>
                     <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
-                    <td style="padding: 4px 6px; vertical-align: top;">{{ \Carbon\Carbon::parse($registration->birth_date)->translatedFormat('d F Y') }}</td>
+                    <td style="padding: 4px 6px; vertical-align: top;">
+                        {{ $registration->birth_place ? $registration->birth_place . ', ' : '' }}{{ \Carbon\Carbon::parse($registration->birth_date)->translatedFormat('d F Y') }}
+                    </td>
                 </tr>
                 <tr>
-                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Program Pendidikan</td>
+                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Asal Sekolah (SD/MI)</td>
+                    <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
+                    <td style="padding: 4px 6px; vertical-align: top;">{{ $registration->previous_school ?: '-' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Status Asrama</td>
+                    <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
+                    <td style="padding: 4px 6px; vertical-align: top; font-weight: bold;">{{ $registration->boarding_status ?? 'Mukim' }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 6px; font-weight: bold; vertical-align: top;">Program / Kelas Tujuan</td>
                     <td style="padding: 4px 0; vertical-align: top; text-align: center;">:</td>
                     <td style="padding: 4px 6px; vertical-align: top; font-weight: bold;">{{ $registration->target_class }}</td>
                 </tr>

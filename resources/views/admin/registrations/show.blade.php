@@ -39,30 +39,46 @@
         
         <!-- Data Santri -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-bold">Data Pribadi Santri</div>
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-bold">1. Data Pribadi Calon Siswa / Santri</div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Nama Lengkap</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->student_name }}</p>
+                    <p class="font-bold text-gray-900 dark:text-slate-100 text-base">{{ $registration->student_name }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">NISN (Nomor Induk Siswa Nasional)</p>
+                    <p class="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-base">{{ $registration->nisn ?: '-' }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Jenis Kelamin</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->gender == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->gender == 'L' ? 'Laki-laki (Putra)' : 'Perempuan (Putri)' }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Tanggal Lahir</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ \Carbon\Carbon::parse($registration->birth_date)->format('d F Y') }}</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Tempat &amp; Tanggal Lahir</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">
+                        {{ $registration->birth_place ? $registration->birth_place . ', ' : '' }}{{ \Carbon\Carbon::parse($registration->birth_date)->format('d F Y') }}
+                    </p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Program Pendidikan</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->target_class }} — Lamongan</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Asal Sekolah (SD/MI)</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->previous_school ?: '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Status Asrama</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ ($registration->boarding_status ?? 'Mukim') === 'Mukim' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' }}">
+                        {{ $registration->boarding_status ?? 'Mukim' }}
+                    </span>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Pilihan Kelas / Program</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->target_class }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Tahun Ajaran</p>
                     <p class="font-medium text-[#0D6B3A] dark:text-green-400 font-bold">{{ $registration->academic_year }}</p>
                 </div>
-                <div class="md:col-span-2 mt-2">
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Alamat Domisili</p>
+                <div class="md:col-span-2 mt-1 pt-3 border-t border-gray-100 dark:border-slate-800">
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Alamat Domisili Siswa</p>
                     <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->residential_address }}</p>
                 </div>
             </div>
@@ -70,19 +86,105 @@
 
         <!-- Data Wali dan Kontak -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-bold">Data Wali & Kontak Pendaftar</div>
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-bold">2. Data Orang Tua / Wali Murid</div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Nama Orang Tua / Wali</p>
-                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->guardian_name }}</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Nama Ayah Kandung</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->father_name ?: '-' }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">No. WhatsApp Pendaftar</p>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Nama Ibu Kandung</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->mother_name ?: '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Pekerjaan Orang Tua / Wali</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->guardian_occupation ?: '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">No. WhatsApp Wali (Aktif)</p>
                     <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->guardian_phone }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Email Pendaftar</p>
+                <div class="md:col-span-2">
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Email Wali</p>
                     <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->guardian_email ?? '-' }}</p>
+                </div>
+                <div class="md:col-span-2 mt-1 pt-3 border-t border-gray-100 dark:border-slate-800">
+                    <p class="text-sm text-gray-500 dark:text-slate-400 mb-1">Alamat Orang Tua / Wali</p>
+                    <p class="font-medium text-gray-900 dark:text-slate-100">{{ $registration->guardian_address ?: $registration->residential_address }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Berkas Dokumen Upload -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 font-bold">3. Berkas Dokumen Persyaratan Digital</div>
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {{-- KK --}}
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-gray-500 uppercase">Kartu Keluarga (KK)</span>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
+                            {{ $registration->file_kk ? 'Berkas Telah Diunggah' : 'Belum Diunggah' }}
+                        </p>
+                    </div>
+                    @if($registration->file_kk)
+                        <a href="{{ Storage::url($registration->file_kk) }}" target="_blank" class="mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+                            Lihat / Unduh KK ↗
+                        </a>
+                    @else
+                        <span class="mt-3 text-xs text-gray-400 italic">Tidak ada lampiran</span>
+                    @endif
+                </div>
+
+                {{-- Akta --}}
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-gray-500 uppercase">Akta Kelahiran</span>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
+                            {{ $registration->file_akta ? 'Berkas Telah Diunggah' : 'Belum Diunggah' }}
+                        </p>
+                    </div>
+                    @if($registration->file_akta)
+                        <a href="{{ Storage::url($registration->file_akta) }}" target="_blank" class="mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+                            Lihat / Unduh Akta ↗
+                        </a>
+                    @else
+                        <span class="mt-3 text-xs text-gray-400 italic">Tidak ada lampiran</span>
+                    @endif
+                </div>
+
+                {{-- KTP --}}
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-gray-500 uppercase">KTP Orang Tua</span>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
+                            {{ $registration->file_ktp ? 'Berkas Telah Diunggah' : 'Belum Diunggah' }}
+                        </p>
+                    </div>
+                    @if($registration->file_ktp)
+                        <a href="{{ Storage::url($registration->file_ktp) }}" target="_blank" class="mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+                            Lihat / Unduh KTP ↗
+                        </a>
+                    @else
+                        <span class="mt-3 text-xs text-gray-400 italic">Tidak ada lampiran</span>
+                    @endif
+                </div>
+
+                {{-- Ijazah / SKL --}}
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-gray-500 uppercase">Ijazah / SKL</span>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-slate-100 mt-1">
+                            {{ $registration->file_ijazah ? 'Berkas Telah Diunggah' : 'Belum Diunggah' }}
+                        </p>
+                    </div>
+                    @if($registration->file_ijazah)
+                        <a href="{{ Storage::url($registration->file_ijazah) }}" target="_blank" class="mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+                            Lihat / Unduh Ijazah ↗
+                        </a>
+                    @else
+                        <span class="mt-3 text-xs text-gray-400 italic">Tidak ada lampiran</span>
+                    @endif
                 </div>
             </div>
         </div>
