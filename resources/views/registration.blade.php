@@ -33,15 +33,9 @@
 
             <!-- Judul & Info Pondok -->
             <div class="text-center space-y-2">
-                <span class="inline-block px-4 py-1.5 rounded-full bg-emerald-100 text-[#0D6B3A] text-xs font-bold tracking-wide uppercase">
-                    Penerimaan Peserta Didik Baru (PPDB)
-                </span>
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#0D6B3A] tracking-tight">
                     Formulir Pendaftaran Calon Santri Baru
                 </h1>
-                <p class="text-xs sm:text-sm text-gray-600 max-w-2xl mx-auto">
-                    Pondok Pesantren Nurul Khidmah Lamongan. Silakan isi 3 bagian formulir berikut dengan data yang valid dan lengkap.
-                </p>
             </div>
 
             <!-- Pesan Sukses / Notifikasi Flash -->
@@ -99,11 +93,8 @@
                 <!-- ═══════════════════════════════════════════════════════════════════ -->
                 <div class="bg-[#D5E2DB] rounded-3xl p-5 sm:p-6 md:p-8 space-y-6">
                     <div class="border-b border-[#0D6B3A]/20 pb-4">
-                        <span class="inline-block px-3 py-1 rounded-full bg-[#0D6B3A] text-white text-xs font-bold uppercase tracking-wider mb-2">
-                            Bagian 1 dari 3
-                        </span>
-                        <h2 class="text-xl sm:text-2xl font-bold text-[#0D6B3A]">Data Siswa (Calon Santri)</h2>
-                        <p class="text-xs sm:text-sm text-gray-700 mt-1">Lengkapi data pribadi calon santri sesuai dengan Akta Kelahiran atau Kartu Keluarga (KK).</p>
+                        <h2 class="text-xl sm:text-2xl font-bold text-[#0D6B3A]">Data Siswa</h2>
+                        <p class="text-xs sm:text-sm text-gray-700 mt-1">Lengkapi data pribadi calon santri sesuai dengan Akta Kelahiran atau Kartu Keluarga.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
@@ -127,24 +118,30 @@
                             </select>
                         </div>
 
-                        {{-- 3. Pilihan Kelas --}}
+                        {{-- 3. Program Pendidikan Dituju (Sesuai yang dibuka Admin) --}}
                         <div>
                             <label for="target_class" class="block text-xs font-bold text-[#0D6B3A] mb-2">
-                                Pilihan Tingkat / Kelas <span class="text-red-500">*</span>
+                                Program Pendidikan Dituju <span class="text-red-500">*</span>
                             </label>
                             <select id="target_class" name="target_class" required class="w-full min-h-12 rounded-2xl bg-white border-0 px-4 py-3 text-base font-medium shadow-sm focus:ring-2 focus:ring-[#0D6B3A]">
-                                <option value="Kelas 7 MTs" {{ old('target_class', $program) == 'Kelas 7 MTs' || old('target_class') == 'Kelas 7' ? 'selected' : '' }}>
-                                    Kelas 7 (Tingkat Awal MTs)
-                                </option>
-                                <option value="Kelas 8 MTs" {{ old('target_class', $program) == 'Kelas 8 MTs' || old('target_class') == 'Kelas 8' ? 'selected' : '' }}>
-                                    Kelas 8 (Tingkat Lanjutan MTs)
-                                </option>
+                                <option value="" disabled {{ !old('target_class') && !$program ? 'selected' : '' }}>-- Pilih Program Pendidikan --</option>
                                 @foreach($educationPrograms as $programOption)
-                                    @if(!in_array($programOption->name, ['Kelas 7 MTs', 'Kelas 8 MTs']))
-                                        <option value="{{ $programOption->name }}" {{ old('target_class') == $programOption->name ? 'selected' : '' }}>
-                                            {{ $programOption->name }}
-                                        </option>
-                                    @endif
+                                    @php
+                                        $isSelected = old('target_class') == $programOption->name ||
+                                                      (strtolower((string) $program) == strtolower($programOption->slug));
+                                    @endphp
+                                    <option value="{{ $programOption->name }}"
+                                            {{ $isSelected ? 'selected' : '' }}
+                                            {{ !$programOption->is_registration_open ? 'disabled' : '' }}>
+                                        {{ $programOption->name }}
+                                        @if(!$programOption->is_registration_open)
+                                            @if($programOption->is_coming_soon)
+                                                (Akan Segera Hadir)
+                                            @else
+                                                (Pendaftaran Ditutup)
+                                            @endif
+                                        @endif
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -204,7 +201,7 @@
                                        :class="$el.querySelector('input').checked ? 'border-[#0D6B3A] bg-emerald-50/50' : 'border-transparent'">
                                     <input type="radio" name="boarding_status" value="Tidak Mukim" {{ old('boarding_status') === 'Tidak Mukim' ? 'checked' : '' }} class="w-5 h-5 text-[#0D6B3A] focus:ring-[#0D6B3A]">
                                     <div>
-                                        <span class="font-bold text-sm text-gray-900 block">Tidak Mukim (Kalong)</span>
+                                        <span class="font-bold text-sm text-gray-900 block">Tidak Mukim </span>
                                         <span class="text-xs text-gray-500">Pulang-pergi ke rumah setelah jam pelajaran madrasah</span>
                                     </div>
                                 </label>
@@ -228,9 +225,6 @@
                 <!-- ═══════════════════════════════════════════════════════════════════ -->
                 <div class="bg-[#D5E2DB] rounded-3xl p-5 sm:p-6 md:p-8 space-y-6">
                     <div class="border-b border-[#0D6B3A]/20 pb-4">
-                        <span class="inline-block px-3 py-1 rounded-full bg-[#0D6B3A] text-white text-xs font-bold uppercase tracking-wider mb-2">
-                            Bagian 2 dari 3
-                        </span>
                         <h2 class="text-xl sm:text-2xl font-bold text-[#0D6B3A]">Data Orang Tua / Wali Murid</h2>
                         <p class="text-xs sm:text-sm text-gray-700 mt-1">Data kontak ini digunakan untuk menerbitkan akun Portal Wali Santri &amp; pengiriman notifikasi WhatsApp resmi.</p>
                     </div>
@@ -310,9 +304,6 @@
                 <!-- ═══════════════════════════════════════════════════════════════════ -->
                 <div class="bg-[#D5E2DB] rounded-3xl p-5 sm:p-6 md:p-8 space-y-6">
                     <div class="border-b border-[#0D6B3A]/20 pb-4">
-                        <span class="inline-block px-3 py-1 rounded-full bg-[#0D6B3A] text-white text-xs font-bold uppercase tracking-wider mb-2">
-                            Bagian 3 dari 3
-                        </span>
                         <h2 class="text-xl sm:text-2xl font-bold text-[#0D6B3A]">Dokumen Persyaratan &amp; Pasfoto</h2>
                         <p class="text-xs sm:text-sm text-gray-700 mt-1">Unggah dokumen fisik dalam bentuk scan atau foto yang jelas (Format: PDF, JPG, PNG. Maksimal 3MB per berkas).</p>
                     </div>
@@ -321,9 +312,8 @@
                         {{-- 1. Pasfoto 3:4 dengan Cropper --}}
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-900/10 image-crop-wrapper" data-field="student_photo">
                             <label for="student_photo" class="block text-xs font-bold text-[#0D6B3A] mb-1">
-                                1. Pasfoto Calon Santri (Ukuran 3x4) <span class="text-red-500">*</span>
+                                1. Pasfoto Calon Santri <span class="text-red-500">*</span>
                             </label>
-                            <p class="text-xs text-gray-500 mb-3">Pilih foto calon santri berbusana rapi/berkopiah/berkerudung, lalu atur area potong pada jendela cropper.</p>
                             <input type="file" name="student_photo" id="student_photo" required accept="image/jpeg,image/png,image/jpg,image/webp"
                                    class="image-crop-input w-full min-h-12 text-xs sm:text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer"
                                    data-aspect-ratio="0.75" data-aspect-label="3:4 (Pasfoto)">
@@ -335,7 +325,7 @@
                             <input type="hidden" id="student_photo_base64" name="student_photo_base64" value="{{ old('student_photo_base64') }}">
 
                             <div class="image-crop-status hidden mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 shadow-inner">
-                                <p class="text-xs font-semibold text-emerald-800 mb-2">✓ Pasfoto 3x4 berhasil dipotong dan siap dikirim</p>
+                                <p class="text-xs font-semibold text-emerald-800 mb-2"> Pasfoto 3x4 berhasil dipotong dan siap dikirim</p>
                                 <img src="" alt="Pratinjau Pasfoto" class="image-crop-result-preview max-h-40 rounded-xl border border-emerald-200 object-contain bg-white">
                             </div>
                         </div>
@@ -348,7 +338,7 @@
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Scan atau foto lembar Kartu Keluarga asli/legalisir.</p>
                                 <input type="file" id="file_kk" name="file_kk" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-[#0D6B3A] hover:file:bg-emerald-200 cursor-pointer">
+                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
 
                             {{-- 3. Akta Kelahiran --}}
@@ -358,7 +348,7 @@
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Scan atau foto Akta Kelahiran calon santri.</p>
                                 <input type="file" id="file_akta" name="file_akta" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-[#0D6B3A] hover:file:bg-emerald-200 cursor-pointer">
+                                      class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
 
                             {{-- 4. KTP Orang Tua / Wali --}}
@@ -368,7 +358,7 @@
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Scan atau foto KTP Ayah atau Ibu kandung.</p>
                                 <input type="file" id="file_ktp" name="file_ktp" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-[#0D6B3A] hover:file:bg-emerald-200 cursor-pointer">
+                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
 
                             {{-- 5. Ijazah / SKL --}}
@@ -378,7 +368,7 @@
                                 </label>
                                 <p class="text-[11px] text-gray-500 mb-2">Ijazah SD/MI atau Surat Keterangan Lulus.</p>
                                 <input type="file" id="file_ijazah" name="file_ijazah" accept="application/pdf,image/jpeg,image/png,image/jpg"
-                                       class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-[#0D6B3A] hover:file:bg-emerald-200 cursor-pointer">
+                                       class="w-full min-h-12 text-xs text-gray-600 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#0D6B3A] file:text-white hover:file:bg-emerald-800 border p-2 rounded-2xl bg-gray-50 shadow-sm cursor-pointer">
                             </div>
                         </div>
                     </div>

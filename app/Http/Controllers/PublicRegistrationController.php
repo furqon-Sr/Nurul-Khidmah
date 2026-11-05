@@ -66,16 +66,14 @@ class PublicRegistrationController extends Controller
             'file_ijazah' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:3072',
         ]);
 
-        // Verifikasi fleksibel untuk program/kelas tujuan (mendukung Kelas 7 & 8 atau program aktif)
-        $isClassAllowed = in_array($validated['target_class'], ['Kelas 7', 'Kelas 8', 'Kelas 7 MTs', 'Kelas 8 MTs', 'Kelas 7 Ula A', 'Kelas 8 Wustho A'], true)
-            || \App\Models\EducationProgram::where('name', $validated['target_class'])
-                ->where('is_active', true)
-                ->where('is_registration_open', true)
-                ->exists()
-            || \App\Models\Kelas::where('nama_kelas', 'like', '%' . $validated['target_class'] . '%')->exists();
+        // Verifikasi backend: hanya program pendidikan yang aktif dan dibuka pendaftarannya oleh admin
+        $programExists = \App\Models\EducationProgram::where('name', $validated['target_class'])
+            ->where('is_active', true)
+            ->where('is_registration_open', true)
+            ->exists();
 
-        if (! $isClassAllowed) {
-            return back()->withErrors(['target_class' => 'Pendaftaran untuk kelas atau program yang Anda pilih saat ini belum dibuka.'])->withInput();
+        if (! $programExists) {
+            return back()->withErrors(['target_class' => 'Pendaftaran untuk program pendidikan yang Anda pilih saat ini sedang ditutup.'])->withInput();
         }
 
         // Proses pasfoto 3:4 menggunakan ImageCropService (PHP GD Extension)

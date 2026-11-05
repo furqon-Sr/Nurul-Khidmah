@@ -28,6 +28,13 @@ class PpdbDetailedFormTest extends TestCase
             'status_aktif' => true,
         ]);
 
+        \App\Models\EducationProgram::create([
+            'name' => 'Madrasah Tsanawiyah (MTs)',
+            'slug' => 'mts',
+            'is_active' => true,
+            'is_registration_open' => true,
+        ]);
+
         $dummyBase64Image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
         $fileKk = UploadedFile::fake()->create('kartu_keluarga.pdf', 500, 'application/pdf');
@@ -48,7 +55,7 @@ class PpdbDetailedFormTest extends TestCase
             'previous_school' => 'MI Mansyaul Ulum Lamongan',
             'nisn' => '0147404399',
             'boarding_status' => 'Mukim',
-            'target_class' => 'Kelas 7 MTs',
+            'target_class' => 'Madrasah Tsanawiyah (MTs)',
 
             // Bagian 2: Data Orang Tua
             'father_name' => 'Zainal Abidin',
@@ -76,7 +83,7 @@ class PpdbDetailedFormTest extends TestCase
             'nisn' => '0147404399',
             'previous_school' => 'MI Mansyaul Ulum Lamongan',
             'boarding_status' => 'Mukim',
-            'target_class' => 'Kelas 7 MTs',
+            'target_class' => 'Madrasah Tsanawiyah (MTs)',
             'father_name' => 'Zainal Abidin',
             'mother_name' => 'Siti Aminah',
             'guardian_occupation' => 'Wiraswasta',
