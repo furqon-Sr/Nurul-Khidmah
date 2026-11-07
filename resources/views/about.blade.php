@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tentang Kami - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Manrope', sans-serif; }
     </style>
     <!-- AlpineJS for interactions -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -23,10 +23,10 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div class="flex flex-col lg:flex-row gap-12 items-start">
                 <div class="w-full lg:w-1/2 space-y-6">
-                    <span class="inline-block px-3 py-1 bg-[#E8F81D] text-xs font-bold text-gray-900 tracking-wide rounded-s
+                    <span class="inline-block px-3 py-1 bg-secondary-500 text-xs font-bold text-gray-900 tracking-wide rounded-s
                     
                     m">REKAM JEJAK PERJUANGAN</span>
-                    <h1 class="text-3xl md:text-4xl font-bold text-[#0D6B3A] leading-snug">
+                    <h1 class="text-3xl md:text-4xl font-bold text-primary-600 leading-snug">
                         {{ $contents['about_title']?->content_text ?? 'Berawal dari Langkah Nyata Merangkul Umat demi Perubahan Spiritual' }}
                     </h1>
                     <div class="text-gray-700 leading-relaxed text-justify text-sm md:text-base space-y-4">
@@ -50,7 +50,7 @@
             <div class="flex flex-col lg:flex-row gap-12 items-start">
                 <div class="w-full lg:w-5/12 flex flex-col items-center">
                     <img src="{{ isset($contents['about_kyai_image']) && $contents['about_kyai_image']->image_path ? Storage::url($contents['about_kyai_image']->image_path) : 'https://images.unsplash.com/photo-1579298245158-33e8f568f7d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="KH. Imam Machmudi Al-Bantani" class="w-full h-auto rounded-xl shadow-md object-cover mb-8" style="max-height: 480px;">
-                    <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-[#0D6B3A] text-[#0D6B3A] text-sm font-semibold rounded-full hover:bg-green-50 transition-colors w-full max-w-[280px]">
+                    <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-primary-600 text-primary-600 text-sm font-semibold rounded-full hover:bg-primary-50 transition-colors w-full max-w-[280px]">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
                         </svg>
@@ -58,8 +58,8 @@
                     </a>
                 </div>
                 <div class="w-full lg:w-7/12 space-y-6 pt-2">
-                    <span class="inline-block px-3 py-1 bg-[#E8F81D] text-xs font-bold text-gray-900 tracking-wide rounded-sm">PROFIL PENGASUH</span>
-                    <h2 class="text-3xl md:text-4xl font-bold text-[#0D6B3A] leading-tight">
+                    <span class="inline-block px-3 py-1 bg-secondary-500 text-xs font-bold text-gray-900 tracking-wide rounded-sm">PROFIL PENGASUH</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-primary-600 leading-tight">
                         {!! $contents['about_kyai_name']?->content_text ?? 'KH. Imam Machmudi<br>Al-Bantani' !!}
                     </h2>
                     <div class="text-gray-700 leading-relaxed text-justify text-sm md:text-base mt-6 space-y-4">

@@ -7,7 +7,7 @@
     <div>
         <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Penjadwalan Pelajaran</h1>
     </div>
-    <a href="{{ route('admin.schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition shadow-sm font-medium text-sm">
+    <a href="{{ route('admin.schedules.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm font-medium text-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Plotting Jadwal Baru
     </a>
@@ -56,20 +56,20 @@
 
             <button type="submit" class="min-h-11 px-4 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-gray-900 transition shadow-sm">Filter</button>
             @if(request('tahun_ajaran_id') || request('kelas_id') || request('hari') || request('pengajar_id'))
-                <a href="{{ route('admin.schedules.index', ['tahun_ajaran_id' => 'all']) }}" class="min-h-11 px-3 py-2 inline-flex items-center text-xs text-gray-500 dark:text-gray-400 hover:text-emerald-600 hover:underline">Reset Filter</a>
+                <a href="{{ route('admin.schedules.index', ['tahun_ajaran_id' => 'all']) }}" class="min-h-11 px-3 py-2 inline-flex items-center text-xs text-gray-600 dark:text-gray-400 hover:text-emerald-600 hover:underline">Reset Filter</a>
             @endif
         </form>
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900/50">
+        <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Hari & Jam</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kelas / Ruang</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mata Pelajaran</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pengajar (Ustaz/Ustazah)</th>
-                    <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Hari & Jam</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Kelas / Ruang</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Mata Pelajaran</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Pengajar (Ustaz/Ustazah)</th>
+                    <th class="px-6 py-3.5 text-right text-xs font-bold text-gray-600 dark:text-gray-400">Aksi</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -85,27 +85,27 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="font-semibold text-gray-900 dark:text-gray-100">{{ $item->kelas->nama_kelas ?? '-' }}</div>
-                        <div class="text-xs text-gray-500">Ruang: {{ $item->ruang ?? 'Kelas Utama' }}</div>
+                        <div class="text-xs text-gray-600">Ruang: {{ $item->ruang ?? 'Kelas Utama' }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="font-semibold text-emerald-700 dark:text-emerald-400">{{ $item->mataPelajaran->nama_mapel ?? '-' }}</div>
-                        <div class="text-xs text-gray-500 font-mono">{{ $item->mataPelajaran->kode_mapel ?? '' }}</div>
+                        <div class="text-xs text-gray-600 font-mono">{{ $item->mataPelajaran->kode_mapel ?? '' }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200 font-medium">
                         {{ $item->pengajar->nama_lengkap ?? '-' }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('admin.schedules.edit', $item->id) }}" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-3">Edit</a>
+                        <x-icon-button type="edit" href="{{ route('admin.schedules.edit', $item->id) }}" class="mr-1.5" />
                         <form action="{{ route('admin.schedules.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-rose-600 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300">Hapus</button>
+                            <x-icon-button type="delete" :submit="true" />
                         </form>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-600 dark:text-gray-400 text-sm">
                         Belum ada jadwal pelajaran terdaftar pada filter ini.
                     </td>
                 </tr>

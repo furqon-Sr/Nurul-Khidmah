@@ -21,12 +21,12 @@
 
 <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead class="bg-gray-50 dark:bg-slate-800">
+        <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead>
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Gambar/Ikon</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Fasilitas</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-400">Gambar/Ikon</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600">Nama Fasilitas</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-600">Aksi</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-slate-950 divide-y divide-gray-200 dark:divide-slate-700">
@@ -41,20 +41,20 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $item->title }}</div>
-                        <div class="text-sm text-gray-500 dark:text-slate-400 line-clamp-1">{{ Str::limit($item->description, 50) }}</div>
+                        <div class="text-sm text-gray-600 dark:text-slate-400 line-clamp-1">{{ Str::limit($item->description, 50) }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('admin.facilities.edit', $item->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                        <x-icon-button type="edit" href="{{ route('admin.facilities.edit', $item->id) }}" class="mr-1.5" />
                         <form action="{{ route('admin.facilities.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus fasilitas ini?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                            <x-icon-button type="delete" :submit="true" />
                         </form>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="3" class="px-6 py-10 text-center text-gray-500 dark:text-slate-400">
+                    <td colspan="3" class="px-6 py-10 text-center text-gray-600 dark:text-slate-400">
                         Belum ada data fasilitas.
                     </td>
                 </tr>

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pendidikan - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Manrope', sans-serif; }
     </style>
     <!-- AlpineJS for interactions -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -34,7 +34,7 @@
                                     ✅ PENDAFTARAN TERBUKA
                                 </span>
                             @elseif(!$program->is_coming_soon)
-                                <span class="inline-block px-3 py-1 bg-gray-100 text-[10px] sm:text-xs font-bold text-gray-500 tracking-wider rounded-sm">
+                                <span class="inline-block px-3 py-1 bg-gray-100 text-[10px] sm:text-xs font-bold text-gray-600 tracking-wider rounded-sm">
                                     UNIT AKTIF
                                 </span>
                             @else
@@ -43,7 +43,7 @@
                                 </span>
                             @endif
 
-                            <h2 class="text-3xl md:text-4xl font-bold text-[#0D6B3A] leading-snug">
+                            <h2 class="text-3xl md:text-4xl font-bold text-primary-600 leading-snug">
                                 {{ $program->name }}
                             </h2>
 
@@ -56,7 +56,7 @@
                             {{-- CTA Daftar --}}
                             @if($program->is_registration_open)
                                 <a href="{{ route('register.create', $program->slug) }}"
-                                   class="inline-flex items-center gap-2 justify-center px-6 py-2.5 bg-[#0D6B3A] text-white text-sm font-bold rounded-full hover:bg-green-800 transition shadow-md">
+                                   class="inline-flex items-center gap-2 justify-center px-6 py-2.5 bg-primary-600 text-white text-sm font-bold rounded-full hover:bg-green-800 transition shadow-md">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     Mulai Pendaftaran Unit Ini →
                                 </a>
@@ -96,7 +96,7 @@
             <!-- Section: Rincian Biaya Pendidikan -->
             <div class="pt-16 border-t border-gray-100">
                 <div class="text-center max-w-2xl mx-auto mb-12">
-                    <h2 class="text-3xl font-bold text-[#0D6B3A] mb-4">Rincian Biaya Pendidikan</h2>
+                    <h2 class="text-3xl font-bold text-primary-600 mb-4">Rincian Biaya Pendidikan</h2>
                     <p class="text-gray-600 text-sm md:text-base leading-relaxed">
                         Berikut merupakan rincian rencana komponen biaya pendidikan pada masing-masing unit pendidikan Pondok Pesantren Nurul Khidmah.
                     </p>
@@ -107,7 +107,7 @@
                             $typeLabel = in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']) ? 'Gambar' : strtoupper($ext);
                         @endphp
                         <div class="mt-6">
-                            <a href="{{ route('education.download-fee') }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#E8F81D] hover:bg-yellow-400 text-gray-900 font-bold text-sm shadow-md hover:shadow-lg transition">
+                            <a href="{{ route('education.download-fee') }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary-500 hover:bg-secondary-400 text-gray-900 font-bold text-sm shadow-md hover:shadow-lg transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 Unduh Brosur & Dokumen Lengkap ({{ $typeLabel }})
                             </a>
@@ -120,7 +120,7 @@
                         @php $categoryFees = $fees->where('category', $program->name); @endphp
                         <div class="bg-gray-50 rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between">
                             <div>
-                                <h3 class="text-lg font-bold text-[#0D6B3A] border-b border-gray-200 pb-3 mb-4 uppercase tracking-wide">
+                                <h3 class="text-lg font-bold text-primary-600 border-b border-gray-200 pb-3 mb-4 uppercase tracking-wide">
                                     {{ $program->name }}
                                 </h3>
                                 
@@ -134,7 +134,7 @@
                                                         <p class="text-xs text-gray-400 mt-0.5">{{ $fee->description }}</p>
                                                     @endif
                                                 </div>
-                                                <span class="font-bold text-[#0D6B3A] shrink-0 ml-4">
+                                                <span class="font-bold text-primary-600 shrink-0 ml-4">
                                                     Rp {{ number_format($fee->amount, 0, ',', '.') }}
                                                 </span>
                                             </div>
@@ -147,7 +147,7 @@
 
                             @if($program->is_registration_open)
                             <div class="pt-4 border-t border-gray-200/50 flex justify-end">
-                                <a href="{{ route('registration') }}" class="text-xs font-bold text-[#0D6B3A] hover:underline flex items-center gap-1">
+                                <a href="{{ route('registration') }}" class="text-xs font-bold text-primary-600 hover:underline flex items-center gap-1">
                                     Mulai Pendaftaran Unit Ini &rarr;
                                 </a>
                             </div>

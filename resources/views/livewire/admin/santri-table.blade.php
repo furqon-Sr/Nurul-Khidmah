@@ -4,7 +4,7 @@
             <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Manajemen Data Santri</h1>
             <p class="text-gray-600 dark:text-gray-400 text-sm">Kelola data induk santri, kelas, dan akun portal wali santri. Klik foto atau nama untuk melihat profil lengkap.</p>
         </div>
-        <a href="{{ route('admin.santri.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition shadow-sm font-medium text-sm">
+        <a href="{{ route('admin.santri.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm font-medium text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Tambah Santri Baru
         </a>
@@ -98,15 +98,15 @@
 
         {{-- Tabel Data Santri --}}
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900/50">
+            <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead>
                     <tr>
-                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">NIS &amp; NISN</th>
-                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Santri &amp; Foto</th>
-                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kelas</th>
-                        <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama Wali &amp; Kontak</th>
-                        <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">NIS &amp; NISN</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Santri &amp; Foto</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Kelas</th>
+                        <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Nama Wali &amp; Kontak</th>
+                        <th class="px-6 py-3.5 text-center text-xs font-bold text-gray-600 dark:text-gray-400">Status</th>
+                        <th class="px-6 py-3.5 text-right text-xs font-bold text-gray-600 dark:text-gray-400">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -137,7 +137,7 @@
                                 {{ $item->nis }}
                             </span>
                             @if($item->nisn)
-                                <div class="text-[11px] font-mono text-gray-500 dark:text-gray-400 mt-1">
+                                <div class="text-[11px] font-mono text-gray-600 dark:text-gray-400 mt-1">
                                     NISN: {{ $item->nisn }}
                                 </div>
                             @endif
@@ -151,9 +151,9 @@
                                     @if($item->fotoUrl())
                                         <img src="{{ $item->fotoUrl() }}" 
                                              alt="{{ $item->nama_lengkap }}" 
-                                             class="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-500/80 group-hover:ring-4 group-hover:scale-105 transition duration-150 shadow-sm">
+                                             class="w-10 h-10 rounded-full object-cover group-hover:scale-105 transition duration-150 shadow-sm">
                                     @else
-                                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold flex items-center justify-center text-xs ring-2 ring-emerald-500/80 group-hover:ring-4 group-hover:scale-105 transition duration-150 shadow-sm">
+                                        <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-300 font-bold flex items-center justify-center text-xs group-hover:scale-105 transition duration-150 shadow-sm">
                                             {{ $item->initials() }}
                                         </div>
                                     @endif
@@ -168,7 +168,7 @@
                                             title="Klik untuk membuka profil">
                                         {{ $item->nama_lengkap }}
                                     </button>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">
                                         {{ $item->genderLabel() }} • Masuk: {{ $item->tahun_masuk ?? '-' }}
                                     </div>
                                 </div>
@@ -177,7 +177,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">
                             <div>{{ $item->kelas->nama_kelas ?? 'Belum Ditentukan' }}</div>
                             @if($item->kelas?->tahunAjaran)
-                                <div class="text-xs text-gray-500 dark:text-gray-400">TA: {{ $item->kelas->tahunAjaran->nama_tahun_ajaran }}</div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">TA: {{ $item->kelas->tahunAjaran->nama_tahun_ajaran }}</div>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
@@ -189,27 +189,23 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $item->status_santri === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : (in_array($item->status_santri, ['Lulus', 'Alumni']) ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300') }}">
+                            <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md {{ $item->status_santri === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : (in_array($item->status_santri, ['Lulus', 'Alumni']) ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300') }}">
                                 {{ $item->status_santri === 'Alumni' ? 'Lulus (Alumni)' : $item->status_santri }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button type="button" 
-                                    @click="activeSantri = {{ json_encode($santriPayload) }}; showPhotoModal = true"
-                                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3 text-xs font-semibold">
-                                Profil
-                            </button>
-                            <a href="{{ route('admin.santri.edit', $item->id) }}" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-3 text-xs font-semibold">Edit</a>
+                            <button type="button" @click="activeSantri = {{ json_encode($santriPayload) }}; showPhotoModal = true" title="Lihat profil" aria-label="Lihat profil" class="icon-btn icon-btn-view mr-1.5"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></button>
+                            <x-icon-button type="edit" href="{{ route('admin.santri.edit', $item->id) }}" class="mr-1.5" />
                             <form action="{{ route('admin.santri.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Menghapus data santri akan sekaligus menghapus akun user terhubung. Yakin?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-rose-600 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-semibold">Hapus</button>
+                                <x-icon-button type="delete" :submit="true" />
                             </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
+                        <td colspan="6" class="px-6 py-10 text-center text-gray-600 dark:text-gray-400 text-sm">
                             Belum ada data santri yang cocok dengan filter atau kata kunci pencarian.
                         </td>
                     </tr>
@@ -277,47 +273,47 @@
                     <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-4" x-text="activeSantri ? activeSantri.nama : ''"></h4>
                     
                     <div class="mt-1 flex flex-wrap items-center justify-center gap-2">
-                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" x-text="activeSantri ? activeSantri.status : ''"></span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400 font-mono" x-text="activeSantri ? ('NIS: ' + activeSantri.nis) : ''"></span>
+                        <span class="px-2.5 py-1 rounded-md text-2xs uppercase tracking-wide font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" x-text="activeSantri ? activeSantri.status : ''"></span>
+                        <span class="text-xs text-gray-600 dark:text-gray-400 font-mono" x-text="activeSantri ? ('NIS: ' + activeSantri.nis) : ''"></span>
                     </div>
                 </div>
 
                 <!-- Detail Grid -->
                 <div class="grid grid-cols-2 gap-3 p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl text-xs">
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">NISN</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">NISN</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.nisn : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Kelas &amp; TA</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Kelas &amp; TA</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? (activeSantri.kelas + ' (' + activeSantri.tahun_ajaran + ')') : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Jenis Kelamin</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Jenis Kelamin</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.gender : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Tempat, Tanggal Lahir</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Tempat, Tanggal Lahir</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.ttl : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Wali Santri</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Wali Santri</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.wali : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">No. Telepon / WA</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">No. Telepon / WA</span>
                         <span class="font-semibold text-emerald-600" x-text="activeSantri ? activeSantri.no_hp : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Asal Sekolah</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Asal Sekolah</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.asal_sekolah : '-'"></span>
                     </div>
                     <div>
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Status Mukim</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Status Mukim</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.mukim : '-'"></span>
                     </div>
                     <div class="col-span-2">
-                        <span class="text-gray-500 dark:text-gray-400 block font-medium">Alamat Lengkap</span>
+                        <span class="text-gray-600 dark:text-gray-400 block font-medium">Alamat Lengkap</span>
                         <span class="font-semibold text-gray-800 dark:text-gray-200" x-text="activeSantri ? activeSantri.alamat : '-'"></span>
                     </div>
                 </div>
@@ -326,7 +322,7 @@
             <!-- Footer Modal -->
             <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <a :href="activeSantri ? activeSantri.edit_url : '#'" 
-                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
+                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                     Edit Data Santri
                 </a>

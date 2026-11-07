@@ -61,14 +61,14 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-900/50">
+        <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Identitas / NIP</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama Pengajar</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kontak &amp; Gender</th>
-                    <th class="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Identitas / NIP</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Nama Pengajar</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Kontak &amp; Gender</th>
+                    <th class="px-6 py-3.5 text-center text-xs font-bold text-gray-600 dark:text-gray-400">Status</th>
+                    <th class="px-6 py-3.5 text-right text-xs font-bold text-gray-600 dark:text-gray-400">Aksi</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -81,29 +81,29 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="font-semibold text-gray-900 dark:text-gray-100">{{ $item->nama_lengkap }}</div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $item->user->email ?? 'Belum ada email' }}</div>
+                        <div class="text-xs text-gray-600 dark:text-gray-400">{{ $item->user->email ?? 'Belum ada email' }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
                         <div>{{ $item->nomor_telepon ?? '-' }}</div>
-                        <span class="text-xs text-gray-500">{{ $item->jenis_kelamin }}</span>
+                        <span class="text-xs text-gray-600">{{ $item->jenis_kelamin }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $item->status_pengajar === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                        <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md {{ $item->status_pengajar === 'Aktif' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
                             {{ $item->status_pengajar }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('admin.teachers.edit', $item->id) }}" class="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 mr-3 text-xs font-semibold">Edit</a>
+                        <x-icon-button type="edit" href="{{ route('admin.teachers.edit', $item->id) }}" class="mr-1.5" />
                         <form action="{{ route('admin.teachers.destroy', $item->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Menghapus data pengajar akan sekaligus menghapus akun user terhubung. Yakin?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-rose-600 hover:text-rose-900 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-semibold">Hapus</button>
+                            <x-icon-button type="delete" :submit="true" />
                         </form>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-600 dark:text-gray-400 text-sm">
                         Belum ada data pengajar yang cocok dengan pencarian.
                     </td>
                 </tr>

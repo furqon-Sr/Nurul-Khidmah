@@ -7,7 +7,7 @@
 
 @include('partials.site-favicon')
 
-@fonts
+@include('partials.fonts')
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance

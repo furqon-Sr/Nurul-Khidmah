@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $news->title }} - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Manrope', sans-serif; }
     </style>
     <!-- AlpineJS for interactions -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -22,7 +22,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
             <!-- Back Link -->
             <div class="mb-8">
-                <a href="{{ route('news.index') }}" class="inline-flex items-center gap-2 text-[#0D6B3A] hover:underline font-semibold text-sm">
+                <a href="{{ route('news.index') }}" class="inline-flex items-center gap-2 text-primary-600 hover:underline font-semibold text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     Kembali ke Berita
                 </a>
@@ -35,13 +35,13 @@
                         {{ $news->category }}
                     </span>
                 @endif
-                <span class="text-xs text-gray-500 font-medium">
+                <span class="text-xs text-gray-600 font-medium">
                     Dipublikasikan: {{ $news->published_at ? $news->published_at->translatedFormat('d F Y') : $news->created_at->translatedFormat('d F Y') }}
                 </span>
             </div>
 
             <!-- Title -->
-            <h1 class="text-3xl md:text-5xl font-bold text-[#0D6B3A] mb-8 leading-snug">
+            <h1 class="text-3xl md:text-5xl font-bold text-primary-600 mb-8 leading-snug">
                 {{ $news->title }}
             </h1>
 
@@ -59,7 +59,7 @@
 
             <!-- Share Bar -->
             <div class="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Bagikan Berita:</span>
+                <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Bagikan Berita:</span>
                 <div class="flex flex-wrap gap-3" x-data="{ copied: false }">
                     <!-- WhatsApp -->
                     <a href="https://api.whatsapp.com/send?text={{ rawurlencode($news->title . ' - ' . url()->current()) }}" 

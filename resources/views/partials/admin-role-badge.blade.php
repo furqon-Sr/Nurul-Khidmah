@@ -12,7 +12,7 @@
         Pimpinan Yayasan
     </span>
 @elseif($user->isPengurusAkademik())
-    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide shadow-sm bg-emerald-700 text-white ring-1 ring-emerald-800/40">
+    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide shadow-sm bg-emerald-600 text-white ring-1 ring-emerald-800/40">
         Staf TU / Akademik
     </span>
 @elseif($user->isTenagaPengajar())

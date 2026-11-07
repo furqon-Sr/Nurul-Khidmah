@@ -77,7 +77,7 @@
                 
                 {{-- Input Pencarian Realtime --}}
                 <div class="lg:col-span-2">
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">
                         Pencarian Realtime
                     </label>
                     <div class="relative">
@@ -109,7 +109,7 @@
 
                 {{-- Filter Program Pendidikan --}}
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Program Pendidikan</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Program Pendidikan</label>
                     <select wire:model.live="target_class" 
                             class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                         <option value="">-- Semua Program --</option>
@@ -121,7 +121,7 @@
 
                 {{-- Filter Status --}}
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
                     <select wire:model.live="status" 
                             class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                         <option value="">-- Semua Status --</option>
@@ -133,7 +133,7 @@
 
                 {{-- Filter Tahun Ajaran --}}
                 <div>
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Tahun Ajaran</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Tahun Ajaran</label>
                     <select wire:model.live="academic_year" 
                             class="w-full min-h-11 rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                         <option value="all">-- Semua Tahun --</option>
@@ -178,7 +178,7 @@
 
     {{-- Panel Aksi Massal (Bulk Actions) --}}
     @if(count($selectedIds) > 0)
-    <div class="mb-6 p-4 bg-green-50 border border-green-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
+    <div class="mb-6 p-4 bg-primary-50 border border-green-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-fade-in">
         <div class="flex items-center gap-3">
             <div class="p-2 bg-green-100 dark:bg-slate-700 text-green-700 dark:text-green-300 rounded-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
@@ -187,7 +187,7 @@
                 <span class="text-sm font-bold text-gray-800 dark:text-slate-100">
                     Aksi Massal: <span class="text-green-700 dark:text-green-400 font-extrabold">{{ count($selectedIds) }}</span> Pendaftar Terpilih
                 </span>
-                <p class="text-xs text-gray-500 dark:text-slate-400">Pilih status baru untuk semua pendaftar yang dicentang.</p>
+                <p class="text-xs text-gray-600 dark:text-slate-400">Pilih status baru untuk semua pendaftar yang dicentang.</p>
             </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
@@ -224,17 +224,17 @@
     {{-- Tabel Pendaftar PPDB --}}
     <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                <thead class="bg-gray-50 dark:bg-slate-800">
+            <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+                <thead>
                     <tr>
                         <th scope="col" class="px-4 py-3 text-left w-10">
                             <input type="checkbox" wire:model.live="selectAll" class="rounded border-gray-300 dark:border-slate-700 text-green-700 focus:ring-green-500 w-4 h-4">
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">No. Registrasi</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Nama Santri &amp; Pilihan Program</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Tanggal Daftar</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-400">No. Registrasi</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-400">Nama Santri &amp; Pilihan Program</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-400">Tanggal Daftar</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-400">Status</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-gray-600 dark:text-slate-400">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white dark:bg-slate-950 divide-y divide-gray-200 dark:divide-slate-700">
@@ -248,42 +248,40 @@
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $item->student_name }}</div>
-                            <div class="text-xs text-gray-500 dark:text-slate-400">
+                            <div class="text-xs text-gray-600 dark:text-slate-400">
                                 JK: {{ $item->gender == 'L' ? 'Laki-laki' : 'Perempuan' }} | {{ $item->target_class }} | TA: {{ $item->academic_year }}
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                             {{ $item->created_at->format('d M Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($item->status == 'pending')
-                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                <span class="px-2.5 py-1 inline-flex text-2xs uppercase tracking-wide leading-none font-bold rounded-md bg-yellow-100 text-yellow-800">
                                     Pending
                                 </span>
                             @elseif($item->status == 'accepted')
-                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                <span class="px-2.5 py-1 inline-flex text-2xs uppercase tracking-wide leading-none font-bold rounded-md bg-green-100 text-green-800">
                                     Approved
                                 </span>
                             @else
-                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 border border-red-200">
+                                <span class="px-2.5 py-1 inline-flex text-2xs uppercase tracking-wide leading-none font-bold rounded-md bg-red-100 text-red-800">
                                     Rejected
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="{{ route('admin.registrations.show', $item->id) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg transition font-semibold">Detail</a>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5">
+                            <x-icon-button type="view" href="{{ route('admin.registrations.show', $item->id) }}" />
                             <form action="{{ route('admin.registrations.destroy', $item->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pendaftar {{ $item->student_name }} secara permanen?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 px-3 py-1.5 bg-red-50 dark:bg-red-500/10 rounded-lg transition font-semibold">
-                                    Hapus
-                                </button>
+                                <x-icon-button type="delete" :submit="true" />
                             </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-slate-400">
+                        <td colspan="6" class="px-6 py-10 text-center text-gray-600 dark:text-slate-400">
                             Belum ada data pendaftar yang cocok dengan filter pencarian.
                         </td>
                     </tr>

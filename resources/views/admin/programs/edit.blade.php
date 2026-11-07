@@ -62,7 +62,7 @@
                        {{ old('is_active', $program->is_active) ? 'checked' : '' }}
                        class="sr-only peer" id="toggle-active">
                 <label for="toggle-active"
-                       class="relative w-11 h-6 bg-gray-300 dark:bg-slate-700 peer-checked:bg-[#0D6B3A] rounded-full cursor-pointer transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5">
+                       class="relative w-11 h-6 bg-gray-300 dark:bg-slate-700 peer-checked:bg-primary-600 rounded-full cursor-pointer transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5">
                 </label>
             </label>
 
@@ -95,7 +95,7 @@
 
         <div class="border-t border-gray-100 pt-5 flex justify-end">
             <button type="submit"
-                    class="px-6 py-2.5 bg-[#0D6B3A] hover:bg-green-800 text-white font-semibold rounded-lg shadow transition">
+                    class="px-6 py-2.5 bg-primary-600 hover:bg-green-800 text-white font-semibold rounded-lg shadow transition">
                 Perbarui Program
             </button>
         </div>

@@ -24,7 +24,7 @@
     @endphp
 
     {{-- Banner Selamat Datang Wali Santri --}}
-    <div class="mb-7 bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 rounded-2xl shadow-lg overflow-hidden text-white relative">
+    <div class="mb-7 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-800 rounded-2xl shadow-lg overflow-hidden text-white relative">
         <div class="relative px-5 py-6 sm:px-8 sm:py-8 flex flex-col sm:flex-row sm:items-center gap-5 z-10">
             <div class="shrink-0">
                 @if($santri->foto)
@@ -83,22 +83,22 @@
     {{-- Stats Cards Kehadiran & Nilai Ananda --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-emerald-500">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase">Kehadiran Hadir</h3>
+            <h3 class="text-xs font-semibold text-gray-600 uppercase">Kehadiran Hadir</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalHadir }}</p>
             <p class="text-xs text-emerald-600 mt-1 font-medium">Pertemuan Kelas</p>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-blue-500">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase">Izin / Sakit</h3>
+            <h3 class="text-xs font-semibold text-gray-600 uppercase">Izin / Sakit</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalIzin + $totalSakit }}</p>
             <p class="text-xs text-blue-600 mt-1 font-medium">Izin: {{ $totalIzin }} • Sakit: {{ $totalSakit }}</p>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-rose-500">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase">Alpa</h3>
+            <h3 class="text-xs font-semibold text-gray-600 uppercase">Alpa</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalAlpa }}</p>
             <p class="text-xs text-rose-600 mt-1 font-medium">Tanpa Keterangan</p>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-5 border-l-4 border-purple-500">
-            <h3 class="text-xs font-semibold text-gray-500 uppercase">Rata-Rata Nilai</h3>
+            <h3 class="text-xs font-semibold text-gray-600 uppercase">Rata-Rata Nilai</h3>
             <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($gpa, 2) }}</p>
             <p class="text-xs text-purple-600 mt-1 font-medium">Capaian Semester</p>
         </div>
@@ -114,7 +114,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
             <h3 class="font-bold text-gray-800 dark:text-gray-100 text-sm uppercase tracking-wider">Evaluasi Kepesantrenan &amp; Catatan Wali Kelas</h3>
             @if($dashSikap)
-                <span class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">
+                <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200">
                     Predikat Sikap / Akhlaq: {{ $dashSikap }}
                 </span>
             @endif
@@ -129,17 +129,17 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
         <div class="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 flex items-center justify-between">
             <h3 id="wali-schedule-caption" class="font-bold text-gray-800 dark:text-gray-100 text-base">Jadwal Pelajaran Ananda</h3>
-            <span class="text-xs text-gray-500">Kelas: {{ $displayKelas->nama_kelas ?? '-' }}</span>
+            <span class="text-xs text-gray-600">Kelas: {{ $displayKelas->nama_kelas ?? '-' }}</span>
         </div>
 
         <div tabindex="0" role="region" aria-labelledby="wali-schedule-caption" class="overflow-auto max-w-full max-h-[70vh]">
-            <table class="min-w-full border-separate border-spacing-0">
-                <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
+            <table class="table-builder min-w-full border-separate border-spacing-0">
+                <thead class="sticky top-0 z-10">
                     <tr>
-                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky left-0 z-20">Hari &amp; Jam</th>
-                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Mata Pelajaran</th>
-                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Pengajar (Ustaz/Ustazah)</th>
-                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Ruang</th>
+                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky left-0 z-20">Hari &amp; Jam</th>
+                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Mata Pelajaran</th>
+                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Pengajar (Ustaz/Ustazah)</th>
+                        <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Ruang</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -159,13 +159,13 @@
                         <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium border-b border-gray-200 dark:border-gray-700">
                             {{ $schedule->pengajar->nama_lengkap ?? '-' }}
                         </td>
-                        <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-500 border-b border-gray-200 dark:border-gray-700">
+                        <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-600 border-b border-gray-200 dark:border-gray-700">
                             {{ $schedule->ruang ?? 'Kelas Utama' }}
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-8 text-center text-gray-500 text-sm">
+                        <td colspan="4" class="px-6 py-8 text-center text-gray-600 text-sm">
                             Belum ada jadwal pelajaran terdaftar pada periode semester ini.
                         </td>
                     </tr>

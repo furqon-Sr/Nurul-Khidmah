@@ -28,11 +28,11 @@
         <div class="px-4 py-2.5 bg-gray-50 dark:bg-slate-800/90 border-b border-gray-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
             {{-- Pilihan Rasio --}}
             <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-gray-500 dark:text-slate-400 font-medium mr-1 text-[11px] uppercase tracking-wider">Rasio:</span>
+                <span class="text-gray-600 dark:text-slate-400 font-medium mr-1 text-[11px] uppercase tracking-wider">Rasio:</span>
                 <button type="button" id="cropRatioFree" class="crop-ratio-btn px-2.5 py-1 rounded-md font-medium border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/60 transition" title="Bebas tarik & perbesar tanpa batasan rasio">
                     🔓 Bebas
                 </button>
-                <button type="button" id="cropRatioTarget" class="crop-ratio-btn px-2.5 py-1 rounded-md font-medium bg-[#0D6B3A] text-white shadow-sm border border-[#0D6B3A] transition">
+                <button type="button" id="cropRatioTarget" class="crop-ratio-btn px-2.5 py-1 rounded-md font-medium bg-primary-600 text-white shadow-sm border border-primary-600 transition">
                     🔒 <span id="cropRatioTargetLabel">Disarankan</span>
                 </button>
                 <button type="button" id="cropRatioSquare" class="crop-ratio-btn px-2.5 py-1 rounded-md font-medium border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-200 hover:bg-gray-200 dark:hover:bg-slate-700 transition">
@@ -69,7 +69,7 @@
             <div class="w-full h-[52vh] min-h-[340px] max-h-[520px] bg-black/10 dark:bg-black/50 rounded-xl overflow-hidden flex items-center justify-center shadow-inner">
                 <img id="imageCropPreview" src="" alt="Pratinjau crop" class="block max-w-full">
             </div>
-            <p class="text-xs text-gray-500 dark:text-slate-400 mt-2.5 text-center sm:text-left w-full flex items-center gap-1.5">
+            <p class="text-xs text-gray-600 dark:text-slate-400 mt-2.5 text-center sm:text-left w-full flex items-center gap-1.5">
                 <span class="text-emerald-600 dark:text-emerald-400 font-bold">💡 Tips:</span>
                 <span>Tarik sudut atau garis biru untuk memperbesar/memperkecil area crop. Gunakan tombol <strong>🔓 Bebas</strong> jika ingin memperbesar tanpa batasan rasio, atau <strong>⛶ Pilih Seluruh Gambar</strong> untuk memilih seluruh foto.</span>
             </p>
@@ -85,7 +85,7 @@
                 <button type="button" id="imageCropCancelFooter" class="px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">
                     Batal
                 </button>
-                <button type="button" id="imageCropApply" class="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-[#0D6B3A] hover:bg-emerald-800 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                <button type="button" id="imageCropApply" class="px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-primary-600 hover:bg-emerald-700 rounded-lg shadow-sm transition flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     Terapkan Crop
                 </button>
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentTargetRatio = NaN;
     let currentTargetLabel = 'Bebas';
 
-    const activeBtnClass = ['bg-[#0D6B3A]', 'text-white', 'border-[#0D6B3A]', 'shadow-sm'];
+    const activeBtnClass = ['bg-primary-600', 'text-white', 'border-primary-600', 'shadow-sm'];
     const inactiveBtnClass = ['border-gray-300', 'dark:border-slate-600', 'text-gray-700', 'dark:text-slate-200', 'bg-transparent'];
 
     function updateRatioButtonStyles(activeBtn) {

@@ -74,7 +74,7 @@
                 <div>
                     <label for="published_at" class="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">Tanggal Publikasi</label>
                     <input type="datetime-local" name="published_at" id="published_at" value="{{ old('published_at', $news->published_at ? $news->published_at->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-md border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 p-2 border bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100">
-                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">Default mengikuti waktu saat ini jika kosong. Anda dapat mengeditnya untuk menentukan waktu publikasi lain.</p>
+                    <p class="text-xs text-gray-600 dark:text-slate-400 mt-1">Default mengikuti waktu saat ini jika kosong. Anda dapat mengeditnya untuk menentukan waktu publikasi lain.</p>
                     @error('published_at') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>

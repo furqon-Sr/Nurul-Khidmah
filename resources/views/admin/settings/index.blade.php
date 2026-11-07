@@ -35,32 +35,32 @@
 
                     <div x-data="{ activeTab: '{{ request('tab', 'identitas') }}' }">
                         <!-- Tabs Navigation -->
-                        <div class="border-b border-gray-200 mb-6">
-                            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        <div class="mb-6">
+                            <nav class="tabs" aria-label="Tabs">
                                 <button @click="activeTab = 'identitas'" 
-                                    :class="activeTab === 'identitas' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
-                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                    :class="activeTab === 'identitas' ? 'tab-active' : ''"
+                                    class="tab whitespace-nowrap">
                                     Identitas Utama
                                 </button>
                                 <button @click="activeTab = 'hero'" 
-                                    :class="activeTab === 'hero' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
-                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                    :class="activeTab === 'hero' ? 'tab-active' : ''"
+                                    class="tab whitespace-nowrap">
                                     Hero Section
                                 </button>
                                 <button @click="activeTab = 'konten'" 
-                                    :class="activeTab === 'konten' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
-                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                    :class="activeTab === 'konten' ? 'tab-active' : ''"
+                                    class="tab whitespace-nowrap">
                                     Konten Halaman
                                 </button>
                                 <button @click="activeTab = 'login_staf'" 
-                                    :class="activeTab === 'login_staf' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
-                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm inline-flex items-center gap-1.5">
+                                    :class="activeTab === 'login_staf' ? 'tab-active' : ''"
+                                    class="tab whitespace-nowrap inline-flex items-center gap-1.5">
                                     <span>🔐</span>
                                     <span>Login Staf</span>
                                 </button>
                                 <button @click="activeTab = 'login_wali'" 
-                                    :class="activeTab === 'login_wali' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
-                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm inline-flex items-center gap-1.5">
+                                    :class="activeTab === 'login_wali' ? 'tab-active' : ''"
+                                    class="tab whitespace-nowrap inline-flex items-center gap-1.5">
                                     <span>👨‍👩‍👧</span>
                                     <span>Login Wali Santri</span>
                                 </button>
@@ -84,7 +84,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Tahun Ajaran Aktif (Untuk Pendaftaran Baru)</label>
                                         <input type="text" name="active_academic_year" value="{{ old('active_academic_year', $contents['active_academic_year']->content_text ?? (date('Y') . '/' . (date('Y') + 1))) }}" placeholder="Contoh: 2026/2027" class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100">
-                                        <p class="text-xs text-gray-500 mt-1">Setiap pendaftaran baru yang dikirimkan oleh calon santri akan otomatis ditandai dengan tahun ajaran aktif ini.</p>
+                                        <p class="text-xs text-gray-600 mt-1">Setiap pendaftaran baru yang dikirimkan oleh calon santri akan otomatis ditandai dengan tahun ajaran aktif ini.</p>
                                     </div>
 
                                     @include('partials.image-crop-field', [
@@ -131,7 +131,7 @@
                                          </label>
                                          <p class="text-xs text-gray-800 dark:text-gray-200 mt-1 mb-2">File PDF atau Gambar ini akan langsung diunduh saat pengunjung menekan tombol <strong>"Biaya Pendidikan"</strong> di halaman utama (Hero).</p>
                                          @if(isset($contents['education_fee_pdf']) && $contents['education_fee_pdf']?->image_path)
-                                             <div class="mt-2 mb-3 flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                             <div class="mt-2 mb-3 flex items-center gap-3 p-3 bg-primary-50 border border-green-200 rounded-lg">
                                                  <svg class="w-6 h-6 text-green-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path></svg>
                                                  <div>
                                                      <p class="text-sm font-semibold text-green-700">✅ Berkas Brosur Aktif Terpasang</p>
@@ -143,7 +143,7 @@
                                                  <p class="text-xs text-gray-800 dark:text-gray-200">⚠️ Belum ada berkas brosur. Tombol "Biaya Pendidikan" di hero akan ditampilkan dalam keadaan tidak aktif.</p>
                                              </div>
                                          @endif
-                                         <input type="file" name="education_fee_pdf" accept="application/pdf,image/*" class="mt-1 block w-full text-sm text-gray-500 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
+                                         <input type="file" name="education_fee_pdf" accept="application/pdf,image/*" class="mt-1 block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
                                          <p class="text-xs text-red-600 dark:text-red-400 mt-1">Format: PDF atau Gambar (JPG, JPEG, PNG, WEBP). Maksimal 2MB (Batasan sistem server PHP).</p>
                                     </div>
 
@@ -153,7 +153,7 @@
                                         </label>
                                         <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 mb-2">Gambar ini akan digunakan sebagai background template saat admin mencetak atau mengekspor Bukti Pendaftaran Santri.</p>
                                         @if(isset($contents['kop_surat']) && $contents['kop_surat']?->image_path)
-                                            <div class="mt-2 mb-3 flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg dark:bg-green-950/20 dark:border-green-800">
+                                            <div class="mt-2 mb-3 flex items-center gap-3 p-3 bg-primary-50 border border-green-200 rounded-lg dark:bg-green-950/20 dark:border-green-800">
                                                 <svg class="w-6 h-6 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                                 <div>
                                                     <p class="text-sm font-semibold text-green-700 dark:text-green-300">✅ Kop Surat kustom aktif terpasang</p>
@@ -165,27 +165,27 @@
                                                 <p class="text-xs text-gray-600 dark:text-gray-400">⚠️ Menggunakan Kop Surat bawaan: <code class="bg-gray-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono">public/images/kop surat ppnk.png</code>.</p>
                                             </div>
                                         @endif
-                                        <input type="file" name="kop_surat" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Format: JPG, JPEG, PNG, WEBP. Maksimal 20MB. Digunakan otomatis pada Bukti Pendaftaran, Rapor Santri, Rekap Kelas, dan Laporan Eksekutif Pimpinan.</p>
+                                        <input type="file" name="kop_surat" accept="image/*" class="mt-1 block w-full text-sm text-gray-600 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600">
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Format: JPG, JPEG, PNG, WEBP. Maksimal 20MB. Digunakan otomatis pada Bukti Pendaftaran, Rapor Santri, Rekap Kelas, dan Laporan Eksekutif Pimpinan.</p>
                                     </div>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200 dark:border-slate-700 pt-5">
                                         <div>
                                             <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Pejabat Penandatangan Rapor (Kepala Madrasah)</label>
                                             <input type="text" name="kepala_madrasah_name" value="{{ old('kepala_madrasah_name', $contents['kepala_madrasah_name']->content_text ?? 'Ibu Uswatun Hasanah SP, S.Pd.I.') }}" placeholder="Contoh: Ibu Uswatun Hasanah SP, S.Pd.I." class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100">
-                                            <p class="text-xs text-gray-500 mt-1">Tercetak otomatis pada kolom pengesahan Rapor Hasil Belajar &amp; Rekap Akademik Kelas.</p>
+                                            <p class="text-xs text-gray-600 mt-1">Tercetak otomatis pada kolom pengesahan Rapor Hasil Belajar &amp; Rekap Akademik Kelas.</p>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-800 dark:text-gray-200">Pengasuh / Pimpinan Pondok Pesantren</label>
                                             <input type="text" name="pimpinan_pondok_name" value="{{ old('pimpinan_pondok_name', $contents['pimpinan_pondok_name']->content_text ?? 'KH. Imam Machmudi') }}" placeholder="Contoh: KH. Imam Machmudi" class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100">
-                                            <p class="text-xs text-gray-500 mt-1">Tercetak otomatis pada lembar pengesahan Laporan Eksekutif Track Record Pesantren.</p>
+                                            <p class="text-xs text-gray-600 mt-1">Tercetak otomatis pada lembar pengesahan Laporan Eksekutif Track Record Pesantren.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-8 border-t border-gray-200 pt-5">
                                 <div class="flex justify-end">
-                                    <button type="submit" class="bg-[#0D6B3A] text-white px-6 py-2 rounded-md hover:bg-green-800 transition shadow dark:bg-[#0D6B3A] dark:hover:bg-green-700">
+                                    <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-green-800 transition shadow dark:bg-primary-600 dark:hover:bg-green-700">
                                         Simpan Identitas & Footer
                                     </button>
                                 </div>
@@ -226,7 +226,7 @@
                             </div>
                             <div class="mt-8 border-t border-gray-200 pt-5">
                                 <div class="flex justify-end">
-                                    <button type="submit" class="bg-[#0D6B3A] text-white px-6 py-2 rounded-md hover:bg-green-800 transition shadow">
+                                    <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-green-800 transition shadow">
                                         Simpan Hero Section
                                     </button>
                                 </div>
@@ -291,11 +291,11 @@
                                         <h3 class="text-lg leading-6 font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                             <span>🖼️</span> Visual &amp; Konten Halaman Login Staf
                                         </h3>
-                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                                        <p class="text-xs text-gray-600 dark:text-slate-400 mt-1">
                                             Kelola gambar banner visual di sisi kanan dan teks pada formulir login portal staf (<code class="bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs text-green-700 font-mono">/portal-staf</code>).
                                         </p>
                                     </div>
-                                    <a href="{{ route('staff.login') }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0D6B3A] hover:underline bg-green-50 hover:bg-green-100 dark:bg-green-950/40 px-3.5 py-2 rounded-xl transition">
+                                    <a href="{{ route('staff.login') }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:underline bg-primary-50 hover:bg-green-100 dark:bg-green-950/40 px-3.5 py-2 rounded-xl transition">
                                         <span>Buka Halaman Login Staf ↗</span>
                                     </a>
                                 </div>
@@ -309,7 +309,7 @@
                                                 <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
                                                     Gambar Banner Visual (Sisi Kanan)
                                                 </h4>
-                                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                                <p class="text-xs text-slate-600 dark:text-slate-400">
                                                     Unggah gambar foto gedung pesantren, kegiatan belajar, atau grafis kustom untuk menggantikan tampilan ilustrasi bawaan.
                                                 </p>
                                             </div>
@@ -344,7 +344,7 @@
                                                     Judul Sambutan
                                                 </label>
                                                 <input type="text" name="staff_login_title" value="{{ old('staff_login_title', $contents['staff_login_title']->content_text ?? 'Welcome Back') }}" placeholder="Welcome Back" class="w-full rounded-xl border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100 text-sm">
-                                                <p class="text-xs text-gray-500 mt-1">Ditampilkan pada judul formulir login (ikon lambaian 👋 disematkan otomatis).</p>
+                                                <p class="text-xs text-gray-600 mt-1">Ditampilkan pada judul formulir login (ikon lambaian 👋 disematkan otomatis).</p>
                                             </div>
 
                                             <div>
@@ -352,7 +352,7 @@
                                                     Subjudul / Tagline Singkat
                                                 </label>
                                                 <input type="text" name="staff_login_subtitle" value="{{ old('staff_login_subtitle', $contents['staff_login_subtitle']->content_text ?? 'Nurul Khidmah – Where Every Event Begins With Insight.') }}" placeholder="Contoh: Nurul Khidmah – Where Every Event Begins With Insight." class="w-full rounded-xl border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100 text-sm">
-                                                <p class="text-xs text-gray-500 mt-1">Ditampilkan di bawah judul sambutan.</p>
+                                                <p class="text-xs text-gray-600 mt-1">Ditampilkan di bawah judul sambutan.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -370,15 +370,15 @@
                                                     <img src="{{ asset('storage/' . $contents['staff_login_image']->image_path) }}" alt="Pratinjau Banner" class="w-full h-full object-cover">
                                                 @else
                                                     {{-- Default reference art preview --}}
-                                                    <div class="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#EBF5F0] via-[#E2EFE9] to-[#CDE4DA] flex items-center justify-center p-4">
+                                                    <div class="w-full h-full relative overflow-hidden bg-gradient-to-b from-primary-50 via-primary-100 to-primary-200 flex items-center justify-center p-4">
                                                         {{-- Top right orb --}}
-                                                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#045F33] via-[#02522c] to-[#004524] opacity-90 shadow-xl"></div>
-                                                        <div class="absolute top-3 right-10 w-1.5 h-1.5 rounded-full bg-[#004524]"></div>
-                                                        <div class="absolute top-9 right-14 w-2 h-2 rounded-full bg-[#045F33]"></div>
+                                                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 opacity-90 shadow-xl"></div>
+                                                        <div class="absolute top-3 right-10 w-1.5 h-1.5 rounded-full bg-primary-900"></div>
+                                                        <div class="absolute top-9 right-14 w-2 h-2 rounded-full bg-primary-700"></div>
 
                                                         {{-- Bottom left orb --}}
-                                                        <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-gradient-to-tr from-[#004524] via-[#02522c] to-[#045F33] opacity-90 shadow-xl"></div>
-                                                        <div class="absolute bottom-6 left-16 w-1.5 h-1.5 rounded-full bg-[#004524]"></div>
+                                                        <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-gradient-to-tr from-primary-900 via-primary-800 to-primary-700 opacity-90 shadow-xl"></div>
+                                                        <div class="absolute bottom-6 left-16 w-1.5 h-1.5 rounded-full bg-primary-900"></div>
 
                                                         {{-- Center emblem & title --}}
                                                         <div class="relative z-10 flex items-center gap-3">
@@ -397,7 +397,7 @@
                                                 @endif
                                             </div>
 
-                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 text-center">
+                                            <p class="text-[11px] text-slate-600 dark:text-slate-400 text-center">
                                                 Jika gambar kustom belum diunggah, grafis latar default (warna perak-kebiruan, orbs 3D, emblem putih) akan ditampilkan otomatis.
                                             </p>
                                         </div>
@@ -405,7 +405,7 @@
                                 </div>
 
                                 <div class="mt-8 border-t border-gray-200 dark:border-slate-700 pt-5 flex justify-end">
-                                    <button type="submit" class="bg-[#0D6B3A] text-white px-6 py-2.5 rounded-xl hover:bg-green-800 transition shadow font-medium text-sm flex items-center gap-2">
+                                    <button type="submit" class="bg-primary-600 text-white px-6 py-2.5 rounded-xl hover:bg-green-800 transition shadow font-medium text-sm flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                         <span>Simpan Pengaturan Login Staf</span>
                                     </button>
@@ -424,11 +424,11 @@
                                         <h3 class="text-lg leading-6 font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                             <span>👨‍👩‍👧</span> Visual &amp; Konten Halaman Login Wali Santri
                                         </h3>
-                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                                        <p class="text-xs text-gray-600 dark:text-slate-400 mt-1">
                                             Kelola gambar banner visual dan teks pada formulir login orang tua / wali santri (<code class="bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs text-green-700 font-mono">/portal-wali</code>).
                                         </p>
                                     </div>
-                                    <a href="{{ route('wali.login') }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0D6B3A] hover:underline bg-green-50 hover:bg-green-100 dark:bg-green-950/40 px-3.5 py-2 rounded-xl transition">
+                                    <a href="{{ route('wali.login') }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:underline bg-primary-50 hover:bg-green-100 dark:bg-green-950/40 px-3.5 py-2 rounded-xl transition">
                                         <span>Buka Halaman Login Wali Santri ↗</span>
                                     </a>
                                 </div>
@@ -442,7 +442,7 @@
                                                 <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
                                                     Gambar Banner Visual (Sisi Kanan)
                                                 </h4>
-                                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                                <p class="text-xs text-slate-600 dark:text-slate-400">
                                                     Unggah gambar foto suasana santri belajar, gedung pesantren, atau grafis kustom untuk login wali santri.
                                                 </p>
                                             </div>
@@ -477,7 +477,7 @@
                                                     Judul Sambutan
                                                 </label>
                                                 <input type="text" name="wali_login_title" value="{{ old('wali_login_title', $contents['wali_login_title']->content_text ?? 'Portal Wali Santri') }}" placeholder="Portal Wali Santri" class="w-full rounded-xl border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100 text-sm">
-                                                <p class="text-xs text-gray-500 mt-1">Ditampilkan pada judul formulir login wali (ikon lambaian 👋 disematkan otomatis).</p>
+                                                <p class="text-xs text-gray-600 mt-1">Ditampilkan pada judul formulir login wali (ikon lambaian 👋 disematkan otomatis).</p>
                                             </div>
 
                                             <div>
@@ -485,7 +485,7 @@
                                                     Subjudul / Deskripsi Singkat
                                                 </label>
                                                 <input type="text" name="wali_login_subtitle" value="{{ old('wali_login_subtitle', $contents['wali_login_subtitle']->content_text ?? 'Pantau kehadiran harian, jadwal ngaji & madrasah, nilai pelajaran, serta unduh Rapor Resmi Ananda.') }}" placeholder="Deskripsi untuk wali santri" class="w-full rounded-xl border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100 text-sm">
-                                                <p class="text-xs text-gray-500 mt-1">Ditampilkan di bawah judul sambutan.</p>
+                                                <p class="text-xs text-gray-600 mt-1">Ditampilkan di bawah judul sambutan.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -503,15 +503,15 @@
                                                     <img src="{{ asset('storage/' . $contents['wali_login_image']->image_path) }}" alt="Pratinjau Banner Wali" class="w-full h-full object-cover">
                                                 @else
                                                     {{-- Default Emerald Green Reference Art preview --}}
-                                                    <div class="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#EBF5F0] via-[#E2EFE9] to-[#CDE4DA] flex items-center justify-center p-4">
+                                                    <div class="w-full h-full relative overflow-hidden bg-gradient-to-b from-primary-50 via-primary-100 to-primary-200 flex items-center justify-center p-4">
                                                         {{-- Top right orb with Emerald Green Gradient --}}
-                                                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#045F33] via-[#02522c] to-[#004524] opacity-90 shadow-xl"></div>
-                                                        <div class="absolute top-3 right-10 w-1.5 h-1.5 rounded-full bg-[#004524]"></div>
-                                                        <div class="absolute top-9 right-14 w-2 h-2 rounded-full bg-[#045F33]"></div>
+                                                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 opacity-90 shadow-xl"></div>
+                                                        <div class="absolute top-3 right-10 w-1.5 h-1.5 rounded-full bg-primary-900"></div>
+                                                        <div class="absolute top-9 right-14 w-2 h-2 rounded-full bg-primary-700"></div>
 
                                                         {{-- Bottom left orb with Emerald Green Gradient --}}
-                                                        <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-gradient-to-tr from-[#004524] via-[#02522c] to-[#045F33] opacity-90 shadow-xl"></div>
-                                                        <div class="absolute bottom-6 left-16 w-1.5 h-1.5 rounded-full bg-[#004524]"></div>
+                                                        <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-gradient-to-tr from-primary-900 via-primary-800 to-primary-700 opacity-90 shadow-xl"></div>
+                                                        <div class="absolute bottom-6 left-16 w-1.5 h-1.5 rounded-full bg-primary-900"></div>
 
                                                         {{-- Center emblem & title --}}
                                                         <div class="relative z-10 flex items-center gap-3">
@@ -519,7 +519,7 @@
                                                                 @if(isset($contents['logo']) && $contents['logo']->image_path)
                                                                     <img src="{{ asset('storage/' . $contents['logo']->image_path) }}" alt="Logo" class="max-h-full max-w-full object-contain">
                                                                 @else
-                                                                    <span class="text-xs font-black text-[#045F33]">NK</span>
+                                                                    <span class="text-xs font-black text-primary-700">NK</span>
                                                                 @endif
                                                             </div>
                                                             <div class="text-left">
@@ -535,15 +535,15 @@
                                                 @endif
                                             </div>
 
-                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 text-center">
-                                                Jika gambar kustom belum diunggah, grafis bawaan bergradien emerald green #045F33 ke #004524 akan digunakan otomatis.
+                                            <p class="text-[11px] text-slate-600 dark:text-slate-400 text-center">
+                                                Jika gambar kustom belum diunggah, grafis bawaan bergradien hijau Primary akan digunakan otomatis.
                                             </p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="mt-8 border-t border-gray-200 dark:border-slate-700 pt-5 flex justify-end">
-                                    <button type="submit" class="bg-[#0D6B3A] text-white px-6 py-2.5 rounded-xl hover:bg-green-800 transition shadow font-medium text-sm flex items-center gap-2">
+                                    <button type="submit" class="bg-primary-600 text-white px-6 py-2.5 rounded-xl hover:bg-green-800 transition shadow font-medium text-sm flex items-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                         <span>Simpan Pengaturan Login Wali</span>
                                     </button>

@@ -8,31 +8,360 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+|--------------------------------------------------------------------------
+| Style Guide — Nurul Khidmah
+|--------------------------------------------------------------------------
+| Typography : Manrope (Regular 400 / Medium 500 / Semibold 600 / Bold 700 / Extrabold 800)
+|              H1 48 · H2 40 · H3 32 · H4 24 · H5 20 · H6 18 (Bold)
+|              Body XL 18 · Large 16 · Medium 14 · Small 12 · XSmall 10
+| Main       : Primary #27A376 · Secondary #FFCF24
+| Alerts     : Success #22C55E · Warning #FACC15 · Error #F75555
+| Greyscale  : 50 #FAFAFA … 900 #1A202C
+| Additional : Orange #FE964A · Blue #0062FF · Purple #8C62FF
+|
+| Skala bawaan Tailwind (emerald, teal, amber, red, rose, blue, sky, indigo,
+| purple, violet, gray, slate, zinc, neutral, stone) dipetakan ke token di
+| bawah ini, sehingga seluruh view yang memakai utilitas Tailwind otomatis
+| mengikuti style guide tanpa perlu ditulis ulang satu per satu.
+*/
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    /* ── Typography ─────────────────────────────────────────── */
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-zinc-50: #fafafa;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #e5e5e5;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #a3a3a3;
-    --color-zinc-500: #737373;
-    --color-zinc-600: #525252;
-    --color-zinc-700: #404040;
-    --color-zinc-800: #262626;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
+    --text-2xs: 0.625rem; /* Body XSmall / 10px */
+    --text-2xs--line-height: 1rem;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    /* ── Main · Primary (#27A376) ───────────────────────────── */
+    --color-primary-50: #e8f6ef;
+    --color-primary-100: #cfeedf;
+    --color-primary-200: #a9e3c8;
+    --color-primary-300: #88d8ae;
+    --color-primary-400: #55c792;
+    --color-primary-500: #27a376;
+    --color-primary-600: #1b8760;
+    --color-primary-700: #166d4e;
+    --color-primary-800: #125840;
+    --color-primary-900: #0f4734;
+    --color-primary-950: #082a1f;
+
+    /* ── Main · Secondary (#FFCF24) ─────────────────────────── */
+    --color-secondary-50: #fffae9;
+    --color-secondary-100: #fff4d1;
+    --color-secondary-200: #ffeaa8;
+    --color-secondary-300: #ffdd66;
+    --color-secondary-400: #ffd43d;
+    --color-secondary-500: #ffcf24;
+    --color-secondary-600: #e6b514;
+    --color-secondary-700: #b38a0a;
+    --color-secondary-800: #7f6208;
+    --color-secondary-900: #5a4607;
+    --color-secondary-950: #342804;
+
+    /* ── Alerts · Success (#22C55E) ─────────────────────────── */
+    --color-success-50: #ecfdf3;
+    --color-success-100: #d1fadf;
+    --color-success-200: #a6f4c5;
+    --color-success-300: #6ce9a6;
+    --color-success-400: #3ddc84;
+    --color-success-500: #22c55e;
+    --color-success-600: #16a34a;
+    --color-success-700: #15803d;
+    --color-success-800: #166534;
+    --color-success-900: #14532d;
+    --color-success-950: #052e16;
+
+    /* ── Alerts · Warning (#FACC15) ─────────────────────────── */
+    --color-warning-50: #fefce8;
+    --color-warning-100: #fef9c3;
+    --color-warning-200: #fef08a;
+    --color-warning-300: #fde047;
+    --color-warning-400: #facc15;
+    --color-warning-500: #e4b60c;
+    --color-warning-600: #ca8a04;
+    --color-warning-700: #a16207;
+    --color-warning-800: #854d0e;
+    --color-warning-900: #713f12;
+    --color-warning-950: #422006;
+
+    /* ── Alerts · Error (#F75555) ───────────────────────────── */
+    --color-error-50: #fff1f1;
+    --color-error-100: #ffe0e0;
+    --color-error-200: #ffc7c7;
+    --color-error-300: #ffa0a0;
+    --color-error-400: #fb7777;
+    --color-error-500: #f75555;
+    --color-error-600: #e03a3a;
+    --color-error-700: #bc2b2b;
+    --color-error-800: #992626;
+    --color-error-900: #7f2626;
+    --color-error-950: #461010;
+
+    /* ── Greyscale ──────────────────────────────────────────── */
+    --color-grey-50: #fafafa;
+    --color-grey-100: #f7fafc;
+    --color-grey-200: #edf2f7;
+    --color-grey-300: #e2e8f0;
+    --color-grey-400: #cbd5e0;
+    --color-grey-500: #a0aec0;
+    --color-grey-600: #718096;
+    --color-grey-700: #4a5568;
+    --color-grey-800: #2d3748;
+    --color-grey-900: #1a202c;
+    --color-grey-950: #11151d;
+
+    /* ── Additional · Orange (#FE964A) ──────────────────────── */
+    --color-orange-50: #fff5ec;
+    --color-orange-100: #ffe8d3;
+    --color-orange-200: #ffd0a6;
+    --color-orange-300: #ffb375;
+    --color-orange-400: #fe9e5c;
+    --color-orange-500: #fe964a;
+    --color-orange-600: #ea7a2a;
+    --color-orange-700: #c25d19;
+    --color-orange-800: #9a4a17;
+    --color-orange-900: #7c3d16;
+    --color-orange-950: #431e0a;
+
+    /* ── Additional · Blue (#0062FF) ────────────────────────── */
+    --color-blue-50: #ebf3ff;
+    --color-blue-100: #d6e6ff;
+    --color-blue-200: #adcdff;
+    --color-blue-300: #7aaeff;
+    --color-blue-400: #3d86ff;
+    --color-blue-500: #0062ff;
+    --color-blue-600: #0050d6;
+    --color-blue-700: #003eab;
+    --color-blue-800: #00338a;
+    --color-blue-900: #002e70;
+    --color-blue-950: #001a40;
+
+    /* ── Additional · Purple (#8C62FF) ──────────────────────── */
+    --color-purple-50: #f4f0ff;
+    --color-purple-100: #e8e0ff;
+    --color-purple-200: #d3c3ff;
+    --color-purple-300: #b9a0ff;
+    --color-purple-400: #a181ff;
+    --color-purple-500: #8c62ff;
+    --color-purple-600: #7447e6;
+    --color-purple-700: #5d36bd;
+    --color-purple-800: #4a2c95;
+    --color-purple-900: #3c2679;
+    --color-purple-950: #231547;
+
+    /* ── Pemetaan skala bawaan Tailwind → token style guide ─── */
+    /* Hijau merek: emerald & teal & green(lama) → Primary */
+    --color-emerald-50: var(--color-primary-50);
+    --color-emerald-100: var(--color-primary-100);
+    --color-emerald-200: var(--color-primary-200);
+    --color-emerald-300: var(--color-primary-300);
+    --color-emerald-400: var(--color-primary-400);
+    --color-emerald-500: var(--color-primary-500);
+    --color-emerald-600: var(--color-primary-600);
+    --color-emerald-700: var(--color-primary-700);
+    --color-emerald-800: var(--color-primary-800);
+    --color-emerald-900: var(--color-primary-900);
+    --color-emerald-950: var(--color-primary-950);
+
+    --color-teal-50: var(--color-primary-50);
+    --color-teal-100: var(--color-primary-100);
+    --color-teal-200: var(--color-primary-200);
+    --color-teal-300: var(--color-primary-300);
+    --color-teal-400: var(--color-primary-400);
+    --color-teal-500: var(--color-primary-500);
+    --color-teal-600: var(--color-primary-600);
+    --color-teal-700: var(--color-primary-700);
+    --color-teal-800: var(--color-primary-800);
+    --color-teal-900: var(--color-primary-900);
+    --color-teal-950: var(--color-primary-950);
+
+    /* Hijau status: green → Success */
+    --color-green-50: var(--color-success-50);
+    --color-green-100: var(--color-success-100);
+    --color-green-200: var(--color-success-200);
+    --color-green-300: var(--color-success-300);
+    --color-green-400: var(--color-success-400);
+    --color-green-500: var(--color-success-500);
+    --color-green-600: var(--color-success-600);
+    --color-green-700: var(--color-success-700);
+    --color-green-800: var(--color-success-800);
+    --color-green-900: var(--color-success-900);
+    --color-green-950: var(--color-success-950);
+
+    /* Kuning: amber → Secondary, yellow → Warning */
+    --color-amber-50: var(--color-secondary-50);
+    --color-amber-100: var(--color-secondary-100);
+    --color-amber-200: var(--color-secondary-200);
+    --color-amber-300: var(--color-secondary-300);
+    --color-amber-400: var(--color-secondary-400);
+    --color-amber-500: var(--color-secondary-500);
+    --color-amber-600: var(--color-secondary-600);
+    --color-amber-700: var(--color-secondary-700);
+    --color-amber-800: var(--color-secondary-800);
+    --color-amber-900: var(--color-secondary-900);
+    --color-amber-950: var(--color-secondary-950);
+
+    --color-yellow-50: var(--color-warning-50);
+    --color-yellow-100: var(--color-warning-100);
+    --color-yellow-200: var(--color-warning-200);
+    --color-yellow-300: var(--color-warning-300);
+    --color-yellow-400: var(--color-warning-400);
+    --color-yellow-500: var(--color-warning-500);
+    --color-yellow-600: var(--color-warning-600);
+    --color-yellow-700: var(--color-warning-700);
+    --color-yellow-800: var(--color-warning-800);
+    --color-yellow-900: var(--color-warning-900);
+    --color-yellow-950: var(--color-warning-950);
+
+    /* Merah: red & rose → Error */
+    --color-red-50: var(--color-error-50);
+    --color-red-100: var(--color-error-100);
+    --color-red-200: var(--color-error-200);
+    --color-red-300: var(--color-error-300);
+    --color-red-400: var(--color-error-400);
+    --color-red-500: var(--color-error-500);
+    --color-red-600: var(--color-error-600);
+    --color-red-700: var(--color-error-700);
+    --color-red-800: var(--color-error-800);
+    --color-red-900: var(--color-error-900);
+    --color-red-950: var(--color-error-950);
+
+    --color-rose-50: var(--color-error-50);
+    --color-rose-100: var(--color-error-100);
+    --color-rose-200: var(--color-error-200);
+    --color-rose-300: var(--color-error-300);
+    --color-rose-400: var(--color-error-400);
+    --color-rose-500: var(--color-error-500);
+    --color-rose-600: var(--color-error-600);
+    --color-rose-700: var(--color-error-700);
+    --color-rose-800: var(--color-error-800);
+    --color-rose-900: var(--color-error-900);
+    --color-rose-950: var(--color-error-950);
+
+    /* Biru: sky & indigo → Blue */
+    --color-sky-50: var(--color-blue-50);
+    --color-sky-100: var(--color-blue-100);
+    --color-sky-200: var(--color-blue-200);
+    --color-sky-300: var(--color-blue-300);
+    --color-sky-400: var(--color-blue-400);
+    --color-sky-500: var(--color-blue-500);
+    --color-sky-600: var(--color-blue-600);
+    --color-sky-700: var(--color-blue-700);
+    --color-sky-800: var(--color-blue-800);
+    --color-sky-900: var(--color-blue-900);
+    --color-sky-950: var(--color-blue-950);
+
+    --color-indigo-50: var(--color-blue-50);
+    --color-indigo-100: var(--color-blue-100);
+    --color-indigo-200: var(--color-blue-200);
+    --color-indigo-300: var(--color-blue-300);
+    --color-indigo-400: var(--color-blue-400);
+    --color-indigo-500: var(--color-blue-500);
+    --color-indigo-600: var(--color-blue-600);
+    --color-indigo-700: var(--color-blue-700);
+    --color-indigo-800: var(--color-blue-800);
+    --color-indigo-900: var(--color-blue-900);
+    --color-indigo-950: var(--color-blue-950);
+
+    /* Ungu: violet → Purple */
+    --color-violet-50: var(--color-purple-50);
+    --color-violet-100: var(--color-purple-100);
+    --color-violet-200: var(--color-purple-200);
+    --color-violet-300: var(--color-purple-300);
+    --color-violet-400: var(--color-purple-400);
+    --color-violet-500: var(--color-purple-500);
+    --color-violet-600: var(--color-purple-600);
+    --color-violet-700: var(--color-purple-700);
+    --color-violet-800: var(--color-purple-800);
+    --color-violet-900: var(--color-purple-900);
+    --color-violet-950: var(--color-purple-950);
+
+    /* Abu-abu: gray, slate, zinc, neutral, stone → Greyscale */
+    --color-gray-50: var(--color-grey-50);
+    --color-gray-100: var(--color-grey-100);
+    --color-gray-200: var(--color-grey-200);
+    --color-gray-300: var(--color-grey-300);
+    --color-gray-400: var(--color-grey-400);
+    --color-gray-500: var(--color-grey-500);
+    --color-gray-600: var(--color-grey-600);
+    --color-gray-700: var(--color-grey-700);
+    --color-gray-800: var(--color-grey-800);
+    --color-gray-900: var(--color-grey-900);
+    --color-gray-950: var(--color-grey-950);
+
+    --color-slate-50: var(--color-grey-50);
+    --color-slate-100: var(--color-grey-100);
+    --color-slate-200: var(--color-grey-200);
+    --color-slate-300: var(--color-grey-300);
+    --color-slate-400: var(--color-grey-400);
+    --color-slate-500: var(--color-grey-500);
+    --color-slate-600: var(--color-grey-600);
+    --color-slate-700: var(--color-grey-700);
+    --color-slate-800: var(--color-grey-800);
+    --color-slate-900: var(--color-grey-900);
+    --color-slate-950: var(--color-grey-950);
+
+    --color-zinc-50: var(--color-grey-50);
+    --color-zinc-100: var(--color-grey-100);
+    --color-zinc-200: var(--color-grey-200);
+    --color-zinc-300: var(--color-grey-300);
+    --color-zinc-400: var(--color-grey-400);
+    --color-zinc-500: var(--color-grey-500);
+    --color-zinc-600: var(--color-grey-600);
+    --color-zinc-700: var(--color-grey-700);
+    --color-zinc-800: var(--color-grey-800);
+    --color-zinc-900: var(--color-grey-900);
+    --color-zinc-950: var(--color-grey-950);
+
+    --color-neutral-50: var(--color-grey-50);
+    --color-neutral-100: var(--color-grey-100);
+    --color-neutral-200: var(--color-grey-200);
+    --color-neutral-300: var(--color-grey-300);
+    --color-neutral-400: var(--color-grey-400);
+    --color-neutral-500: var(--color-grey-500);
+    --color-neutral-600: var(--color-grey-600);
+    --color-neutral-700: var(--color-grey-700);
+    --color-neutral-800: var(--color-grey-800);
+    --color-neutral-900: var(--color-grey-900);
+    --color-neutral-950: var(--color-grey-950);
+
+    --color-stone-50: var(--color-grey-50);
+    --color-stone-100: var(--color-grey-100);
+    --color-stone-200: var(--color-grey-200);
+    --color-stone-300: var(--color-grey-300);
+    --color-stone-400: var(--color-grey-400);
+    --color-stone-500: var(--color-grey-500);
+    --color-stone-600: var(--color-grey-600);
+    --color-stone-700: var(--color-grey-700);
+    --color-stone-800: var(--color-grey-800);
+    --color-stone-900: var(--color-grey-900);
+    --color-stone-950: var(--color-grey-950);
+
+    /* ── Flux accent → Primary ──────────────────────────────── */
+    --color-accent: var(--color-primary-600);
+    --color-accent-content: var(--color-primary-700);
     --color-accent-foreground: var(--color-white);
+
+    /* ── Radius & shadow: lebih membulat, bayangan lembut ──── */
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-3xl: 1.75rem;
+
+    --shadow-xs: 0 1px 2px 0 rgb(26 32 44 / 0.04);
+    --shadow-sm: 0 1px 3px 0 rgb(26 32 44 / 0.06), 0 1px 2px -1px rgb(26 32 44 / 0.04);
+    --shadow-md: 0 4px 14px -2px rgb(26 32 44 / 0.07), 0 2px 6px -2px rgb(26 32 44 / 0.04);
+    --shadow-lg: 0 12px 28px -6px rgb(26 32 44 / 0.10), 0 4px 10px -4px rgb(26 32 44 / 0.05);
+    --shadow-xl: 0 20px 40px -10px rgb(26 32 44 / 0.14), 0 8px 16px -8px rgb(26 32 44 / 0.06);
+    --shadow-2xl: 0 28px 56px -12px rgb(26 32 44 / 0.22);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent: var(--color-primary-400);
+        --color-accent-content: var(--color-primary-300);
+        --color-accent-foreground: var(--color-grey-900);
     }
 }
 
@@ -45,8 +374,35 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    html {
+        font-family: var(--font-sans);
+        font-feature-settings: 'cv11', 'ss01';
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        color: var(--color-grey-900);
+    }
+
+    .dark body {
+        color: var(--color-grey-100);
+    }
+
+    /* Heading: Bold, rapat sedikit — ukuran tetap diatur lewat utilitas per halaman */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        letter-spacing: -0.015em;
+    }
+
+    ::selection {
+        background: var(--color-primary-200);
+        color: var(--color-grey-900);
+    }
 }
 
+/* Pagination, tabel, dan field: sentuhan ringan agar konsisten dengan style guide */
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
@@ -61,6 +417,83 @@ select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
+/* Fokus keyboard yang jelas dengan warna Primary */
+:where(a, button, [role='button'], summary):focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Komponen — Avatar, Chips, Progress, Tabs, Table Builder
+|--------------------------------------------------------------------------
+*/
+@layer components {
+
+    /* ── Chips ─────────────────────────────────────────────── */
+    .chip {
+        @apply inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 py-1 text-2xs font-bold uppercase leading-none tracking-wide;
+    }
+    .chip-success { @apply bg-success-100 text-success-700 dark:bg-success-500/15 dark:text-success-300; }
+    .chip-warning { @apply bg-warning-100 text-warning-700 dark:bg-warning-400/15 dark:text-warning-300; }
+    .chip-error   { @apply bg-error-100 text-error-600 dark:bg-error-500/15 dark:text-error-300; }
+    .chip-info    { @apply bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300; }
+    .chip-purple  { @apply bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-300; }
+    .chip-neutral { @apply bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300; }
+    .chip-muted   { @apply bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400; }
+    /* varian solid */
+    .chip-solid-success { @apply bg-success-500 text-white; }
+    .chip-solid-orange  { @apply bg-orange-500 text-white; }
+    .chip-solid-info    { @apply bg-blue-500 text-white; }
+
+    /* ── Avatar ────────────────────────────────────────────── */
+    .avatar {
+        @apply relative inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 text-sm font-bold uppercase text-gray-600 select-none;
+    }
+    .avatar img { @apply size-full object-cover; }
+    .avatar-xs { @apply size-6 text-2xs; }
+    .avatar-sm { @apply size-8 text-xs; }
+    .avatar-lg { @apply size-14 text-base; }
+    .avatar-xl { @apply size-20 text-xl; }
+    .avatar-primary { @apply bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-300; }
+    .avatar-secondary { @apply bg-secondary-100 text-secondary-700 dark:bg-secondary-400/20 dark:text-secondary-300; }
+    .avatar-error { @apply bg-error-100 text-error-600 dark:bg-error-500/20 dark:text-error-300; }
+    .avatar-neutral { @apply bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300; }
+
+    /* ── Progress ──────────────────────────────────────────── */
+    .progress-track { @apply h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700; }
+    .progress-fill  { @apply h-full rounded-full transition-all duration-500; }
+
+    /* ── Tabs (garis bawah hijau, huruf kapital) ───────────── */
+    .tabs { @apply flex flex-wrap items-center gap-x-6 border-b border-gray-200 dark:border-gray-700; }
+    .tab {
+        @apply -mb-px inline-flex items-center gap-2 border-b-2 border-transparent px-1 pb-3 pt-2 text-xs font-bold uppercase tracking-wide text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white;
+    }
+    .tab-active { @apply border-primary-500 text-primary-600 dark:text-primary-400; }
+
+    /* ── Tombol ikon tabel (lihat / ubah / hapus) ──────────── */
+    .icon-btn {
+        @apply align-middle;
+        @apply inline-flex size-8 items-center justify-center rounded-lg text-white shadow-xs transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2;
+    }
+    .icon-btn svg { @apply size-4; }
+    .icon-btn-view   { @apply bg-success-500; }
+    .icon-btn-edit   { @apply bg-blue-500; }
+    .icon-btn-delete { @apply bg-error-500; }
+
+    /* ── Pagination ────────────────────────────────────────── */
+    .pager-btn {
+        @apply inline-flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-bold text-gray-700 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800;
+    }
+    .pager-btn-border { @apply border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900; }
+    .pager-btn-active { @apply bg-primary-500 text-white hover:bg-primary-500 dark:hover:bg-primary-500; }
+    .pager-btn-disabled { @apply cursor-default border border-gray-200 text-gray-400 hover:bg-transparent dark:border-gray-800 dark:text-gray-600 dark:hover:bg-transparent; }
+
+    /* ── Table Builder ─────────────────────────────────────── */
+    .table-builder thead th {
+        @apply bg-gray-100 text-xs font-bold normal-case tracking-normal text-gray-700 dark:bg-gray-800 dark:text-gray-200;
+    }
+    .table-builder thead th:first-child { @apply rounded-l-xl; }
+    .table-builder thead th:last-child { @apply rounded-r-xl; }
+    .table-builder tbody tr { @apply transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50; }
+}

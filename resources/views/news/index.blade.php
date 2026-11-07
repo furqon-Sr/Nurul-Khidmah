@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berita - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Manrope', sans-serif; }
     </style>
     <!-- AlpineJS for interactions -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -26,19 +26,19 @@
                 <div class="flex flex-col lg:flex-row gap-12 items-start mb-24">
                     <div class="w-full lg:w-1/2 space-y-6">
                         <div class="flex flex-wrap items-center gap-3">
-                            <span class="inline-block px-3 py-1 bg-[#E8F81D] text-xs font-bold text-gray-900 tracking-wide rounded-sm">BERITA UTAMA</span>
+                            <span class="inline-block px-3 py-1 bg-secondary-500 text-xs font-bold text-gray-900 tracking-wide rounded-sm">BERITA UTAMA</span>
                             @if($mainNews->category)
-                                <span class="inline-block px-3 py-1 bg-[#0D6B3A] text-xs font-bold text-white tracking-wide rounded-sm uppercase">
+                                <span class="inline-block px-3 py-1 bg-primary-600 text-xs font-bold text-white tracking-wide rounded-sm uppercase">
                                     {{ $mainNews->category }}
                                 </span>
                             @endif
                         </div>
                         
-                        <p class="text-xs text-gray-500 font-medium">
+                        <p class="text-xs text-gray-600 font-medium">
                             Tanggal Rilis: {{ $mainNews->published_at ? $mainNews->published_at->translatedFormat('d F Y') : $mainNews->created_at->translatedFormat('d F Y') }}
                         </p>
                         
-                        <h1 class="text-3xl md:text-4xl font-bold text-[#0D6B3A] leading-snug">
+                        <h1 class="text-3xl md:text-4xl font-bold text-primary-600 leading-snug">
                             <a href="{{ route('news.show', $mainNews->slug) }}" class="hover:underline">
                                 {{ $mainNews->title }}
                             </a>
@@ -49,7 +49,7 @@
                         </div>
                         
                         <div class="pt-4">
-                            <a href="{{ route('news.show', $mainNews->slug) }}" class="inline-flex items-center justify-center px-6 py-2 bg-[#E8F81D] text-gray-900 font-bold text-sm rounded-full hover:bg-yellow-400 transition shadow">
+                            <a href="{{ route('news.show', $mainNews->slug) }}" class="inline-flex items-center justify-center px-6 py-2 bg-secondary-500 text-gray-900 font-bold text-sm rounded-full hover:bg-secondary-400 transition shadow">
                                 Selengkapnya
                             </a>
                         </div>
@@ -69,14 +69,14 @@
                     </div>
                 </div>
             @else
-                <div class="text-center text-gray-500 py-12">
+                <div class="text-center text-gray-600 py-12">
                     Belum ada berita utama yang dipublikasikan.
                 </div>
             @endif
 
             <!-- News Grid (Berita Lainnya) -->
             <div class="border-t border-gray-100 pt-16">
-                <h2 class="text-3xl font-bold text-[#0D6B3A] text-center mb-16">Berita Lainnya</h2>
+                <h2 class="text-3xl font-bold text-primary-600 text-center mb-16">Berita Lainnya</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
                     @forelse($otherNews as $item)
@@ -92,7 +92,7 @@
                                 @endif
                                 
                                 @if($item->category)
-                                    <span class="absolute top-4 left-4 z-10 px-3 py-1 bg-green-800/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider rounded-full uppercase shadow-sm">
+                                    <span class="absolute top-4 left-4 z-10 px-3 py-1 bg-primary-700/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider rounded-full uppercase shadow-sm">
                                         {{ $item->category }}
                                     </span>
                                 @endif
@@ -100,7 +100,7 @@
                             
                             <!-- Content Container -->
                             <div class="p-6 flex flex-col flex-grow text-center items-center">
-                                <h3 class="text-[#0D6B3A] font-bold text-lg mb-2 line-clamp-2 min-h-[3.5rem]">{{ $item->title }}</h3>
+                                <h3 class="text-primary-600 font-bold text-lg mb-2 line-clamp-2 min-h-[3.5rem]">{{ $item->title }}</h3>
                                 
                                 <p class="text-gray-400 text-xs mb-4">
                                     {{ $item->published_at ? $item->published_at->translatedFormat('d F Y') : $item->created_at->translatedFormat('d F Y') }}
@@ -111,14 +111,14 @@
                                 </p>
                                 
                                 <div class="mt-auto">
-                                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center justify-center px-6 py-2 bg-[#E8F81D] text-gray-900 font-bold text-xs rounded-full hover:bg-yellow-400 transition shadow-sm">
+                                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center justify-center px-6 py-2 bg-secondary-500 text-gray-900 font-bold text-xs rounded-full hover:bg-secondary-400 transition shadow-sm">
                                         Selengkapnya
                                     </a>
                                 </div>
                             </div>
                         </div>
                     @empty
-                        <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-500 py-12">
+                        <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-600 py-12">
                             Belum ada berita lainnya.
                         </div>
                     @endforelse

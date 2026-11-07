@@ -61,17 +61,17 @@
     </div>
 
     <div tabindex="0" role="region" aria-labelledby="wali-grades-caption" class="overflow-auto max-w-full max-h-[75vh]">
-        <table class="min-w-full border-separate border-spacing-0">
-            <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0 z-10">
+        <table class="table-builder min-w-full border-separate border-spacing-0">
+            <thead class="sticky top-0 z-10">
                 <tr>
-                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky left-0 z-20">Mata Pelajaran</th>
-                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Pengajar</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Tugas (30%)</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">UTS (30%)</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">UAS (40%)</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Nilai Akhir</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Predikat</th>
-                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Catatan Evaluasi</th>
+                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky left-0 z-20">Mata Pelajaran</th>
+                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Pengajar</th>
+                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Tugas (30%)</th>
+                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">UTS (30%)</th>
+                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">UAS (40%)</th>
+                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Nilai Akhir</th>
+                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Predikat</th>
+                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Catatan Evaluasi</th>
                 </tr>
             </thead>
             <tbody>
@@ -116,7 +116,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-6 py-10 text-center text-gray-500 text-sm">
+                    <td colspan="8" class="px-6 py-10 text-center text-gray-600 text-sm">
                         Belum ada mata pelajaran / nilai pada periode semester ini.
                     </td>
                 </tr>

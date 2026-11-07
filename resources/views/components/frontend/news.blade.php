@@ -1,6 +1,6 @@
 <section class="py-20 bg-white">
     <div class="container mx-auto px-4 md:px-8">
-        <h2 class="text-3xl md:text-4xl font-bold text-[#045F33] text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-primary-700 text-center mb-12">
             Berita Terbaru
         </h2>
 
@@ -16,7 +16,7 @@
                     @endif
                     
                     @if($item->category)
-                        <span class="absolute top-4 left-4 z-10 px-3 py-1 bg-green-800/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider rounded-full uppercase shadow-sm">
+                        <span class="absolute top-4 left-4 z-10 px-3 py-1 bg-primary-700/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider rounded-full uppercase shadow-sm">
                             {{ $item->category }}
                         </span>
                     @endif
@@ -26,7 +26,7 @@
                     {{ $item->title }}
                 </h3>
                 
-                <p class="text-gray-500 text-sm text-center mb-4">
+                <p class="text-gray-600 text-sm text-center mb-4">
                     {{ \Carbon\Carbon::parse($item->published_at ?? $item->created_at)->format('d M Y') }}
                 </p>
 
@@ -35,13 +35,13 @@
                 </p>
 
                 <div class="mt-auto pb-4">
-                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center justify-center px-6 py-2 rounded-md bg-[#E8F81D] text-gray-900 font-bold text-sm hover:bg-yellow-400 transition shadow-sm">
+                    <a href="{{ route('news.show', $item->slug) }}" class="inline-flex items-center justify-center px-6 py-2 rounded-md bg-secondary-500 text-gray-900 font-bold text-sm hover:bg-secondary-400 transition shadow-sm">
                         Selengkapnya
                     </a>
                 </div>
             </div>
             @empty
-            <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-500 py-12 border border-dashed border-gray-300 rounded-xl">
+            <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center text-gray-600 py-12 border border-dashed border-gray-300 rounded-xl">
                 Belum ada berita terbaru.
             </div>
             @endforelse

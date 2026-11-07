@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $contents['wali_login_title']->content_text ?? 'Portal Wali Santri' }} - {{ $contents['site_name']->content_text ?? 'Nurul Khidmah' }}</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Manrope', system-ui, -apple-system, sans-serif;
             background-color: #FFFFFF;
         }
         .hp-field {
@@ -37,7 +37,7 @@
                              alt="{{ $contents['site_name']->content_text ?? 'Logo' }}" 
                              class="h-8 w-auto object-contain group-hover:opacity-90 transition" />
                     @else
-                        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-[#045F33] to-[#004524] flex items-center justify-center text-white shadow-sm font-bold text-xs">
+                        <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-700 to-primary-900 flex items-center justify-center text-white shadow-sm font-bold text-xs">
                             NK
                         </div>
                     @endif
@@ -52,7 +52,7 @@
                         <span>{{ $contents['wali_login_title']->content_text ?? 'Portal Wali Santri' }}</span>
                         <span class="inline-block transform origin-bottom-right hover:rotate-12 transition-transform duration-200">👋</span>
                     </h1>
-                    <p class="mt-2 text-sm sm:text-base text-slate-500 font-normal leading-relaxed">
+                    <p class="mt-2 text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
                         {{ $contents['wali_login_subtitle']->content_text ?? 'Pantau kehadiran harian, jadwal ngaji & madrasah, nilai pelajaran, serta unduh Rapor Resmi Ananda.' }}
                     </p>
                 </div>
@@ -96,7 +96,7 @@
                                    autocapitalize="off"
                                    spellcheck="false"
                                    placeholder="Contoh: 20260001 atau nama@email.com"
-                                   class="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#045F33] focus:ring-4 focus:ring-[#045F33]/15 shadow-xs" />
+                                   class="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-primary-700 focus:ring-4 focus:ring-primary-700/15 shadow-xs" />
                         </div>
 
                         {{-- Input Password --}}
@@ -111,7 +111,7 @@
                                        required
                                        autocomplete="current-password"
                                        placeholder="Masukkan kata sandi"
-                                       class="w-full h-12 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#045F33] focus:ring-4 focus:ring-[#045F33]/15 shadow-xs" />
+                                       class="w-full h-12 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-primary-700 focus:ring-4 focus:ring-primary-700/15 shadow-xs" />
                                 <button type="button"
                                         @click="showPassword = !showPassword"
                                         :aria-pressed="showPassword.toString()"
@@ -132,7 +132,7 @@
                             <div class="flex justify-end pt-2">
                                 <a href="https://wa.me/{{ $waHelp ?: '6285648239325' }}?text={{ rawurlencode('Assalamu\'alaikum Admin TU Ponpes Nurul Khidmah Lamongan, mohon bantuan informasi NIS / reset kata sandi Portal Wali Santri untuk Ananda: ') }}"
                                    target="_blank" rel="noopener noreferrer"
-                                   class="text-xs sm:text-sm font-semibold text-[#045F33] hover:text-[#004524] transition">
+                                   class="text-xs sm:text-sm font-semibold text-primary-700 hover:text-primary-900 transition">
                                     Lupa NIS / Sandi? Bantuan TU WhatsApp →
                                 </a>
                             </div>
@@ -143,14 +143,14 @@
                     <div class="flex items-center justify-between pt-1">
                         <label for="remember" class="inline-flex items-center gap-2 cursor-pointer select-none">
                             <input type="checkbox" id="remember" name="remember" value="1" checked
-                                   class="h-4 w-4 rounded border-slate-300 text-[#045F33] focus:ring-[#045F33]">
+                                   class="h-4 w-4 rounded border-slate-300 text-primary-700 focus:ring-primary-700">
                             <span class="text-xs sm:text-sm text-slate-600 font-medium">Ingat akun di HP ini</span>
                         </label>
                     </div>
 
                     {{-- Tombol Submit Sign In --}}
                     <button type="submit" 
-                            class="w-full h-12 rounded-xl bg-gradient-to-r from-[#045F33] to-[#004524] hover:from-[#034d29] hover:to-[#00361c] text-white font-semibold text-sm sm:text-base transition duration-200 shadow-lg shadow-[#045F33]/25 flex items-center justify-center gap-2 mt-6 active:scale-[0.99] cursor-pointer">
+                            class="w-full h-12 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold text-sm sm:text-base transition duration-200 shadow-lg shadow-primary-500/30 flex items-center justify-center gap-2 mt-6 active:scale-[0.99] cursor-pointer">
                         Masuk ke Portal Wali Santri →
                     </button>
                 </form>
@@ -193,22 +193,22 @@
                 </div>
             @else
                 {{-- ILUSTRASI GRAFIS BAWAAN (PERSIS GAMBAR REFERENSI DENGAN AKSEN EMERALD GREEN GRADIENT) --}}
-                <div class="absolute inset-0 w-full h-full bg-gradient-to-b from-[#EBF5F0] via-[#E2EFE9] to-[#CDE4DA]">
+                <div class="absolute inset-0 w-full h-full bg-gradient-to-b from-primary-50 via-primary-100 to-primary-200">
                     
-                    {{-- 3D Sphere / Crescent di Sudut Kanan Atas dengan Gradien #045F33 -> #004524 --}}
-                    <div class="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-[#045F33] via-[#02522c] to-[#004524] opacity-95 shadow-2xl"></div>
+                    {{-- 3D Sphere / Crescent di Sudut Kanan Atas dengan Gradien primary-700 → primary-900 --}}
+                    <div class="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 opacity-95 shadow-2xl"></div>
                     <div class="absolute -top-6 -right-6 w-64 h-64 rounded-full border-[18px] border-white/20 pointer-events-none"></div>
 
                     {{-- Partikel Bulat Kanan Atas --}}
-                    <div class="absolute top-24 right-20 w-3 h-3 rounded-full bg-[#004524] opacity-80 shadow-sm"></div>
-                    <div class="absolute top-36 right-24 w-3.5 h-3.5 rounded-full bg-[#045F33] opacity-85 shadow-sm"></div>
+                    <div class="absolute top-24 right-20 w-3 h-3 rounded-full bg-primary-600 opacity-80 shadow-sm"></div>
+                    <div class="absolute top-36 right-24 w-3.5 h-3.5 rounded-full bg-primary-500 opacity-85 shadow-sm"></div>
 
                     {{-- 3D Sphere / Crescent di Sudut Kiri Bawah --}}
-                    <div class="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-tr from-[#004524] via-[#02522c] to-[#045F33] opacity-95 shadow-2xl"></div>
+                    <div class="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-tr from-primary-600 via-primary-500 to-primary-400 opacity-95 shadow-2xl"></div>
 
                     {{-- Partikel Bulat Kiri Bawah --}}
-                    <div class="absolute bottom-28 left-28 w-3 h-3 rounded-full bg-[#004524] opacity-80 shadow-sm"></div>
-                    <div class="absolute bottom-40 left-36 w-2.5 h-2.5 rounded-full bg-[#045F33] opacity-75 shadow-sm"></div>
+                    <div class="absolute bottom-28 left-28 w-3 h-3 rounded-full bg-primary-600 opacity-80 shadow-sm"></div>
+                    <div class="absolute bottom-40 left-36 w-2.5 h-2.5 rounded-full bg-primary-700 opacity-75 shadow-sm"></div>
                 </div>
 
                 {{-- Emblem Lingkaran Putih & Teks Brand di Tengah --}}
@@ -219,7 +219,7 @@
                                  alt="{{ $contents['site_name']->content_text ?? 'Logo' }}" 
                                  class="max-h-full max-w-full object-contain">
                         @else
-                            <div class="h-12 w-12 rounded-full bg-gradient-to-br from-[#045F33] to-[#004524] flex items-center justify-center text-white font-extrabold text-lg">
+                            <div class="h-12 w-12 rounded-full bg-gradient-to-br from-primary-700 to-primary-900 flex items-center justify-center text-white font-extrabold text-lg">
                                 NK
                             </div>
                         @endif
@@ -229,7 +229,7 @@
                         <span class="block text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none">
                             {{ $contents['site_name']->content_text ?? 'Nurul Khidmah' }}
                         </span>
-                        <span class="block text-sm sm:text-base font-bold text-[#045F33] tracking-widest uppercase mt-1.5">
+                        <span class="block text-sm sm:text-base font-bold text-primary-700 tracking-widest uppercase mt-1.5">
                             Portal Wali Santri
                         </span>
                     </div>

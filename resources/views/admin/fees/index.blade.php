@@ -8,7 +8,7 @@
         <h1 class="text-2xl font-bold text-gray-800">Daftar Biaya Pendidikan</h1>
         <p class="text-gray-600 text-sm">Kelola daftar komponen biaya pendidikan santri berdasarkan jenjang.</p>
     </div>
-    <a href="{{ route('admin.fees.create') }}" class="bg-[#0D6B3A] text-white px-4 py-2 rounded-md hover:bg-green-800 transition shadow flex items-center gap-2">
+    <a href="{{ route('admin.fees.create') }}" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-green-800 transition shadow flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Tambah Komponen Biaya
     </a>
@@ -34,8 +34,8 @@
             </div>
             
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm text-left">
-                    <thead class="bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 uppercase font-semibold text-xs tracking-wider">
+                <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-slate-700 text-sm text-left">
+                    <thead class="text-gray-700 dark:text-slate-300 text-xs">
                         <tr>
                             <th class="px-6 py-3">Nama Komponen</th>
                             <th class="px-6 py-3">Nominal (Rupiah)</th>
@@ -48,13 +48,13 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
                                 <td class="px-6 py-4 font-semibold text-gray-900 dark:text-slate-100">{{ $fee->name }}</td>
                                 <td class="px-6 py-4">Rp {{ number_format($fee->amount, 0, ',', '.') }}</td>
-                                <td class="px-6 py-4 text-gray-500 dark:text-slate-400">{{ $fee->description ?? '-' }}</td>
+                                <td class="px-6 py-4 text-gray-600 dark:text-slate-400">{{ $fee->description ?? '-' }}</td>
                                 <td class="px-6 py-4 text-right flex justify-end gap-3">
-                                    <a href="{{ route('admin.fees.edit', $fee->id) }}" class="text-blue-600 hover:text-blue-900 font-medium">Edit</a>
+                                    <x-icon-button type="edit" href="{{ route('admin.fees.edit', $fee->id) }}" class="mr-1.5" />
                                     <form action="{{ route('admin.fees.destroy', $fee->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus komponen biaya ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium">Hapus</button>
+                                        <x-icon-button type="delete" :submit="true" />
                                     </form>
                                 </td>
                             </tr>

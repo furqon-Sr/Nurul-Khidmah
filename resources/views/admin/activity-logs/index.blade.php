@@ -16,13 +16,13 @@
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-5 mb-6">
     <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
         <div class="flex-1 min-w-[200px]">
-            <label class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Pencarian</label>
+            <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Pencarian</label>
             <input type="text" name="search" value="{{ request('search') }}"
                    placeholder="Cari nama, deskripsi, IP..."
                    class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
         </div>
         <div class="min-w-[150px]">
-            <label class="block text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Jenis Aksi</label>
+            <label class="block text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider mb-1.5">Jenis Aksi</label>
             <select name="action" class="w-full rounded-lg border-gray-300 dark:border-slate-700 shadow-sm focus:border-green-500 focus:ring-green-500 bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 text-sm py-2">
                 <option value="">-- Semua --</option>
                 <option value="login" {{ request('action') === 'login' ? 'selected' : '' }}>Login</option>
@@ -49,20 +49,20 @@
 {{-- Tabel Log --}}
 <div class="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead class="bg-gray-50 dark:bg-slate-900">
+        <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead>
                 <tr>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Waktu</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Admin</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Aksi</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Deskripsi</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">IP Address</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Waktu</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Admin</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Aksi</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Deskripsi</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-600 dark:text-slate-300">IP Address</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-slate-700">
                 @forelse($logs as $log)
                     <tr class="hover:bg-gray-50 dark:hover:bg-slate-900/60 transition-colors log-row-item" data-search="{{ strtolower($log->user_name . ' ' . $log->description . ' ' . ($log->ip_address ?? '')) }}">
-                        <td class="px-5 py-3.5 whitespace-nowrap text-xs text-gray-500 dark:text-slate-400">
+                        <td class="px-5 py-3.5 whitespace-nowrap text-xs text-gray-600 dark:text-slate-400">
                             <div>{{ $log->created_at->timezone(config('app.timezone'))->format('d M Y') }}</div>
                             <div class="text-gray-400 dark:text-slate-500">{{ $log->created_at->timezone(config('app.timezone'))->format('H:i:s') }}</div>
                         </td>
@@ -80,13 +80,13 @@
                                 <span class="text-xs text-gray-400 dark:text-slate-500 block mt-0.5">{{ $log->target_type }} #{{ $log->target_id }}</span>
                             @endif
                         </td>
-                        <td class="px-5 py-3.5 whitespace-nowrap text-xs font-mono text-gray-500 dark:text-slate-400">
+                        <td class="px-5 py-3.5 whitespace-nowrap text-xs font-mono text-gray-600 dark:text-slate-400">
                             {{ $log->ip_address }}
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-600 dark:text-slate-400">
                             <svg class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             <p class="text-base font-medium">Belum ada log aktivitas</p>
                         </td>

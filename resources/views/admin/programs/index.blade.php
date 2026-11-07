@@ -7,7 +7,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
             <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Program Pendidikan</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola data dan informasi program pendidikan pondok pesantren.</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Kelola data dan informasi program pendidikan pondok pesantren.</p>
         </div>
         <a href="{{ route('admin.programs.create') }}"
            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500/20 dark:hover:bg-emerald-500/30 text-white dark:text-emerald-300 text-sm font-semibold rounded-xl shadow-sm border border-transparent dark:border-emerald-500/30 transition-all duration-200 hover:shadow-md focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
@@ -97,7 +97,7 @@
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-1" title="{{ $program->name }}">
                         {{ $program->name }}
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
                         {{ Str::limit(strip_tags($program->description), 100) ?: '—' }}
                     </p>
 
@@ -173,7 +173,7 @@
                         </svg>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Belum Ada Program Pendidikan</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">Mulai tambahkan program pendidikan pesantren untuk ditampilkan di halaman website.</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-sm">Mulai tambahkan program pendidikan pesantren untuk ditampilkan di halaman website.</p>
                     <a href="{{ route('admin.programs.create') }}"
                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500/20 dark:hover:bg-emerald-500/30 text-white dark:text-emerald-300 text-sm font-semibold rounded-xl shadow-sm border border-transparent dark:border-emerald-500/30 transition-all duration-200 hover:shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -187,7 +187,7 @@
     <!-- Legend -->
     @if($programs->count() > 0)
     <div class="mt-6 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-600 dark:text-gray-400">
             <span class="font-semibold text-gray-600 dark:text-gray-300">Keterangan Toggle:</span>
             <span class="flex items-center gap-2">
                 <span class="inline-block w-8 h-4 rounded-full bg-emerald-500"></span>

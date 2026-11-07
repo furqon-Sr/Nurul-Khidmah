@@ -12,7 +12,7 @@
         </p>
     </div>
     <a href="{{ route('admin.users.create') }}"
-       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#0D6B3A] hover:bg-emerald-800 rounded-lg shadow transition shrink-0">
+       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-primary-600 hover:bg-emerald-700 rounded-lg shadow transition shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Tambah pengguna admin
     </a>
@@ -86,7 +86,7 @@
                 </select>
 
                 {{-- Filter Button --}}
-                <button type="submit" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold transition shadow-sm">
+                <button type="submit" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition shadow-sm">
                     Cari
                 </button>
 
@@ -100,15 +100,15 @@
     </div>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-            <thead class="bg-gray-50 dark:bg-slate-900">
+        <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+            <thead>
                 <tr>
-                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Pengguna</th>
-                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Role</th>
-                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Email Terverifikasi</th>
-                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Terdaftar</th>
-                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Ubah Role</th>
-                    <th scope="col" class="px-6 py-3.5 text-right text-xs font-semibold text-gray-600 dark:text-slate-300 uppercase tracking-wider">Aksi</th>
+                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Pengguna</th>
+                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Role</th>
+                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Email Terverifikasi</th>
+                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Terdaftar</th>
+                    <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-slate-300">Ubah Role</th>
+                    <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-gray-600 dark:text-slate-300">Aksi</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
@@ -163,7 +163,7 @@
                                             <span class="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-1.5 py-0.5 rounded font-medium">Anda</span>
                                         @endif
                                     </div>
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 truncate max-w-[180px]">{{ $user->email }}</p>
+                                    <p class="text-xs text-gray-600 dark:text-slate-400 truncate max-w-[180px]">{{ $user->email }}</p>
                                 </div>
                             </div>
                         </td>
@@ -186,7 +186,7 @@
                             @endif
                         </td>
 
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400">
                             {{ $user->created_at?->timezone(config('app.timezone'))->format('d M Y') }}
                         </td>
 
@@ -207,7 +207,7 @@
                                     @endif
                                 </select>
                                 <button type="submit"
-                                        class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-md transition">
+                                        class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition">
                                     Simpan
                                 </button>
                             </form>
@@ -268,7 +268,7 @@
                     </tr>
                 @endforeach
                 <tr id="no-search-results" style="display: {{ $users->isEmpty() ? '' : 'none' }};">
-                    <td colspan="6" class="px-6 py-10 text-center text-gray-500 dark:text-slate-400 text-sm">
+                    <td colspan="6" class="px-6 py-10 text-center text-gray-600 dark:text-slate-400 text-sm">
                         Tidak ada pengguna yang cocok dengan pencarian.
                     </td>
                 </tr>
@@ -329,7 +329,7 @@
                 <img id="avatar-preview-img" src="" alt="Preview" class="w-32 h-32 rounded-full object-cover ring-4 ring-emerald-200 dark:ring-emerald-800 shadow-lg">
             </div>
             <h3 class="text-base font-semibold text-gray-900 dark:text-slate-100">Konfirmasi Foto Profil</h3>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Upload foto ini sebagai foto profil?</p>
+            <p class="text-sm text-gray-600 dark:text-slate-400 mt-1">Upload foto ini sebagai foto profil?</p>
         </div>
         <div class="px-6 pb-6 flex gap-3 justify-center">
             <button type="button" onclick="cancelAvatarUpload()"
@@ -337,7 +337,7 @@
                 Batal
             </button>
             <button type="button" id="avatar-confirm-btn"
-                    class="flex-1 px-4 py-2 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow transition">
+                    class="flex-1 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow transition">
                 Upload Foto
             </button>
         </div>

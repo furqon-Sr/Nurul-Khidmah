@@ -62,7 +62,7 @@
         </div>
 
         <div class="border-t border-gray-100 dark:border-slate-700 pt-6 flex justify-end">
-            <button type="submit" class="bg-[#0D6B3A] text-white px-6 py-2.5 rounded-md hover:bg-green-800 transition shadow font-semibold">
+            <button type="submit" class="bg-primary-600 text-white px-6 py-2.5 rounded-md hover:bg-green-800 transition shadow font-semibold">
                 Perbarui Komponen Biaya
             </button>
         </div>

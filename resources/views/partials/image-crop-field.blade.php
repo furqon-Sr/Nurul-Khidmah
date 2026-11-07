@@ -16,12 +16,12 @@
         @if($required)<span class="text-red-500">*</span>@endif
     </label>
     @if(!empty($hint))
-        <p class="text-xs text-gray-500 dark:text-slate-400">{{ $hint }}</p>
+        <p class="text-xs text-gray-600 dark:text-slate-400">{{ $hint }}</p>
         <p class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Rasio disarankan: {{ $aspectLabel }}</p>
     @endif
 
     @if(!empty($currentImageUrl))
-        <p class="text-xs text-gray-500 dark:text-slate-400">Gambar saat ini:</p>
+        <p class="text-xs text-gray-600 dark:text-slate-400">Gambar saat ini:</p>
         <img src="{{ $currentImageUrl }}" alt="" class="max-h-40 rounded-lg border border-gray-200 dark:border-slate-600 object-cover mb-2">
     @endif
 
@@ -30,7 +30,7 @@
            id="{{ $name }}"
            accept="{{ $accept }}"
            @if($required) required @endif
-           class="image-crop-input w-full text-sm text-gray-500 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600 border border-gray-300 dark:border-slate-700 p-2 rounded-md"
+           class="image-crop-input w-full text-sm text-gray-600 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-green-700 hover:file:bg-green-100 dark:file:text-slate-200 dark:hover:file:bg-green-600 border border-gray-300 dark:border-slate-700 p-2 rounded-md"
            data-aspect-ratio="{{ $aspectRatio ?? '' }}"
            data-aspect-label="{{ $aspectLabel }}">
 

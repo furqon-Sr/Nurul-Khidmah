@@ -11,7 +11,7 @@
         </p>
     </div>
     @if(isset($activeYear) && $activeYear)
-        <span class="px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 w-fit">
+        <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 w-fit">
             Periode Aktif: {{ $activeYear->nama_tahun_ajaran }} ({{ $activeYear->semester }})
         </span>
     @endif
@@ -36,13 +36,13 @@
                 <span class="px-2.5 py-1 text-xs font-bold rounded bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
                     {{ $item->kelas->nama_kelas ?? '-' }}
                 </span>
-                <span class="text-xs font-semibold text-gray-500">{{ $item->tahunAjaran->nama_tahun_ajaran ?? '' }} ({{ $item->tahunAjaran->semester ?? '' }})</span>
+                <span class="text-xs font-semibold text-gray-600">{{ $item->tahunAjaran->nama_tahun_ajaran ?? '' }} ({{ $item->tahunAjaran->semester ?? '' }})</span>
             </div>
 
             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
                 {{ $item->mataPelajaran->nama_mapel ?? '-' }}
             </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">
                 Pengajar: <span class="font-medium text-gray-700 dark:text-gray-300">{{ $item->pengajar->nama_lengkap ?? '-' }}</span>
             </p>
 
@@ -60,13 +60,13 @@
             </div>
         </div>
 
-        <a href="{{ route('teacher.grades.edit', $item->id) }}" class="w-full px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold transition text-center shadow-sm block">
+        <a href="{{ route('teacher.grades.edit', $item->id) }}" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition text-center shadow-sm block">
             Input / Edit Nilai &amp; Evaluasi
         </a>
     </div>
     @empty
     <div class="col-span-full bg-white dark:bg-gray-800 rounded-xl p-10 text-center border border-gray-200 dark:border-gray-700">
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Belum ada jadwal mengajar terdaftar pada periode aktif.</p>
+        <p class="text-gray-600 dark:text-gray-400 text-sm">Belum ada jadwal mengajar terdaftar pada periode aktif.</p>
     </div>
     @endforelse
 </div>

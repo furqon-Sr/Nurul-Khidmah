@@ -8,7 +8,7 @@
 
         @include('partials.site-favicon')
 
-        @fonts
+        @include('partials.fonts')
 
         <!-- Styles -->
         <style>

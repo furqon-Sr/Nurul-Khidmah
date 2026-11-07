@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Admin Panel' }} - Pondok Pesantren Nurul Khidmah</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -85,7 +85,7 @@
             <!-- Header/Topbar -->
             <header class="flex items-center justify-between h-16 bg-white border-b border-gray-200 px-4 lg:px-8 shadow-sm">
                 <!-- Hamburger Menu (Mobile) -->
-                <button @click="sidebarOpen = true" class="text-gray-500 hover:text-green-900 focus:outline-none lg:hidden">
+                <button @click="sidebarOpen = true" class="text-gray-600 hover:text-green-900 focus:outline-none lg:hidden">
                     <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>

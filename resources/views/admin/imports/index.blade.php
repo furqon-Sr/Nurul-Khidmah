@@ -13,7 +13,7 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-2xs uppercase tracking-wide font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Queue Driver: {{ config('queue.default', 'database') }}
             </span>
@@ -58,11 +58,11 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Import Data Santri</h2>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Format: Excel (.xlsx, .xls) atau CSV</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Format: Excel (.xlsx, .xls) atau CSV</p>
                         </div>
                     </div>
                     <a href="{{ route('admin.imports.template', 'santri') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         Download Template CSV
                     </a>
                 </div>
@@ -72,7 +72,7 @@
                     <code class="block font-mono text-[11px] bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 text-emerald-700 dark:text-emerald-400 break-all">
                         nama_lengkap, nis, jenis_kelamin, unit, kelas, tempat_lahir, tanggal_lahir, alamat, nama_wali, no_hp_wali, tahun_masuk
                     </code>
-                    <p class="text-[11px] text-gray-500 italic mt-1">
+                    <p class="text-[11px] text-gray-600 italic mt-1">
                         *Jika kolom <code>nis</code> dikosongkan, sistem akan otomatis men-generate NIS unik berdasarkan tahun dan unit (contoh: 26MTS001).
                     </p>
                 </div>
@@ -85,7 +85,7 @@
                     <input type="file" name="file" accept=".xlsx,.xls,.csv,.txt" required
                            class="block w-full text-xs text-gray-700 dark:text-gray-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 dark:file:bg-emerald-950 file:text-emerald-700 dark:file:text-emerald-300 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900">
                 </div>
-                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition text-sm font-semibold shadow-sm">
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition text-sm font-semibold shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     Unggah &amp; Proses Santri (Queued)
                 </button>
@@ -104,11 +104,11 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Import Data Pengajar</h2>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Format: Excel (.xlsx, .xls) atau CSV</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Format: Excel (.xlsx, .xls) atau CSV</p>
                         </div>
                     </div>
                     <a href="{{ route('admin.imports.template', 'pengajar') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         Download Template CSV
                     </a>
                 </div>
@@ -118,7 +118,7 @@
                     <code class="block font-mono text-[11px] bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 text-blue-700 dark:text-blue-400 break-all">
                         nama_lengkap, nomor_identitas, jenis_kelamin, alamat, nomor_telepon, status_pengajar
                     </code>
-                    <p class="text-[11px] text-gray-500 italic mt-1">
+                    <p class="text-[11px] text-gray-600 italic mt-1">
                         *Jika <code>nomor_identitas</code> kosong, sistem akan otomatis membuat NIY baru (contoh: NIY-26-001).
                     </p>
                 </div>
@@ -144,7 +144,7 @@
         <div class="p-4 bg-gray-50 dark:bg-gray-900/60 border-b border-gray-200 dark:border-gray-700 flex flex-wrap justify-between items-center gap-2">
             <div>
                 <h3 class="font-bold text-gray-800 dark:text-gray-100 text-sm">Riwayat Batch Migrasi &amp; Import</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Daftar batch proses latar belakang dan status eksekusinya</p>
+                <p class="text-xs text-gray-600 dark:text-gray-400">Daftar batch proses latar belakang dan status eksekusinya</p>
             </div>
             <button type="button" onclick="window.location.reload()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -153,21 +153,21 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+            <table class="table-builder min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead>
                     <tr>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Waktu &amp; ID</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Nama Berkas</th>
-                        <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Tipe Data</th>
-                        <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Progres / Baris</th>
-                        <th class="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                        <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Diunggah Oleh</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Waktu &amp; ID</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Nama Berkas</th>
+                        <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-600 dark:text-gray-400">Tipe Data</th>
+                        <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-600 dark:text-gray-400">Progres / Baris</th>
+                        <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-600 dark:text-gray-400">Status</th>
+                        <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 dark:text-gray-400">Diunggah Oleh</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                     @forelse($batches as $batch)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                            <td class="px-5 py-4 whitespace-nowrap text-xs text-gray-500 font-mono">
+                            <td class="px-5 py-4 whitespace-nowrap text-xs text-gray-600 font-mono">
                                 <div>#{{ $batch->id }}</div>
                                 <div class="text-[11px] text-gray-400">{{ $batch->created_at->format('d/m/Y H:i') }}</div>
                             </td>
@@ -176,11 +176,11 @@
                             </td>
                             <td class="px-5 py-4 whitespace-nowrap text-center">
                                 @if($batch->type === 'santri')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-2xs uppercase tracking-wide font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                                         Santri
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-2xs uppercase tracking-wide font-bold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
                                         Pengajar
                                     </span>
                                 @endif
@@ -215,7 +215,7 @@
                         @endif
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-gray-500 text-sm">
+                            <td colspan="6" class="px-6 py-10 text-center text-gray-600 text-sm">
                                 Belum ada riwayat batch migrasi data.
                             </td>
                         </tr>

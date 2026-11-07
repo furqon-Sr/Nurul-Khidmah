@@ -14,11 +14,11 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#045F33', // Primary brand green
-          dark: '#004524', // Gradient end / deep emerald
+          DEFAULT: '#27A376', // Primary (style guide)
+          dark: '#166D4E', // Primary 700
         },
         accent: {
-          DEFAULT: '#F2C94C', // Gold accent used for highlights and active states
+          DEFAULT: '#FFCF24', // Secondary (style guide)
         },
       },
     },

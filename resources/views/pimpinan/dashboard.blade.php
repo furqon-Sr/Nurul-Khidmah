@@ -40,37 +40,37 @@
 {{-- Kartu Ringkasan Track Record Makro --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-emerald-500">
-        <h3 class="text-[11px] font-semibold text-gray-500 uppercase">Santri Aktif</h3>
+        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Santri Aktif</h3>
         <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalSantriAktif }}</p>
         <p class="text-[11px] text-emerald-600 mt-1 font-medium">Mukim &amp; Belajar</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
-        <h3 class="text-[11px] font-semibold text-gray-500 uppercase">Lulus / Alumni</h3>
+        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Lulus / Alumni</h3>
         <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalSantriLulus }}</p>
         <p class="text-[11px] text-teal-600 mt-1 font-medium">Mutasi: {{ $totalSantriMutasi }} Santri</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-indigo-500">
-        <h3 class="text-[11px] font-semibold text-gray-500 uppercase">Ustaz &amp; Kelas</h3>
+        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Ustaz &amp; Kelas</h3>
         <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalPengajar }} <span class="text-sm font-normal text-gray-400">/ {{ $totalKelas }} Kls</span></p>
         <p class="text-[11px] text-indigo-600 mt-1 font-medium">Pengajar Aktif &amp; Rombel</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-amber-500">
-        <h3 class="text-[11px] font-semibold text-gray-500 uppercase">PPDB (Diterima)</h3>
+        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">PPDB (Diterima)</h3>
         <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $ppdbTotals['diterima'] }} <span class="text-sm font-normal text-gray-400">/ {{ $ppdbTotals['pendaftar'] }}</span></p>
         <p class="text-[11px] text-amber-600 mt-1 font-medium">Total Pendaftar Masuk</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
-        <h3 class="text-[11px] font-semibold text-gray-500 uppercase">Rata-Rata Hadir</h3>
+        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Rata-Rata Hadir</h3>
         <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $attendancePercentage }}%</p>
         <p class="text-[11px] text-blue-600 mt-1 font-medium">Presensi Semester Aktif</p>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
-        <h3 class="text-[11px] font-semibold text-gray-500 uppercase">Rata-Rata Nilai</h3>
+        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Rata-Rata Nilai</h3>
         <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($averageGrade, 2) }}</p>
         <p class="text-[11px] text-purple-600 mt-1 font-medium">Capaian Akademik</p>
     </div>
@@ -83,12 +83,12 @@
             <h2 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center gap-2">
                 Indikator Ketuntasan Pengisian Nilai Rapor Seluruh Kelas
                 @if($expectedTotalEntries > 0 && $gradeCompletionPercentage >= 100)
-                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">100% Tuntas Siap Cetak Rapor</span>
+                    <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">100% Tuntas Siap Cetak Rapor</span>
                 @else
-                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Dalam Proses Pengisian Guru</span>
+                    <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Dalam Proses Pengisian Guru</span>
                 @endif
             </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                 Tercatat <strong>{{ $filledTotalEntries }}</strong> dari <strong>{{ $expectedTotalEntries }}</strong> entri nilai santri aktif pada semester ini telah diinput oleh ustaz/ustazah pengampu.
             </p>
         </div>
@@ -114,7 +114,7 @@
                     <div class="px-3 py-2 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between gap-2 text-xs">
                         <div class="min-w-0">
                             <p class="font-bold text-gray-800 dark:text-gray-200 truncate">{{ $inc['mapel'] }} ({{ $inc['kelas'] }})</p>
-                            <p class="text-[11px] text-gray-500 truncate">{{ $inc['pengajar'] }}</p>
+                            <p class="text-[11px] text-gray-600 truncate">{{ $inc['pengajar'] }}</p>
                         </div>
                         <span class="font-bold text-amber-700 dark:text-amber-300 shrink-0">{{ $inc['filled'] }}/{{ $inc['expected'] }}</span>
                     </div>
@@ -131,7 +131,7 @@
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base">Track Record PPDB Tahunan (Pendaftar vs Diterima)</h3>
-                <p class="text-xs text-gray-500">Perbandingan animo calon santri baru dan santri yang resmi diterima tiap periode.</p>
+                <p class="text-xs text-gray-600">Perbandingan animo calon santri baru dan santri yang resmi diterima tiap periode.</p>
             </div>
         </div>
 
@@ -174,7 +174,7 @@
                     </div>
                 </div>
             @empty
-                <p class="text-center py-8 text-gray-500 text-xs">Belum ada riwayat pendaftar PPDB tercatat.</p>
+                <p class="text-center py-8 text-gray-600 text-xs">Belum ada riwayat pendaftar PPDB tercatat.</p>
             @endforelse
         </div>
     </div>
@@ -182,7 +182,7 @@
     {{-- Sebaran Predikat Nilai --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
         <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base mb-1">Sebaran Predikat Nilai</h3>
-        <p class="text-xs text-gray-500 mb-4">Distribusi huruf mutu akademik semester aktif.</p>
+        <p class="text-xs text-gray-600 mb-4">Distribusi huruf mutu akademik semester aktif.</p>
         @php
             $gradeStyles = [
                 'A' => ['bar' => 'bg-emerald-500', 'label' => 'Grade A (≥85 Sangat Baik)'],
@@ -199,7 +199,7 @@
             <div>
                 <div class="flex justify-between text-xs font-semibold mb-1">
                     <span class="text-gray-700 dark:text-gray-300">{{ $meta['label'] }}</span>
-                    <span class="text-gray-500">{{ $cnt }} Nilai</span>
+                    <span class="text-gray-600">{{ $cnt }} Nilai</span>
                 </div>
                 <div class="w-full bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
                     <div class="{{ $meta['bar'] }} h-full" style="width: {{ $sumGrades > 0 ? ($cnt / $sumGrades * 100) : 0 }}%"></div>
@@ -217,20 +217,20 @@
             <h3 id="executive-class-table-heading" class="font-bold text-gray-800 dark:text-gray-100 text-base">
                 Daftar Rekapitulasi Akademik &amp; Kehadiran Per Kelas
             </h3>
-            <p class="text-xs text-gray-500">Ringkasan wali kelas, jumlah santri aktif, tingkat kehadiran, rata-rata nilai, dan progres pengisian rapor.</p>
+            <p class="text-xs text-gray-600">Ringkasan wali kelas, jumlah santri aktif, tingkat kehadiran, rata-rata nilai, dan progres pengisian rapor.</p>
         </div>
     </div>
 
     <div tabindex="0" role="region" aria-labelledby="executive-class-table-heading" class="overflow-x-auto max-h-[70vh]">
-        <table class="min-w-full border-separate border-spacing-0">
-            <thead class="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900">
+        <table class="table-builder min-w-full border-separate border-spacing-0">
+            <thead class="sticky top-0 z-10">
                 <tr>
-                    <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Kelas</th>
-                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Wali Kelas</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Santri Aktif</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">% Kehadiran</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Rata-Rata Nilai</th>
-                    <th scope="col" class="px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase min-w-[200px] border-b border-gray-200 dark:border-gray-700">Ketuntasan Input Rapor</th>
+                    <th scope="col" class="px-5 py-3 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Kelas</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Wali Kelas</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Santri Aktif</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">% Kehadiran</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Rata-Rata Nilai</th>
+                    <th scope="col" class="px-5 py-3 text-left text-xs font-bold text-gray-600 min-w-[200px] border-b border-gray-200 dark:border-gray-700">Ketuntasan Input Rapor</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -238,7 +238,7 @@
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
                     <th scope="row" class="sticky left-0 z-[1] bg-white dark:bg-gray-800 px-5 py-3.5 whitespace-nowrap text-left font-bold text-gray-900 dark:text-gray-100 text-sm border-b border-gray-100 dark:border-gray-700/60">
                         {{ $c['nama_kelas'] }}
-                        <span class="block text-[11px] font-normal text-gray-500">{{ $c['jumlah_mapel'] }} Mata Pelajaran</span>
+                        <span class="block text-[11px] font-normal text-gray-600">{{ $c['jumlah_mapel'] }} Mata Pelajaran</span>
                     </th>
                     <td class="px-4 py-3.5 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
                         {{ $c['wali_kelas'] }}
@@ -267,7 +267,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center py-8 text-gray-500 text-xs">Belum ada data rombongan belajar terdaftar.</td>
+                    <td colspan="6" class="text-center py-8 text-gray-600 text-xs">Belum ada data rombongan belajar terdaftar.</td>
                 </tr>
                 @endforelse
             </tbody>

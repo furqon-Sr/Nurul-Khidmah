@@ -16,7 +16,7 @@
         </p>
     </div>
     @if(isset($activeYear) && $activeYear)
-        <span class="px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 w-fit">
+        <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 w-fit">
             Periode Aktif: {{ $activeYear->nama_tahun_ajaran }} ({{ $activeYear->semester }})
         </span>
     @endif
@@ -33,7 +33,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
         <div>
             <h2 class="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100">Filterisasi Cepat Kelas &amp; Pencarian Santri</h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Terhubung langsung ke daftar santri, pengisian catatan rapor, dan tombol cetak Rapor PDF di bawah.</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">Terhubung langsung ke daftar santri, pengisian catatan rapor, dan tombol cetak Rapor PDF di bawah.</p>
         </div>
         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 w-fit">
             {{ $santris->count() }} Santri Ditemukan
@@ -86,7 +86,7 @@
                        autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"
                        class="w-full min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-base sm:text-xs text-gray-900 dark:text-gray-100">
                 <button type="submit"
-                        class="min-h-11 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm transition shrink-0">
+                        class="min-h-11 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition shrink-0">
                     Cari
                 </button>
                 @if($hasActiveFilter)
@@ -109,7 +109,7 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             </div>
             <h3 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">1. Rekap Presensi Kelas</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Cetak rekapitulasi kehadiran santri (Hadir, Izin, Sakit, Alpa, &amp; Catatan Disiplin) ber-kop surat resmi.</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">Cetak rekapitulasi kehadiran santri (Hadir, Izin, Sakit, Alpa, &amp; Catatan Disiplin) ber-kop surat resmi.</p>
         </div>
 
         <form action="{{ route('admin.reports.attendance-pdf') }}" method="GET" target="_blank">
@@ -131,7 +131,7 @@
             </div>
             <div class="grid grid-cols-2 gap-2 mt-4">
                 <button type="submit" {{ $classOptions->isEmpty() ? 'disabled' : '' }}
-                        class="w-full min-h-11 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
+                        class="w-full min-h-11 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-lg text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
                         style="background-color: #047857 !important; color: #ffffff !important;">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     Pratinjau / Cetak
@@ -153,7 +153,7 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             </div>
             <h3 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">2. Leger &amp; Nilai Spesifik Mapel</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Cetak Leger Nilai lengkap rincian tiap mata pelajaran + Jumlah &amp; Rata-Rata, atau cetak nilai spesifik 1 mapel.</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-3">Cetak Leger Nilai lengkap rincian tiap mata pelajaran + Jumlah &amp; Rata-Rata, atau cetak nilai spesifik 1 mapel.</p>
         </div>
 
         <form action="{{ route('admin.reports.grades-pdf') }}" method="GET" target="_blank">
@@ -207,7 +207,7 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
             <h3 class="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">3. Lembar Rapor Santri</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Cetak Rapor Resmi lengkap nilai spesifik seluruh mapel, jumlah nilai, rata-rata, &amp; tanda tangan resmi.</p>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">Cetak Rapor Resmi lengkap nilai spesifik seluruh mapel, jumlah nilai, rata-rata, &amp; tanda tangan resmi.</p>
         </div>
 
         <form id="quick-santri-rapor-form" method="GET" action="{{ route('admin.reports.index') }}">
@@ -249,13 +249,13 @@
             <h2 id="wali-eval-heading" class="text-base font-bold text-gray-900 dark:text-gray-100">
                 Daftar Santri, Evaluasi Sikap Wali Kelas &amp; Tombol Cetak Rapor PDF
             </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                 Isi predikat sikap/kepesantrenan &amp; catatan evaluasi Wali Kelas, lalu klik <strong>Cetak Rapor PDF</strong> pada baris santri.
             </p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             @if($selectedFilterKelas)
-                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 w-fit">
+                <span class="px-2.5 py-1 rounded-md text-2xs uppercase tracking-wide font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 w-fit">
                     Kelas Terfilter: {{ $selectedFilterKelas->nama_kelas }}
                 </span>
             @endif
@@ -263,7 +263,7 @@
                 <form action="{{ route('admin.reports.approve-class', $selectedEvalKelas->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyetujui (Approve) seluruh rapor kelas {{ $selectedEvalKelas->nama_kelas }}? Nilai dan presensi santri akan terkunci secara permanen.')">
                     @csrf
                     <input type="hidden" name="tahun_ajaran_id" value="{{ $selectedYear?->id }}">
-                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition">
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                         Approve Rapor Kelas Ini
                     </button>
@@ -282,14 +282,14 @@
         <input type="hidden" name="search" value="{{ $search }}">
 
         <div tabindex="0" role="region" aria-labelledby="wali-eval-heading" class="overflow-x-auto max-h-[68vh]">
-            <table class="min-w-full border-separate border-spacing-0">
-                <thead class="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900">
+            <table class="table-builder min-w-full border-separate border-spacing-0">
+                <thead class="sticky top-0 z-10">
                     <tr>
-                        <th scope="col" class="px-4 sm:px-5 py-3 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">NIS &amp; Nama Santri</th>
-                        <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-36 border-b border-gray-200 dark:border-gray-700">Kelas</th>
-                        <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-52 border-b border-gray-200 dark:border-gray-700">Predikat Sikap</th>
-                        <th scope="col" class="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase min-w-[260px] border-b border-gray-200 dark:border-gray-700">Catatan Wali Kelas di Rapor</th>
-                        <th scope="col" class="sticky right-0 z-20 bg-gray-100 dark:bg-gray-900 px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-200 uppercase min-w-[260px] shadow-[-3px_0_6px_-2px_rgba(0,0,0,0.1)] border-b border-gray-200 dark:border-gray-700">Aksi Rapor</th>
+                        <th scope="col" class="px-4 sm:px-5 py-3 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">NIS &amp; Nama Santri</th>
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-600 w-36 border-b border-gray-200 dark:border-gray-700">Kelas</th>
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-600 w-52 border-b border-gray-200 dark:border-gray-700">Predikat Sikap</th>
+                        <th scope="col" class="px-3 py-3 text-left text-xs font-bold text-gray-600 min-w-[260px] border-b border-gray-200 dark:border-gray-700">Catatan Wali Kelas di Rapor</th>
+                        <th scope="col" class="sticky right-0 z-20 bg-gray-100 dark:bg-gray-900 px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-200 min-w-[260px] shadow-[-3px_0_6px_-2px_rgba(0,0,0,0.1)] border-b border-gray-200 dark:border-gray-700">Aksi Rapor</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -298,7 +298,7 @@
                         <th scope="row" class="sm:sticky sm:left-0 z-[1] bg-white dark:bg-gray-800 px-4 sm:px-5 py-3.5 whitespace-nowrap text-left font-normal border-b border-gray-100 dark:border-gray-700/60">
                             <div class="font-semibold text-gray-900 dark:text-gray-100 text-sm">{{ $s->nama_lengkap }}</div>
                             <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-xs text-gray-500 font-mono">{{ $s->nis }}</span>
+                                <span class="text-xs text-gray-600 font-mono">{{ $s->nis }}</span>
                                 @if($s->status_santri === 'Lulus')
                                     <span class="px-1.5 py-0.5 text-[10px] font-semibold rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Alumni/Lulus</span>
                                 @endif
@@ -338,7 +338,7 @@
                                     <form action="{{ route('admin.reports.approve-santri', $s->id) }}" method="POST" class="inline" onsubmit="return confirm('Setujui rapor santri {{ $s->nama_lengkap }}? Nilai dan presensi akan terkunci.')">
                                         @csrf
                                         <input type="hidden" name="tahun_ajaran_id" value="{{ $selectedYear?->id }}">
-                                        <button type="submit" class="inline-flex items-center gap-1 min-h-9 px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition" style="background-color: #047857 !important; color: #ffffff !important;" title="Setujui (Approve) Rapor">
+                                        <button type="submit" class="inline-flex items-center gap-1 min-h-9 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition" style="background-color: #047857 !important; color: #ffffff !important;" title="Setujui (Approve) Rapor">
                                             ✓ Approve
                                         </button>
                                     </form>
@@ -363,7 +363,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-8 text-center text-gray-500 text-xs">
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-600 text-xs">
                             Tidak ditemukan data santri yang cocok dengan filter Tahun Ajaran / Tingkat / Kelas / kata kunci pencarian di atas.
                         </td>
                     </tr>
@@ -374,10 +374,10 @@
 
         @if($evalSantris->isNotEmpty())
         <div class="p-4 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <span class="text-xs text-gray-500 dark:text-gray-400">
+            <span class="text-xs text-gray-600 dark:text-gray-400">
                 Simpan perubahan predikat sikap &amp; catatan sebelum mencetak Rapor PDF santri.
             </span>
-            <button type="submit" class="min-h-11 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm transition w-full sm:w-auto">
+            <button type="submit" class="min-h-11 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition w-full sm:w-auto">
                 Simpan Nilai Sikap &amp; Catatan Wali Kelas
             </button>
         </div>

@@ -27,7 +27,7 @@
             <div>
                 <h3 class="font-bold text-lg text-green-800 leading-tight">{{ $title ?? '' }}</h3>
                 @if(isset($description) && !empty($description))
-                    <p class="text-xs text-gray-500 mt-0.5">{{ $description }}</p>
+                    <p class="text-xs text-gray-600 mt-0.5">{{ $description }}</p>
                 @endif
             </div>
         </div>
@@ -35,7 +35,7 @@
         <button type="button"
                 onclick="toggleCard('{{ $cardId }}')"
                 id="toggle-btn-{{ $cardId }}"
-                class="text-gray-400 hover:text-green-700 transition p-1 rounded-lg hover:bg-green-50">
+                class="text-gray-400 hover:text-green-700 transition p-1 rounded-lg hover:bg-primary-50">
             <svg id="icon-down-{{ $cardId }}" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
@@ -108,7 +108,7 @@
             <div class="px-6 py-4 bg-gray-50 dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 flex justify-between items-center">
                 <p class="text-xs text-gray-400 dark:text-slate-400">Perubahan hanya pada bagian ini yang akan disimpan.</p>
                 <button type="submit"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0D6B3A] hover:bg-green-800 text-white text-sm font-semibold rounded-xl shadow transition">
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-green-800 text-white text-sm font-semibold rounded-xl shadow transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>

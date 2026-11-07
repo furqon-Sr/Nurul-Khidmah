@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $contents['staff_login_title']->content_text ?? 'Portal Staf' }} - {{ $contents['site_name']->content_text ?? 'Nurul Khidmah' }}</title>
     @include('partials.site-favicon')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('partials.fonts')    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Manrope', system-ui, -apple-system, sans-serif;
             background-color: #FFFFFF;
         }
     </style>
@@ -48,7 +48,7 @@
                         <span>{{ $contents['staff_login_title']->content_text ?? 'Welcome Back' }}</span>
                         <span class="inline-block transform origin-bottom-right hover:rotate-12 transition-transform duration-200">👋</span>
                     </h1>
-                    <p class="mt-2 text-sm sm:text-base text-slate-500 font-normal leading-relaxed">
+                    <p class="mt-2 text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
                         {{ $contents['staff_login_subtitle']->content_text ?? 'Eventure – Where Every Event Begins With Insight.' }}
                     </p>
                 </div>
@@ -90,7 +90,7 @@
                                    autocapitalize="off"
                                    spellcheck="false"
                                    placeholder="Example@email.com"
-                                   class="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#045F33] focus:ring-4 focus:ring-[#045F33]/15 shadow-xs" />
+                                   class="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-primary-700 focus:ring-4 focus:ring-primary-700/15 shadow-xs" />
                         </div>
 
                         {{-- Input Password --}}
@@ -103,7 +103,7 @@
                                        required
                                        autocomplete="current-password"
                                        placeholder="at least 8 characters"
-                                       class="w-full h-12 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-[#045F33] focus:ring-4 focus:ring-[#045F33]/15 shadow-xs" />
+                                       class="w-full h-12 rounded-xl border border-slate-200 bg-white pl-4 pr-12 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-primary-700 focus:ring-4 focus:ring-primary-700/15 shadow-xs" />
                                 <button type="button"
                                         @click="showPassword = !showPassword"
                                         :aria-pressed="showPassword.toString()"
@@ -117,7 +117,7 @@
                             {{-- Forgot Password Link --}}
                             <div class="flex justify-end pt-2">
                                 <a href="{{ Route::has('password.request') ? route('password.request') : '#' }}" 
-                                   class="text-xs sm:text-sm font-semibold text-[#045F33] hover:text-[#004524] transition">
+                                   class="text-xs sm:text-sm font-semibold text-primary-700 hover:text-primary-900 transition">
                                     Forgot Password?
                                 </a>
                             </div>
@@ -126,7 +126,7 @@
 
                     {{-- Tombol Submit Sign In --}}
                     <button type="submit" 
-                            class="w-full h-12 rounded-xl bg-gradient-to-r from-[#045F33] to-[#004524] hover:from-[#034d29] hover:to-[#00361c] text-white font-semibold text-sm sm:text-base transition duration-200 shadow-lg shadow-[#045F33]/25 flex items-center justify-center gap-2 mt-6 active:scale-[0.99] cursor-pointer">
+                            class="w-full h-12 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold text-sm sm:text-base transition duration-200 shadow-lg shadow-primary-500/30 flex items-center justify-center gap-2 mt-6 active:scale-[0.99] cursor-pointer">
                         Sign in
                     </button>
                 </form>
@@ -169,26 +169,26 @@
                             {{ $contents['site_name']->content_text ?? 'Nurul Khidmah' }}
                         </span>
                     </div>
-                    <span class="text-xs text-slate-500 font-medium">Portal Resmi Staf</span>
+                    <span class="text-xs text-slate-600 font-medium">Portal Resmi Staf</span>
                 </div>
             @else
                 {{-- ILUSTRASI GRAFIS BAWAAN (PERSIS GAMBAR REFERENSI EVENTURE DENGAN AKSEN EMERALD GREEN GRADIENT) --}}
-                <div class="absolute inset-0 w-full h-full bg-gradient-to-b from-[#EBF5F0] via-[#E2EFE9] to-[#CDE4DA]">
+                <div class="absolute inset-0 w-full h-full bg-gradient-to-b from-primary-50 via-primary-100 to-primary-200">
                     
-                    {{-- 3D Sphere / Crescent di Sudut Kanan Atas dengan Gradien #045F33 -> #004524 --}}
-                    <div class="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-[#045F33] via-[#02522c] to-[#004524] opacity-95 shadow-2xl"></div>
+                    {{-- 3D Sphere / Crescent di Sudut Kanan Atas dengan Gradien primary-700 → primary-900 --}}
+                    <div class="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 opacity-95 shadow-2xl"></div>
                     <div class="absolute -top-6 -right-6 w-64 h-64 rounded-full border-[18px] border-white/20 pointer-events-none"></div>
 
                     {{-- Partikel Bulat Kanan Atas --}}
-                    <div class="absolute top-24 right-20 w-3 h-3 rounded-full bg-[#004524] opacity-80 shadow-sm"></div>
-                    <div class="absolute top-36 right-24 w-3.5 h-3.5 rounded-full bg-[#045F33] opacity-85 shadow-sm"></div>
+                    <div class="absolute top-24 right-20 w-3 h-3 rounded-full bg-primary-600 opacity-80 shadow-sm"></div>
+                    <div class="absolute top-36 right-24 w-3.5 h-3.5 rounded-full bg-primary-500 opacity-85 shadow-sm"></div>
 
                     {{-- 3D Sphere / Crescent di Sudut Kiri Bawah --}}
-                    <div class="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-tr from-[#004524] via-[#02522c] to-[#045F33] opacity-95 shadow-2xl"></div>
+                    <div class="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-tr from-primary-600 via-primary-500 to-primary-400 opacity-95 shadow-2xl"></div>
 
                     {{-- Partikel Bulat Kiri Bawah --}}
-                    <div class="absolute bottom-28 left-28 w-3 h-3 rounded-full bg-[#004524] opacity-80 shadow-sm"></div>
-                    <div class="absolute bottom-40 left-36 w-2.5 h-2.5 rounded-full bg-[#045F33] opacity-75 shadow-sm"></div>
+                    <div class="absolute bottom-28 left-28 w-3 h-3 rounded-full bg-primary-600 opacity-80 shadow-sm"></div>
+                    <div class="absolute bottom-40 left-36 w-2.5 h-2.5 rounded-full bg-primary-700 opacity-75 shadow-sm"></div>
                 </div>
 
                 {{-- Emblem Lingkaran Putih & Teks Brand di Tengah --}}

@@ -68,7 +68,7 @@
             <label for="password" class="block text-sm font-medium text-gray-800 dark:text-slate-200">Kata sandi</label>
             <input type="password" name="password" id="password" required autocomplete="new-password"
                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-            <p class="mt-1 text-xs text-gray-500 dark:text-slate-400">Gunakan kata sandi kuat. Pengguna dapat mengubahnya sendiri setelah masuk.</p>
+            <p class="mt-1 text-xs text-gray-600 dark:text-slate-400">Gunakan kata sandi kuat. Pengguna dapat mengubahnya sendiri setelah masuk.</p>
         </div>
 
         <div>
@@ -92,7 +92,7 @@
 
         <div class="flex justify-end gap-3 pt-2 border-t border-gray-200 dark:border-slate-700">
             <a href="{{ route('admin.users.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition">Batal</a>
-            <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-[#0D6B3A] hover:bg-emerald-800 rounded-lg shadow transition">
+            <button type="submit" class="px-5 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-emerald-700 rounded-lg shadow transition">
                 Simpan pengguna
             </button>
         </div>

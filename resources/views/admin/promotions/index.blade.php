@@ -11,7 +11,7 @@
         </p>
     </div>
     @if($activeYear)
-        <span class="px-3.5 py-1.5 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 w-fit">
+        <span class="px-2.5.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 w-fit">
             Tahun Ajaran Aktif: {{ $activeYear->nama_tahun_ajaran }} ({{ $activeYear->semester }})
         </span>
     @endif
@@ -63,7 +63,7 @@
         </div>
 
         <div class="flex gap-2">
-            <button type="submit" class="min-h-11 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg transition shadow-sm">
+            <button type="submit" class="min-h-11 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition shadow-sm">
                 Tampilkan Daftar
             </button>
             @if(request()->filled('search'))
@@ -135,30 +135,30 @@
                 <h3 id="promotion-table-heading" class="font-bold text-gray-900 dark:text-gray-100 text-base">
                     Daftar Santri Aktif — {{ $asalKelas->nama_kelas }} ({{ $santris->count() }} Santri)
                 </h3>
-                <p class="text-xs text-gray-500">Centang santri yang memenuhi syarat kenaikan kelas atau kelulusan.</p>
+                <p class="text-xs text-gray-600">Centang santri yang memenuhi syarat kenaikan kelas atau kelulusan.</p>
             </div>
 
             @if($santris->isNotEmpty())
                 <button type="submit"
                         onclick="return confirm('Proses keputusan akademik untuk seluruh santri yang dicentang?')"
-                        class="min-h-11 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold rounded-lg shadow transition">
+                        class="min-h-11 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg shadow transition">
                     Proses Santri Terpilih →
                 </button>
             @endif
         </div>
 
         <div tabindex="0" role="region" aria-labelledby="promotion-table-heading" class="overflow-x-auto max-h-[65vh]">
-            <table class="min-w-full border-separate border-spacing-0">
-                <thead class="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900">
+            <table class="table-builder min-w-full border-separate border-spacing-0">
+                <thead class="sticky top-0 z-10">
                     <tr>
                         <th scope="col" class="px-4 py-3.5 text-center w-12 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky left-0 z-20">
                             <input type="checkbox" id="check-all-promo" checked class="h-5 w-5 rounded border-gray-300 text-emerald-700 focus:ring-emerald-500 cursor-pointer" aria-label="Pilih semua santri">
                         </th>
-                        <th scope="col" class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">NIS &amp; Nama Santri</th>
-                        <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Mapel Dinilai</th>
-                        <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Rata-Rata Semester</th>
-                        <th scope="col" class="px-4 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Sikap</th>
-                        <th scope="col" class="px-4 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Akun Portal Wali</th>
+                        <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">NIS &amp; Nama Santri</th>
+                        <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Mapel Dinilai</th>
+                        <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Rata-Rata Semester</th>
+                        <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Sikap</th>
+                        <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Akun Portal Wali</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -174,14 +174,14 @@
                             </td>
                             <td class="px-4 py-3.5 whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
                                 <div class="font-bold text-gray-900 dark:text-gray-100 text-sm">{{ $st->nama_lengkap }}</div>
-                                <div class="text-xs font-mono text-gray-500">NIS: {{ $st->nis }}</div>
+                                <div class="text-xs font-mono text-gray-600">NIS: {{ $st->nis }}</div>
                             </td>
                             <td class="px-4 py-3.5 text-center whitespace-nowrap text-xs font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700/60">
                                 {{ $stat['count'] }} Mapel
                             </td>
                             <td class="px-4 py-3.5 text-center whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
                                 @if($stat['avg'] !== null)
-                                    <span class="px-2.5 py-1 rounded-full text-xs font-extrabold {{ $stat['avg'] >= 65 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
+                                    <span class="px-2.5 py-1 rounded-md text-2xs uppercase tracking-wide font-bold {{ $stat['avg'] >= 65 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
                                         {{ number_format($stat['avg'], 2) }} ({{ \App\Models\Nilai::calculateGrade($stat['avg']) }})
                                     </span>
                                 @else
@@ -201,7 +201,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500">
+                            <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-600">
                                 Tidak ada santri aktif pada kelas ini. Buat kelas tahun ajaran baru terlebih dahulu di menu <strong>Data Kelas</strong> jika ingin mempromosikan santri.
                             </td>
                         </tr>
@@ -221,20 +221,20 @@
         </h3>
     </div>
     <div tabindex="0" role="region" aria-labelledby="history-promo-heading" class="overflow-x-auto">
-        <table class="min-w-full border-separate border-spacing-0 text-xs">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+        <table class="table-builder min-w-full border-separate border-spacing-0 text-xs">
+            <thead>
                 <tr>
-                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Waktu</th>
-                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Santri</th>
-                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Keputusan</th>
-                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Perpindahan Kelas</th>
-                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-500 uppercase border-b border-gray-200 dark:border-gray-700">Catatan</th>
+                    <th scope="col" class="px-4 py-3 text-left font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Waktu</th>
+                    <th scope="col" class="px-4 py-3 text-left font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Santri</th>
+                    <th scope="col" class="px-4 py-3 text-left font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Keputusan</th>
+                    <th scope="col" class="px-4 py-3 text-left font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Perpindahan Kelas</th>
+                    <th scope="col" class="px-4 py-3 text-left font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Catatan</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 @forelse($recentLogs as $log)
                     <tr>
-                        <td class="px-4 py-3 whitespace-nowrap text-gray-500">{{ $log->created_at?->format('d M Y H:i') }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap text-gray-600">{{ $log->created_at?->format('d M Y H:i') }}</td>
                         <td class="px-4 py-3 whitespace-nowrap font-semibold text-gray-900 dark:text-gray-100">
                             {{ $log->santri->nama_lengkap ?? '-' }} ({{ $log->santri->nis ?? '-' }})
                         </td>
@@ -246,11 +246,11 @@
                         <td class="px-4 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">
                             {{ $log->kelasLama->nama_kelas ?? 'Awal' }} → <strong>{{ $log->kelasBaru->nama_kelas ?? 'Alumni (Lulus)' }}</strong>
                         </td>
-                        <td class="px-4 py-3 text-gray-500">{{ $log->catatan ?: '-' }}</td>
+                        <td class="px-4 py-3 text-gray-600">{{ $log->catatan ?: '-' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">Belum ada riwayat kenaikan kelas atau kelulusan tercatat.</td>
+                        <td colspan="5" class="px-4 py-6 text-center text-gray-600">Belum ada riwayat kenaikan kelas atau kelulusan tercatat.</td>
                     </tr>
                 @endforelse
             </tbody>
