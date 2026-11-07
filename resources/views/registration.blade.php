@@ -80,7 +80,6 @@
                 <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-emerald-900/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                         <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nomor Registrasi Sistem</span>
-                        <p class="text-xs text-gray-500 mt-0.5">Kode identitas pendaftaran unik yang diterbitkan secara otomatis.</p>
                     </div>
                     <div class="w-full sm:w-auto">
                         <input type="text" id="registration_number" name="registration_number" value="{{ old('registration_number', $registrationNumber) }}" readonly
@@ -176,8 +175,7 @@
                         {{-- 7. NISN --}}
                         <div>
                             <label for="nisn" class="block text-xs font-bold text-[#0D6B3A] mb-2">
-                                Nomor Induk Siswa Nasional (NISN)
-                                <span class="text-xs font-normal text-gray-500">(10 Digit Angka)</span>
+                                Nomor Induk Siswa Nasional 
                             </label>
                             <input type="text" id="nisn" name="nisn" value="{{ old('nisn') }}" placeholder="Contoh: 0147404399" maxlength="15" inputmode="numeric"
                                    class="w-full min-h-12 rounded-2xl bg-white border-0 px-4 py-3 text-base shadow-sm font-mono focus:ring-2 focus:ring-[#0D6B3A]">
@@ -260,19 +258,19 @@
                         {{-- Nomor WhatsApp Wali --}}
                         <div>
                             <label for="student_phone" class="block text-xs font-bold text-[#0D6B3A] mb-2">
-                                Nomor WhatsApp Wali Santri (Aktif) <span class="text-red-500">*</span>
+                                Nomor WhatsApp Wali Santri <span class="text-red-500">*</span>
                             </label>
                             <input type="tel" id="student_phone" name="student_phone" value="{{ old('student_phone') }}" placeholder="Contoh: 081234567890" required
                                    inputmode="tel" autocomplete="tel"
                                    class="w-full min-h-12 rounded-2xl bg-white border-0 px-4 py-3 text-base shadow-sm focus:ring-2 focus:ring-[#0D6B3A]">
-                            <p class="text-[11px] text-[#0D6B3A]/80 mt-1">Pastikan nomor memiliki WhatsApp aktif untuk pengiriman bukti pendaftaran &amp; kata sandi.</p>
+       
                         </div>
 
                         {{-- Email Wali --}}
                         <div class="md:col-span-2">
                             <label for="student_email" class="block text-xs font-bold text-[#0D6B3A] mb-2">
                                 Alamat Email Wali
-                                <span class="text-xs font-normal text-gray-500">(Opsional, untuk login alternatif Portal Wali)</span>
+                        
                             </label>
                             <input type="email" id="student_email" name="student_email" value="{{ old('student_email') }}" placeholder="Contoh: wali.santri@gmail.com"
                                    autocomplete="email" autocorrect="off" autocapitalize="off" spellcheck="false"
