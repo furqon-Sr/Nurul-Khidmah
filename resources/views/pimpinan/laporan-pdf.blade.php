@@ -84,9 +84,9 @@
                 <th width="6%">No</th>
                 <th width="26%">Tahun Ajaran</th>
                 <th width="17%">Total Pendaftar</th>
-                <th width="17%">Diterima (Accepted)</th>
-                <th width="17%">Menunggu (Pending)</th>
-                <th width="17%">Ditolak (Rejected)</th>
+                <th width="17%">Diterima</th>
+                <th width="17%">Menunggu </th>
+                <th width="17%">Ditolak</th>
             </tr>
         </thead>
         <tbody>

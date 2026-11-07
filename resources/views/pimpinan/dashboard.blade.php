@@ -18,13 +18,9 @@
         </div>
 
         <div class="flex-1 min-w-0">
-            <p class="text-purple-200 text-sm font-medium mb-0.5">Ahlan wa Sahlan — Portal Eksekutif Pimpinan Yayasan &amp; Pengasuh Pondok</p>
             <h1 class="text-2xl sm:text-3xl font-bold text-white truncate">{{ auth()->user()->name }}</h1>
             <div class="flex flex-wrap items-center gap-3 mt-2">
                 @include('partials.admin-role-badge', ['user' => auth()->user()])
-                <span class="px-2.5 py-0.5 text-xs font-semibold bg-white/15 rounded-full text-purple-100">
-                    Mode Pantau Praktis (Read-Only)
-                </span>
                 <span class="text-purple-200 text-xs">
                     Periode Aktif: <strong class="text-white">{{ $activeYear->nama_tahun_ajaran ?? '-' }} (Semester {{ $activeYear->semester ?? '-' }})</strong>
                 </span>
