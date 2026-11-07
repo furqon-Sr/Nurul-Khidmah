@@ -176,6 +176,88 @@ class SantriRegistrationController extends Controller
     }
 
     /**
+     * Menampilkan formulir edit data pendaftar PPDB
+     */
+    public function edit(SantriRegistration $registration)
+    {
+        $activeYear = PageContent::where('section_key', 'active_academic_year')->value('content_text')
+            ?: TahunAjaran::getAktif()?->nama_tahun_ajaran
+            ?: (date('Y').'/'.(date('Y') + 1));
+
+        $academicYears = SantriRegistration::distinct()->pluck('academic_year')->filter()->toArray();
+        if (! in_array($activeYear, $academicYears, true)) {
+            $academicYears[] = $activeYear;
+        }
+        if ($registration->academic_year && ! in_array($registration->academic_year, $academicYears, true)) {
+            $academicYears[] = $registration->academic_year;
+        }
+        sort($academicYears);
+
+        $classes = EducationProgram::active()->orderBy('order')->pluck('name')->toArray();
+        if ($registration->target_class && ! in_array($registration->target_class, $classes, true)) {
+            $classes[] = $registration->target_class;
+        }
+
+        return view('admin.registrations.edit', compact('registration', 'classes', 'academicYears'));
+    }
+
+    /**
+     * Menyimpan perubahan biodata pendaftar PPDB beserta log audit
+     */
+    public function update(Request $request, SantriRegistration $registration)
+    {
+        $validated = $request->validate([
+            'student_name' => 'required|string|max:150',
+            'nisn' => 'nullable|string|max:20',
+            'gender' => 'required|in:L,P',
+            'birth_place' => 'nullable|string|max:100',
+            'birth_date' => 'required|date',
+            'previous_school' => 'nullable|string|max:150',
+            'boarding_status' => 'required|in:Mukim,Tidak Mukim',
+            'target_class' => 'required|string|max:150',
+            'academic_year' => 'required|string|max:20',
+            'residential_address' => 'required|string',
+            'father_name' => 'nullable|string|max:150',
+            'mother_name' => 'nullable|string|max:150',
+            'guardian_name' => 'required|string|max:200',
+            'guardian_occupation' => 'nullable|string|max:150',
+            'guardian_phone' => 'required|string|max:30',
+            'guardian_email' => 'nullable|email|max:150',
+            'guardian_address' => 'nullable|string',
+        ]);
+
+        $registration->update($validated);
+
+        // Sinkronkan biodata ke tabel santris jika pendaftar sudah diterima & terhubung
+        if ($registration->santri) {
+            $registration->santri->update([
+                'nama_lengkap' => $validated['student_name'],
+                'nisn' => $validated['nisn'] ?? $registration->santri->nisn,
+                'jenis_kelamin' => $validated['gender'] === 'L' ? 'Laki-laki' : 'Perempuan',
+                'tempat_lahir' => $validated['birth_place'] ?? $registration->santri->tempat_lahir,
+                'tanggal_lahir' => $validated['birth_date'],
+                'alamat' => $validated['residential_address'],
+                'previous_school' => $validated['previous_school'] ?? $registration->santri->previous_school,
+                'boarding_status' => $validated['boarding_status'],
+                'nama_wali' => $validated['guardian_name'],
+                'guardian_occupation' => $validated['guardian_occupation'] ?? $registration->santri->guardian_occupation,
+                'no_hp_wali' => $validated['guardian_phone'],
+            ]);
+        }
+
+        AdminActivityLog::log(
+            'update',
+            "Memperbarui biodata pendaftar PPDB: {$registration->student_name} ({$registration->registration_number})",
+            'SantriRegistration',
+            $registration->id
+        );
+
+        return redirect()
+            ->route('admin.registrations.index')
+            ->with('success', "Data pendaftar {$registration->student_name} berhasil diperbarui.");
+    }
+
+    /**
      * Mengubah status pendaftar & konversi otomatis ke akun Wali Santri saat diterima (FR-02)
      */
     public function updateStatus(Request $request, SantriRegistration $registration)
@@ -224,15 +306,12 @@ class SantriRegistrationController extends Controller
             $count = $registrations->count();
 
             foreach ($registrations as $reg) {
-                if ($reg->student_photo && Storage::disk('public')->exists($reg->student_photo)) {
-                    Storage::disk('public')->delete($reg->student_photo);
-                }
                 $reg->delete();
             }
 
-            AdminActivityLog::log('delete', "Menghapus massal {$count} data pendaftar PPDB", 'SantriRegistration');
+            AdminActivityLog::log('delete', "Mengarsipkan (soft delete) massal {$count} data pendaftar PPDB", 'SantriRegistration');
 
-            return redirect()->back()->with('success', $count.' data pendaftar berhasil dihapus secara permanen.');
+            return redirect()->back()->with('success', $count.' data pendaftar berhasil dihapus (diarsipkan).');
         }
 
         $registrations = SantriRegistration::whereIn('id', $validated['registration_ids'])->get();
@@ -268,21 +347,18 @@ class SantriRegistrationController extends Controller
     }
 
     /**
-     * Menghapus pendaftar tunggal beserta fotonya jika ada
+     * Mengarsipkan (soft delete) pendaftar tunggal beserta pencatatan log audit
      */
     public function destroy(SantriRegistration $registration)
     {
-        if ($registration->student_photo && Storage::disk('public')->exists($registration->student_photo)) {
-            Storage::disk('public')->delete($registration->student_photo);
-        }
-
+        $regId = $registration->id;
         $name = $registration->student_name;
         $regNo = $registration->registration_number;
         $registration->delete();
 
-        AdminActivityLog::log('delete', "Menghapus data pendaftar PPDB: {$name} ({$regNo})", 'SantriRegistration');
+        AdminActivityLog::log('delete', "Mengarsipkan (soft delete) data pendaftar PPDB: {$name} ({$regNo})", 'SantriRegistration', $regId);
 
-        return redirect()->route('admin.registrations.index')->with('success', 'Data pendaftar berhasil dihapus secara permanen.');
+        return redirect()->route('admin.registrations.index')->with('success', "Data pendaftar {$name} berhasil dihapus (diarsipkan).");
     }
 
     /**

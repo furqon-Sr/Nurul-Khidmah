@@ -14,14 +14,19 @@
         </div>
     </div>
     
-    <!-- Status Badge di Header -->
-    <div>
+    <!-- Status Badge & Edit Button di Header -->
+    <div class="flex items-center gap-2.5">
+        <a href="{{ route('admin.registrations.edit', $registration->id) }}"
+           class="h-10 px-3.5 inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 transition">
+            <svg class="size-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit Data
+        </a>
         @if($registration->status == 'pending')
-            <span class="px-4 py-2 inline-flex text-sm font-bold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">PENDING</span>
+            <span class="px-3 py-1.5 inline-flex text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20">Pending</span>
         @elseif($registration->status == 'accepted')
-            <span class="px-4 py-2 inline-flex text-sm font-bold rounded-full bg-green-100 text-green-800 border border-green-200">APPROVED</span>
+            <span class="px-3 py-1.5 inline-flex text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20">Approved</span>
         @else
-            <span class="px-4 py-2 inline-flex text-sm font-bold rounded-full bg-red-100 text-red-800 border border-red-200">REJECTED</span>
+            <span class="px-3 py-1.5 inline-flex text-xs font-semibold rounded-full bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20">Rejected</span>
         @endif
     </div>
 </div>
@@ -305,22 +310,50 @@
             </div>
         </div>
 
-        <!-- Hapus Pendaftar (Danger Zone) -->
-        <div class="bg-red-50 dark:bg-red-950/20 rounded-xl shadow-sm border border-red-200 dark:border-red-800 overflow-hidden">
-            <div class="px-6 py-4 border-b border-red-200 dark:border-red-800 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 font-bold">Zona Bahaya (Danger Zone)</div>
+        <!-- Hapus Pendaftar (Danger Zone dengan Dialog Konfirmasi) -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-3.5 border-b border-gray-100 dark:border-slate-800 text-sm font-semibold text-gray-800 dark:text-slate-100">Hapus Data Pendaftar</div>
             <div class="p-6">
-                <p class="text-xs text-red-700 dark:text-red-300 mb-4 leading-relaxed">
-                    Tindakan ini tidak dapat dibatalkan. Seluruh data pendaftaran dan pas foto santri ini akan dihapus secara permanen dari server database.
+                <p class="text-xs text-gray-600 dark:text-slate-400 mb-4 leading-relaxed">
+                    Data pendaftar yang dihapus akan diarsipkan (soft delete) dan tercatat pada Log Aktivitas sistem.
                 </p>
-                <form action="{{ route('admin.registrations.destroy', $registration->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pendaftar ini secara permanen?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition shadow-sm text-sm">
-                        Hapus Pendaftar Secara Permanen
-                    </button>
-                </form>
+                <button type="button"
+                        onclick="document.getElementById('confirm-delete-show-dialog').showModal()"
+                        class="w-full h-10 rounded-lg border border-error-200 bg-error-50 hover:bg-error-100 text-error-600 dark:border-error-800 dark:bg-error-500/10 dark:hover:bg-error-500/20 dark:text-error-400 font-semibold px-4 transition text-xs cursor-pointer">
+                    Hapus Data Pendaftar
+                </button>
             </div>
         </div>
+
+        <dialog id="confirm-delete-show-dialog" aria-labelledby="confirm-delete-show-title" class="m-auto w-full max-w-md rounded-2xl border border-gray-200 bg-white p-0 text-left shadow-xl backdrop:bg-gray-950/50 dark:border-gray-800 dark:bg-gray-900">
+            <div class="p-6">
+                <div class="flex items-start gap-3.5">
+                    <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-400">
+                        <svg class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h2 id="confirm-delete-show-title" class="text-base font-bold text-gray-900 dark:text-white">Hapus data pendaftar ini?</h2>
+                        <p class="mt-1.5 text-sm text-gray-600 dark:text-gray-400">
+                            Anda akan menghapus data pendaftaran <strong class="font-semibold text-gray-900 dark:text-gray-200">{{ $registration->student_name }}</strong> (<span class="font-mono text-xs">{{ $registration->registration_number }}</span>). Data akan diarsipkan (soft delete) dan tercatat di Log Aktivitas.
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center justify-end gap-2.5">
+                    <form method="dialog">
+                        <button type="submit" value="cancel" autofocus class="h-10 rounded-lg border border-gray-200 bg-white px-4 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition cursor-pointer">
+                            Batal
+                        </button>
+                    </form>
+                    <form action="{{ route('admin.registrations.destroy', $registration->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="h-10 rounded-lg bg-error-600 hover:bg-error-700 px-4 text-xs font-semibold text-white shadow-xs transition cursor-pointer">
+                            Ya, Hapus Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </dialog>
 
     </div>
 </div>

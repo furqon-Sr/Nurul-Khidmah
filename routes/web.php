@@ -163,7 +163,9 @@ Route::middleware(['auth', 'role:super_admin,pengurus_akademik'])->group(functio
     // Pendaftar PPDB
     Route::get('admin/registrations', [SantriRegistrationController::class, 'index'])->name('admin.registrations.index');
     Route::post('admin/registrations/bulk-status', [SantriRegistrationController::class, 'bulkStatus'])->name('admin.registrations.bulk-status');
+    Route::get('admin/registrations/{registration}/edit', [SantriRegistrationController::class, 'edit'])->name('admin.registrations.edit');
     Route::get('admin/registrations/{registration}', [SantriRegistrationController::class, 'show'])->name('admin.registrations.show');
+    Route::put('admin/registrations/{registration}', [SantriRegistrationController::class, 'update'])->name('admin.registrations.update');
     Route::put('admin/registrations/{registration}/status', [SantriRegistrationController::class, 'updateStatus'])->name('admin.registrations.update-status');
     Route::get('admin/registrations/{registration}/pdf', [SantriRegistrationController::class, 'downloadPdf'])->name('admin.registrations.pdf');
     Route::delete('admin/registrations/{registration}', [SantriRegistrationController::class, 'destroy'])->name('admin.registrations.destroy');

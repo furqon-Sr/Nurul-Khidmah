@@ -270,7 +270,8 @@ class AcceptSantriRegistration
     {
         $prefix = $year2Digits.$unitCode;
 
-        $existingNisList = Santri::where('nis', 'like', $prefix.'%')
+        $existingNisList = Santri::withTrashed()
+            ->where('nis', 'like', $prefix.'%')
             ->pluck('nis');
 
         $maxSeq = 0;
@@ -287,7 +288,7 @@ class AcceptSantriRegistration
         do {
             $nis = $prefix.str_pad((string) $sequence, 3, '0', STR_PAD_LEFT);
             $sequence++;
-        } while (Santri::where('nis', $nis)->exists());
+        } while (Santri::withTrashed()->where('nis', $nis)->exists());
 
         return $nis;
     }

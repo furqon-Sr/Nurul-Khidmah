@@ -204,19 +204,16 @@ class SantriManagementController extends Controller
 
     public function destroy(Santri $santri)
     {
+        $santriId = $santri->id;
         $name = $santri->nama_lengkap;
         $nis = $santri->nis;
 
         DB::transaction(function () use ($santri) {
-            $user = $santri->user;
             $santri->delete();
-            if ($user) {
-                $user->delete();
-            }
         });
 
-        AdminActivityLog::log('delete', "Menghapus data santri: {$name} ({$nis})", 'Santri');
+        AdminActivityLog::log('delete', "Mengarsipkan (soft delete) data santri: {$name} ({$nis})", 'Santri', $santriId);
 
-        return redirect()->route('admin.santri.index')->with('success', 'Data Santri berhasil dihapus.');
+        return redirect()->route('admin.santri.index')->with('success', 'Data Santri berhasil dihapus (diarsipkan).');
     }
 }

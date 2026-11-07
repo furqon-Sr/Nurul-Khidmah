@@ -707,15 +707,43 @@ class UrsValidationFeatureTest extends TestCase
             ->assertSee('175.50')
             ->assertSee('87.75');
 
-        // 6. Eksekusi Kelulusan Kolektif -> status Lulus, namun akun Wali & arsip rapor tetap hidup
+        // 6a. Santri di Kelas 8 belum memiliki nilai -> kelulusan diblokir server (tanpa pengecualian)
+        $payloadLulus = [
+            'asal_kelas_id' => $kelas8->id,
+            'santri_ids' => [$santri->id],
+            'jenis_aksi' => 'Lulus',
+            'catatan' => 'Lulus dengan predikat sangat baik',
+        ];
+
         $this->actingAs($pengurus)
-            ->post(route('admin.promotions.store'), [
-                'asal_kelas_id' => $kelas8->id,
-                'santri_ids' => [$santri->id],
-                'jenis_aksi' => 'Lulus',
-                'catatan' => 'Lulus dengan predikat sangat baik',
-            ])
+            ->post(route('admin.promotions.store'), $payloadLulus)
+            ->assertRedirect()
+            ->assertSessionHasErrors('santri_ids');
+        $this->assertSame('Aktif', $santri->fresh()->status_santri);
+
+        // 6b. Pengecualian hanya boleh oleh Super Admin, bukan Pengurus Akademik
+        $this->actingAs($pengurus)
+            ->post(route('admin.promotions.store'), $payloadLulus + ['override' => 1, 'override_reason' => 'Nilai sedang dalam proses legalisasi'])
+            ->assertSessionHasErrors('override');
+        $this->assertSame('Aktif', $santri->fresh()->status_santri);
+
+        // 6c. Super Admin wajib menyertakan alasan, lalu kelulusan kolektif diproses -> status Lulus,
+        // namun akun Wali & arsip rapor tetap hidup. Alasan pengecualian tercatat pada riwayat.
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        $this->actingAs($superAdmin)
+            ->post(route('admin.promotions.store'), $payloadLulus + ['override' => 1])
+            ->assertSessionHasErrors('override_reason');
+        $this->assertSame('Aktif', $santri->fresh()->status_santri);
+
+        $this->actingAs($superAdmin)
+            ->post(route('admin.promotions.store'), $payloadLulus + ['override' => 1, 'override_reason' => 'Nilai sedang dalam proses legalisasi'])
             ->assertRedirect();
+
+        $this->assertTrue(RiwayatKelasSantri::where('santri_id', $santri->id)
+            ->where('jenis_aksi', 'Lulus')
+            ->where('catatan', 'like', '%Pengecualian: Nilai sedang dalam proses legalisasi%')
+            ->exists());
 
         $santri->refresh();
         $this->assertSame('Lulus', $santri->status_santri);

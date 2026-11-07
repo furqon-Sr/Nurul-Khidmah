@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Actions\AcceptSantriRegistration;
+use App\Models\AdminActivityLog;
 use App\Models\EducationProgram;
 use App\Models\PageContent;
 use App\Models\SantriRegistration;
@@ -27,9 +28,28 @@ class RegistrationTable extends Component
     #[Url(history: true)]
     public string $academic_year = '';
 
+    #[Url(history: true)]
+    public string $sortField = 'created_at';
+
+    #[Url(history: true)]
+    public string $sortDirection = 'desc';
+
+    #[Url(history: true)]
+    public int $perPage = 15;
+
     public array $selectedIds = [];
+
     public bool $selectAll = false;
+
     public string $bulkAction = '';
+
+    /** @var array<int, string> */
+    protected array $allowedSortFields = [
+        'registration_number',
+        'student_name',
+        'created_at',
+        'status',
+    ];
 
     public function mount(
         ?string $search = null,
@@ -75,6 +95,27 @@ class RegistrationTable extends Component
         $this->resetPage();
     }
 
+    public function updatingPerPage(): void
+    {
+        $this->resetPage();
+    }
+
+    public function sortBy(string $field): void
+    {
+        if (! in_array($field, $this->allowedSortFields, true)) {
+            return;
+        }
+
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
+
     public function setStatusFilter(string $status): void
     {
         $this->status = $status;
@@ -101,15 +142,57 @@ class RegistrationTable extends Component
 
     public function updateSingleStatus(int $id, string $newStatus, AcceptSantriRegistration $acceptAction): void
     {
-        $reg = SantriRegistration::findOrFail($id);
-        $oldStatus = $reg->status;
-        $reg->update(['status' => $newStatus]);
-
-        if (in_array($newStatus, ['accepted', 'approved'], true) && $oldStatus !== 'accepted') {
-            $acceptAction->execute($reg);
+        if (! in_array($newStatus, ['pending', 'accepted', 'rejected'], true)) {
+            return;
         }
 
-        session()->flash('success', "Status pendaftaran {$reg->student_name} berhasil diubah menjadi {$newStatus}.");
+        $reg = SantriRegistration::findOrFail($id);
+        $oldStatus = $reg->status;
+
+        if ($newStatus === 'accepted') {
+            if ($oldStatus !== 'accepted' || ! $reg->santri_id) {
+                $acceptAction->execute($reg);
+            } else {
+                $reg->update(['status' => 'accepted']);
+            }
+        } else {
+            $reg->update(['status' => $newStatus]);
+        }
+
+        AdminActivityLog::log(
+            'update',
+            "Mengubah status PPDB {$reg->student_name} ({$reg->registration_number}) menjadi ".strtoupper($newStatus),
+            'SantriRegistration',
+            $reg->id
+        );
+
+        $statusLabel = match ($newStatus) {
+            'accepted' => 'Diterima (Approved)',
+            'rejected' => 'Ditolak (Rejected)',
+            default => 'Menunggu (Pending)',
+        };
+
+        session()->flash('livewire_success', "Status pendaftaran {$reg->student_name} berhasil diubah menjadi {$statusLabel}.");
+    }
+
+    public function deleteRegistration(int $id): void
+    {
+        $reg = SantriRegistration::findOrFail($id);
+        $name = $reg->student_name;
+        $regNo = $reg->registration_number;
+
+        $reg->delete();
+
+        $this->selectedIds = array_values(array_diff($this->selectedIds, [(string) $id]));
+
+        AdminActivityLog::log(
+            'delete',
+            "Mengarsipkan (soft delete) data pendaftar PPDB: {$name} ({$regNo})",
+            'SantriRegistration',
+            $id
+        );
+
+        session()->flash('livewire_success', "Data pendaftar {$name} ({$regNo}) berhasil dihapus (diarsipkan).");
     }
 
     public function executeBulkStatus(AcceptSantriRegistration $acceptAction): void
@@ -118,29 +201,65 @@ class RegistrationTable extends Component
             return;
         }
 
+        if (! in_array($this->bulkAction, ['pending', 'accepted', 'rejected', 'delete'], true)) {
+            return;
+        }
+
         $registrations = SantriRegistration::whereIn('id', $this->selectedIds)->get();
+        $count = $registrations->count();
+
+        if ($this->bulkAction === 'delete') {
+            foreach ($registrations as $reg) {
+                $reg->delete();
+            }
+
+            AdminActivityLog::log(
+                'delete',
+                "Mengarsipkan (soft delete) massal {$count} data pendaftar PPDB",
+                'SantriRegistration'
+            );
+
+            $this->selectedIds = [];
+            $this->selectAll = false;
+            $this->bulkAction = '';
+
+            session()->flash('livewire_success', "Berhasil menghapus (mengarsipkan) {$count} data pendaftar.");
+
+            return;
+        }
+
         foreach ($registrations as $reg) {
             $oldStatus = $reg->status;
-            $reg->update(['status' => $this->bulkAction]);
 
-            if (in_array($this->bulkAction, ['accepted', 'approved'], true) && $oldStatus !== 'accepted') {
-                $acceptAction->execute($reg);
+            if ($this->bulkAction === 'accepted') {
+                if ($oldStatus !== 'accepted' || ! $reg->santri_id) {
+                    $acceptAction->execute($reg);
+                } else {
+                    $reg->update(['status' => 'accepted']);
+                }
+            } else {
+                $reg->update(['status' => $this->bulkAction]);
             }
         }
 
-        $count = count($this->selectedIds);
+        AdminActivityLog::log(
+            'update',
+            "Mengubah status massal {$count} pendaftar PPDB menjadi ".strtoupper($this->bulkAction),
+            'SantriRegistration'
+        );
+
         $this->selectedIds = [];
         $this->selectAll = false;
         $this->bulkAction = '';
 
-        session()->flash('success', "Berhasil memperbarui status {$count} calon santri.");
+        session()->flash('livewire_success', "Berhasil memperbarui status {$count} calon santri.");
     }
 
     protected function getActiveYear(): string
     {
         return PageContent::where('section_key', 'active_academic_year')->value('content_text')
             ?: TahunAjaran::getAktif()?->nama_tahun_ajaran
-            ?: (date('Y') . '/' . (date('Y') + 1));
+            ?: (date('Y').'/'.(date('Y') + 1));
     }
 
     protected function getFilteredQuery()
@@ -158,7 +277,7 @@ class RegistrationTable extends Component
             });
         }
 
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $search = trim($this->search);
             $query->where(function ($q) use ($search) {
                 $q->where('student_name', 'like', "%{$search}%")
@@ -167,11 +286,11 @@ class RegistrationTable extends Component
             });
         }
 
-        if (!empty($this->target_class)) {
+        if (! empty($this->target_class)) {
             $query->where('target_class', $this->target_class);
         }
 
-        if (!empty($this->status)) {
+        if (! empty($this->status)) {
             $status = strtolower($this->status);
             if (in_array($status, ['accepted', 'approved'], true)) {
                 $query->whereIn('status', ['accepted', 'approved']);
@@ -193,7 +312,7 @@ class RegistrationTable extends Component
         $selectedYear = $this->academic_year ?: $activeYear;
 
         $academicYears = SantriRegistration::distinct()->pluck('academic_year')->filter()->toArray();
-        if (!in_array($activeYear, $academicYears, true)) {
+        if (! in_array($activeYear, $academicYears, true)) {
             $academicYears[] = $activeYear;
         }
         sort($academicYears);
@@ -217,7 +336,25 @@ class RegistrationTable extends Component
             'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
 
-        $registrations = $this->getFilteredQuery()->latest()->paginate(15);
+        $sortField = in_array($this->sortField, $this->allowedSortFields, true)
+            ? $this->sortField
+            : 'created_at';
+        $sortDir = in_array(strtolower($this->sortDirection), ['asc', 'desc'], true)
+            ? strtolower($this->sortDirection)
+            : 'desc';
+        $perPage = in_array($this->perPage, [10, 15, 25, 50], true)
+            ? $this->perPage
+            : 15;
+
+        $registrations = $this->getFilteredQuery()
+            ->orderBy($sortField, $sortDir)
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
+        $hasActiveFilters = ! empty($this->search)
+            || ! empty($this->target_class)
+            || ! empty($this->status)
+            || ($selectedYear !== $activeYear);
 
         return view('livewire.admin.registration-table', [
             'registrations' => $registrations,
@@ -226,6 +363,9 @@ class RegistrationTable extends Component
             'academicYears' => $academicYears,
             'selectedYear' => $selectedYear,
             'activeYear' => $activeYear,
+            'hasActiveFilters' => $hasActiveFilters,
+            'sortField' => $sortField,
+            'sortDirection' => $sortDir,
         ]);
     }
 }

@@ -6,76 +6,39 @@
 
 @if(auth()->user()->isTenagaPengajar())
     {{-- ═══ TAMPILAN DASHBOARD KHUSUS USTAZ / PENGAJAR ═══ --}}
-    <div class="mb-8 bg-gradient-to-br from-indigo-800 via-indigo-900 to-slate-900 rounded-2xl shadow-lg overflow-hidden text-white relative">
-        <div class="relative px-5 py-6 sm:px-8 sm:py-8 flex flex-col sm:flex-row sm:items-center gap-5 z-10">
-            <div class="shrink-0">
-                @if(auth()->user()->avatarUrl())
-                    <img src="{{ auth()->user()->avatarUrl() }}" alt="{{ auth()->user()->name }}" class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white/30 shadow-xl">
-                @else
-                    <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-600 ring-4 ring-white/30 shadow-xl flex items-center justify-center">
-                        <span class="text-2xl font-bold text-white">{{ auth()->user()->initials() }}</span>
-                    </div>
-                @endif
-            </div>
+    <x-page-heading title="Dashboard Pengajar" :description="'Jadwal dan aktivitas mengajar Anda pada periode aktif. Selamat datang, '.auth()->user()->name.'.'">
+        <x-slot:actions>
+            <a href="{{ route('teacher.attendance.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-primary-600 text-white hover:bg-primary-700 border-transparent">Input Presensi</a>
+            <a href="{{ route('teacher.grades.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-white text-gray-700 hover:bg-gray-50 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">Input Nilai</a>
+            <a href="{{ route('admin.reports.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-white text-gray-700 hover:bg-gray-50 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">Cetak Rapor &amp; Rekap</a>
+        </x-slot:actions>
+    </x-page-heading>
 
-            <div class="flex-1 min-w-0">
-                <p class="text-indigo-200 text-sm font-medium mb-0.5">Ahlan wa Sahlan,</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white truncate">{{ auth()->user()->name }}</h1>
-                <div class="flex flex-wrap items-center gap-2.5 mt-2">
-                    @include('partials.admin-role-badge', ['user' => auth()->user()])
-                    @if(isset($myWaliKelas) && $myWaliKelas)
-                        <span class="px-2.5 py-0.5 text-xs font-bold bg-amber-400 text-amber-950 rounded-full">
-                            Wali Kelas: {{ $myWaliKelas->nama_kelas }}
-                        </span>
-                    @endif
-                    <span class="text-indigo-200 text-xs flex items-center gap-1 break-all">
-                        {{ auth()->user()->email }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 shrink-0 w-full sm:w-auto">
-                <a href="{{ route('teacher.attendance.index') }}" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl shadow transition">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                    Input Presensi
-                </a>
-                <a href="{{ route('teacher.grades.index') }}" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-xl shadow transition">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    Input Nilai
-                </a>
-                <a href="{{ route('admin.reports.index') }}" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-amber-950 text-sm font-bold rounded-xl shadow transition">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Cetak Rapor &amp; Rekap
-                </a>
-            </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Jadwal Mengajar</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $mySchedules->count() }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">Sesi Pelajaran</p>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Jadwal Mengajar</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $mySchedules->count() }}</p>
-            <p class="text-xs text-indigo-600 mt-1 font-medium">Sesi Pelajaran</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Kelas Diampu</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $myClassesCount }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">Kelompok Belajar</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Kelas Diampu</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $myClassesCount }}</p>
-            <p class="text-xs text-emerald-600 mt-1 font-medium">Kelompok Belajar</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Mata Pelajaran</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $mySubjectsCount }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">Bidang Studi</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Mata Pelajaran</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $mySubjectsCount }}</p>
-            <p class="text-xs text-purple-600 mt-1 font-medium">Bidang Studi</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Total Santri Diajar</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-1">{{ $mySantriCount }}</p>
-            <p class="text-xs text-amber-600 mt-1 font-medium">Santri Aktif</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Total Santri Diajar</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $mySantriCount }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">Santri Aktif</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <div class="xl:col-span-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div class="flex items-start justify-between gap-4 mb-5">
                 <div>
                     <p class="text-sm font-semibold text-gray-900 dark:text-white">Ringkasan pengajaran</p>
@@ -159,71 +122,39 @@
 
 @elseif(auth()->user()->isKepalaSekolah())
     {{-- ═══ TAMPILAN DASHBOARD KHUSUS KEPALA SEKOLAH / MADRASAH ═══ --}}
-    <div class="mb-8 bg-gradient-to-br from-cyan-900 via-sky-900 to-slate-900 rounded-2xl shadow-lg overflow-hidden text-white relative">
-        <div class="relative px-5 py-6 sm:px-8 sm:py-8 flex flex-col sm:flex-row sm:items-center gap-5 z-10">
-            <div class="shrink-0">
-                @if(auth()->user()->avatarUrl())
-                    <img src="{{ auth()->user()->avatarUrl() }}" alt="{{ auth()->user()->name }}" class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white/30 shadow-xl">
-                @else
-                    <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-700 ring-4 ring-white/30 shadow-xl flex items-center justify-center">
-                        <span class="text-2xl font-bold text-white">{{ auth()->user()->initials() }}</span>
-                    </div>
-                @endif
-            </div>
+    <x-page-heading title="Monitoring Madrasah" :description="'Kepatuhan guru dan capaian akademik madrasah. Selamat datang, '.auth()->user()->name.'.'">
+        <x-slot:actions>
+            <a href="{{ route('teacher.attendance.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-primary-600 text-white hover:bg-primary-700 border-transparent">Pantau Presensi Guru</a>
+            <a href="{{ route('teacher.grades.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-white text-gray-700 hover:bg-gray-50 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">Pantau Input Nilai</a>
+            <a href="{{ route('admin.reports.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-white text-gray-700 hover:bg-gray-50 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800">Leger &amp; Rekap Rapor</a>
+        </x-slot:actions>
+    </x-page-heading>
 
-            <div class="flex-1 min-w-0">
-                <p class="text-cyan-200 text-sm font-medium mb-0.5">Ahlan wa Sahlan, Kepala Madrasah</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white truncate">{{ auth()->user()->name }}</h1>
-                <div class="flex flex-wrap items-center gap-2.5 mt-2">
-                    @include('partials.admin-role-badge', ['user' => auth()->user()])
-                    <span class="text-cyan-200 text-xs flex items-center gap-1 break-all">
-                        {{ auth()->user()->email }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 shrink-0 w-full sm:w-auto">
-                <a href="{{ route('teacher.attendance.index') }}" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl shadow transition">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    Pantau Presensi Guru
-                </a>
-                <a href="{{ route('teacher.grades.index') }}" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-xl shadow transition">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    Pantau Input Nilai
-                </a>
-                <a href="{{ route('admin.reports.index') }}" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-amber-950 text-sm font-bold rounded-xl shadow transition">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Leger &amp; Rekap Rapor
-                </a>
-            </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Kepatuhan Nilai Guru</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $complianceRate }}%</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">{{ $gradedSchedulesCount }} dari {{ $totalSchedules }} Kelas Dinilai</p>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Kepatuhan Nilai Guru</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $complianceRate }}%</p>
-            <p class="text-xs text-cyan-600 mt-1 font-medium">{{ $gradedSchedulesCount }} dari {{ $totalSchedules }} Kelas Dinilai</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Total Guru Aktif</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $totalTeachers }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">Tenaga Pengajar</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Total Guru Aktif</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalTeachers }}</p>
-            <p class="text-xs text-indigo-600 mt-1 font-medium">Tenaga Pengajar</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Santri Aktif</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $activeSantriCount }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">Dalam {{ $totalClasses }} Rombel Aktif</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Santri Aktif</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeSantriCount }}</p>
-            <p class="text-xs text-emerald-600 mt-1 font-medium">Dalam {{ $totalClasses }} Rombel Aktif</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-xs font-semibold text-gray-600 uppercase">Tahun Ajaran Aktif</h3>
-            <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeYear?->nama_tahun_ajaran ?? '-' }}</p>
-            <p class="text-xs text-amber-600 mt-1 font-medium">{{ $activeYear?->semester ?? 'Semester Belum Diset' }}</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Tahun Ajaran Aktif</h3>
+            <p class="text-2xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $activeYear?->nama_tahun_ajaran ?? '-' }}</p>
+            <p class="text-xs text-gray-700 dark:text-gray-300 mt-2 font-medium">{{ $activeYear?->semester ?? 'Semester Belum Diset' }}</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <div class="xl:col-span-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div class="flex items-start justify-between gap-4 mb-5">
                 <div>
                     <p class="text-sm font-semibold text-gray-900 dark:text-white">Kepatuhan input nilai</p>
@@ -297,81 +228,58 @@
 
 @elseif(auth()->user()->isContentAdmin())
     {{-- ═══ TAMPILAN DASHBOARD KHUSUS ADMIN KONTEN WEBSITE YAYASAN ═══ --}}
-    <div class="mb-8 bg-gradient-to-br from-sky-800 via-emerald-800 to-emerald-950 rounded-2xl shadow-lg overflow-hidden text-white relative">
-        <div class="relative px-5 py-6 sm:px-8 sm:py-8 flex flex-col sm:flex-row sm:items-center gap-5 z-10">
-            <div class="shrink-0">
-                @if(auth()->user()->avatarUrl())
-                    <img src="{{ auth()->user()->avatarUrl() }}" alt="{{ auth()->user()->name }}" class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white/30 shadow-xl">
-                @else
-                    <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-sky-400 to-emerald-600 ring-4 ring-white/30 shadow-xl flex items-center justify-center">
-                        <span class="text-2xl font-bold text-white">{{ auth()->user()->initials() }}</span>
-                    </div>
-                @endif
-            </div>
-
-            <div class="flex-1 min-w-0">
-                <p class="text-sky-200 text-sm font-medium mb-0.5">Panel Pengelola Website Yayasan,</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white truncate">{{ auth()->user()->name }}</h1>
-                <div class="flex flex-wrap items-center gap-2.5 mt-2">
-                    @include('partials.admin-role-badge', ['user' => auth()->user()])
-                    <span class="text-sky-200 text-xs break-all">{{ auth()->user()->email }}</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:flex sm:flex-wrap gap-2 shrink-0 w-full sm:w-auto">
-                <a href="{{ route('home') }}" target="_blank" class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white text-sm font-semibold rounded-xl border border-white/25 transition">
-                    Lihat Website Publik ↗
-                </a>
-            </div>
-        </div>
-    </div>
+    <x-page-heading title="Konten Website Yayasan" :description="'Kelola berita, fasilitas, dan identitas situs. Selamat datang, '.auth()->user()->name.'.'">
+        <x-slot:actions>
+            <a href="{{ route('home') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-primary-600 text-white hover:bg-primary-700 border-transparent">Lihat Website Publik ↗</a>
+        </x-slot:actions>
+    </x-page-heading>
 
     <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aksi cepat</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <a href="{{ route('admin.news.create') }}" class="min-h-12 flex items-center gap-3 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 px-4 py-3.5 rounded-xl font-semibold transition border border-emerald-200 dark:border-emerald-800">
+        <h2 class="mb-4 text-base font-bold text-gray-900 dark:text-white">Aksi cepat</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{{ route('admin.news.create') }}" class="min-h-12 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 <span class="text-lg">+</span> Tulis berita
             </a>
-            <a href="{{ route('settings.index') }}" class="min-h-12 flex items-center gap-3 bg-sky-50 dark:bg-sky-500/10 hover:bg-sky-100 text-sky-800 dark:text-sky-300 px-4 py-3.5 rounded-xl font-semibold transition border border-sky-200 dark:border-sky-800">
+            <a href="{{ route('settings.index') }}" class="min-h-12 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 Kelola identitas situs
             </a>
-            <a href="{{ route('admin.facilities.index') }}" class="min-h-12 flex items-center gap-3 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 text-amber-800 dark:text-amber-300 px-4 py-3.5 rounded-xl font-semibold transition border border-amber-200 dark:border-amber-800">
+            <a href="{{ route('admin.facilities.index') }}" class="min-h-12 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 Kelola fasilitas
             </a>
-            <a href="{{ route('admin.programs.index') }}" class="min-h-12 flex items-center gap-3 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 text-purple-800 dark:text-purple-300 px-4 py-3.5 rounded-xl font-semibold transition border border-purple-200 dark:border-purple-800">
+            <a href="{{ route('admin.programs.index') }}" class="min-h-12 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 Program &amp; biaya
             </a>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h3 class="text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">Total Berita</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalNews ?? 0 }}</p>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $totalNews ?? 0 }}</p>
             <p class="text-xs font-medium text-emerald-600 mt-1">Artikel Terpublikasi</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h3 class="text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">Galeri Fasilitas</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalFacilities ?? 0 }}</p>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $totalFacilities ?? 0 }}</p>
             <p class="text-xs font-medium text-sky-600 mt-1">Sarana Pesantren</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h3 class="text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">Program Pendidikan</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeProgramsCount ?? 0 }}</p>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $activeProgramsCount ?? 0 }}</p>
             <p class="text-xs font-medium text-purple-600 mt-1">Ditampilkan di Website</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h3 class="text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">Rincian Biaya</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $totalFees ?? 0 }}</p>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $totalFees ?? 0 }}</p>
             <p class="text-xs font-medium text-amber-600 mt-1">Komponen Informasi Biaya</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <div class="xl:col-span-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div class="mb-5">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Komposisi konten</p>
                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Konten yang tersedia untuk website publik</p>
@@ -409,104 +317,71 @@
 
 @else
     {{-- ═══ TAMPILAN DASHBOARD PENGURUS AKADEMIK & SUPER ADMIN ═══ --}}
-    <div class="mb-8 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-800 dark:from-primary-700 dark:via-primary-800 dark:to-slate-900 rounded-2xl shadow-lg overflow-hidden">
-        <div class="relative px-5 py-6 sm:px-8 sm:py-8 flex flex-col sm:flex-row sm:items-center gap-5">
-            <div class="absolute top-0 right-0 w-72 h-72 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3 pointer-events-none"></div>
-            <div class="absolute bottom-0 left-24 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 pointer-events-none"></div>
-
-            <div class="relative z-10 shrink-0">
-                @if(auth()->user()->avatarUrl())
-                    <img src="{{ auth()->user()->avatarUrl() }}"
-                         alt="{{ auth()->user()->name }}"
-                         class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white/30 shadow-xl">
-                @else
-                    <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 ring-4 ring-white/30 shadow-xl flex items-center justify-center">
-                        <span class="text-2xl font-bold text-white">{{ auth()->user()->initials() }}</span>
-                    </div>
-                @endif
-                <span class="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-green-400 ring-2 ring-emerald-800"></span>
-            </div>
-
-            <div class="relative z-10 flex-1 min-w-0">
-                <p class="text-emerald-300 text-sm font-medium mb-0.5">Selamat datang kembali,</p>
-                <h1 class="text-2xl sm:text-3xl font-bold text-white truncate">{{ auth()->user()->name }}</h1>
-                <div class="flex flex-wrap items-center gap-3 mt-2">
-                    @include('partials.admin-role-badge', ['user' => auth()->user()])
-                    <span class="text-emerald-300 text-xs flex items-center gap-1 break-all">
-                        {{ auth()->user()->email }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="relative z-10 grid grid-cols-1 sm:flex sm:flex-wrap gap-2 shrink-0 w-full sm:w-auto">
-                <a href="{{ route('admin.registrations.index') }}"
-                   class="min-h-12 sm:min-h-10 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white text-sm font-semibold rounded-xl border border-white/20 transition backdrop-blur-sm">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    Verifikasi PPDB ({{ $newRegistrantsCount ?? 0 }})
-                </a>
-            </div>
-        </div>
-    </div>
+    <x-page-heading title="Dashboard" :description="'Ringkasan SIAKAD, PPDB, dan konten website. Selamat datang, '.auth()->user()->name.'.'">
+        <x-slot:actions>
+            <a href="{{ route('admin.registrations.index') }}" class="inline-flex h-10 items-center rounded-lg border px-4 text-sm font-bold transition bg-primary-600 text-white hover:bg-primary-700 border-transparent">Verifikasi PPDB ({{ $newRegistrantsCount ?? 0 }})</a>
+        </x-slot:actions>
+    </x-page-heading>
 
     <div class="mb-8">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Aksi cepat</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <a href="{{ route('admin.santri.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 text-purple-700 dark:text-purple-300 px-4 py-3 rounded-xl font-semibold transition border border-purple-200 dark:border-purple-800">
+        <h2 class="mb-4 text-base font-bold text-gray-900 dark:text-white">Aksi cepat</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{{ route('admin.santri.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 + Tambah Santri
             </a>
-            <a href="{{ route('admin.teachers.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 px-4 py-3 rounded-xl font-semibold transition border border-indigo-200 dark:border-indigo-800">
+            <a href="{{ route('admin.teachers.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 + Tambah Pengajar
             </a>
-            <a href="{{ route('admin.schedules.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-xl font-semibold transition border border-emerald-200 dark:border-emerald-800">
+            <a href="{{ route('admin.schedules.create') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 + Plotting Jadwal
             </a>
-            <a href="{{ route('admin.promotions.index') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-xl font-semibold transition border border-amber-200 dark:border-amber-800">
+            <a href="{{ route('admin.promotions.index') }}" class="min-h-12 flex items-center justify-center sm:justify-start gap-2 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 transition hover:border-primary-300 hover:bg-primary-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800">
                 🎓 Kenaikan &amp; Kelulusan
             </a>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Pendaftar Pending</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $newRegistrantsCount ?? 0 }}</p>
-            <p class="text-xs sm:text-sm font-medium text-amber-600 mt-1">Butuh Tindakan</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Pendaftar Pending</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $newRegistrantsCount ?? 0 }}</p>
+            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mt-2">Butuh Tindakan</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Santri Aktif SIAKAD</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeSantriCount ?? 0 }}</p>
-            <p class="text-xs sm:text-sm font-medium text-emerald-600 mt-1">Diterima PPDB: {{ $totalSantri ?? 0 }}</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Santri Aktif SIAKAD</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $activeSantriCount ?? 0 }}</p>
+            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mt-2">Diterima PPDB: {{ $totalSantri ?? 0 }}</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Program Aktif</h3>
-            <p class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeProgramsCount ?? 0 }}</p>
-            <p class="text-xs sm:text-sm font-medium text-blue-600 mt-1">Berjalan</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Program Aktif</h3>
+            <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $activeProgramsCount ?? 0 }}</p>
+            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mt-2">Berjalan</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 sm:p-6 border border-gray-100 dark:border-gray-700">
-            <h3 class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm font-semibold uppercase">Tahun Ajaran</h3>
-            <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mt-2">{{ $activeYear?->nama_tahun_ajaran ?? '-' }}</p>
-            <p class="text-xs sm:text-sm font-medium text-purple-600 mt-1">{{ $activeYear?->semester ?? 'Belum Aktif' }}</p>
+        <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400">Tahun Ajaran</h3>
+            <p class="text-2xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $activeYear?->nama_tahun_ajaran ?? '-' }}</p>
+            <p class="text-xs font-medium text-gray-700 dark:text-gray-300 mt-2">{{ $activeYear?->semester ?? 'Belum Aktif' }}</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <div class="xl:col-span-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div class="mb-5">
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Ringkasan operasional</p>
                 <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Snapshot data akademik saat ini</p>
             </div>
             <div class="h-64"><canvas id="academicOverviewChart" role="img" aria-label="Grafik ringkasan operasional akademik"></canvas></div>
         </div>
-        <div class="rounded-2xl bg-amber-400 p-6 text-amber-950 shadow-sm flex flex-col justify-between">
+        <div class="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <div>
-                <p class="text-sm font-semibold text-amber-900/80">Perlu perhatian</p>
-                <p class="mt-2 text-4xl font-bold">{{ $newRegistrantsCount ?? 0 }}</p>
-                <p class="mt-2 text-sm font-medium text-amber-950/75">pendaftar menunggu verifikasi</p>
+                <span class="chip chip-warning">Perlu perhatian</span>
+                <p class="mt-4 text-4xl font-bold leading-none text-gray-900 dark:text-white">{{ $newRegistrantsCount ?? 0 }}</p>
+                <p class="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">pendaftar menunggu verifikasi</p>
             </div>
-            <a href="{{ route('admin.registrations.index') }}" class="mt-6 inline-flex items-center justify-between rounded-xl bg-amber-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-900">
+            <a href="{{ route('admin.registrations.index') }}" class="mt-6 inline-flex h-10 items-center justify-between rounded-lg bg-primary-600 px-4 text-sm font-bold text-white transition hover:bg-primary-700">
                 Tinjau pendaftar
                 <span aria-hidden="true">→</span>
             </a>
@@ -521,7 +396,7 @@
                 return;
             }
 
-            const chartTextColor = '#64748b';
+            const chartTextColor = '#718096';
             const chartGridColor = 'rgba(148, 163, 184, 0.18)';
             const baseOptions = {
                 responsive: true,
@@ -542,7 +417,7 @@
                         }
                     },
                     tooltip: {
-                        backgroundColor: '#0f172a',
+                        backgroundColor: '#1A202C',
                         padding: 12,
                         cornerRadius: 10,
                         displayColors: true
@@ -569,7 +444,7 @@
                             {{ $mySubjectsCount ?? 0 }},
                             {{ $mySantriCount ?? 0 }}
                         ],
-                        backgroundColor: ['#4f46e5', '#0ea5e9', '#8b5cf6', '#f59e0b'],
+                        backgroundColor: ['#27A376', '#55C792', '#88D8AE', '#A9E3C8'],
                         borderRadius: 10,
                         borderSkipped: false,
                         maxBarThickness: 42
@@ -606,7 +481,7 @@
                             {{ $gradedSchedulesCount ?? 0 }},
                             {{ max(0, ($totalSchedules ?? 0) - ($gradedSchedulesCount ?? 0)) }}
                         ],
-                        backgroundColor: ['#0891b2', '#e2e8f0'],
+                        backgroundColor: ['#27A376', '#E2E8F0'],
                         borderWidth: 0,
                         spacing: 4,
                         borderRadius: 8,
@@ -637,7 +512,7 @@
                             {{ $activeProgramsCount ?? 0 }},
                             {{ $totalFees ?? 0 }}
                         ],
-                        backgroundColor: ['#059669', '#0ea5e9', '#8b5cf6', '#f59e0b'],
+                        backgroundColor: ['#27A376', '#88D8AE', '#CBD5E0', '#718096'],
                         borderWidth: 0,
                         spacing: 4,
                         borderRadius: 8,
@@ -668,7 +543,7 @@
                             {{ $activeSantriCount ?? 0 }},
                             {{ $activeProgramsCount ?? 0 }}
                         ],
-                        backgroundColor: ['#f59e0b', '#059669', '#2563eb'],
+                        backgroundColor: ['#CBD5E0', '#27A376', '#88D8AE'],
                         borderRadius: 10,
                         borderSkipped: false,
                         maxBarThickness: 58

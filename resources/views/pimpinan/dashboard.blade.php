@@ -1,277 +1,250 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Eksekutif Pimpinan')
+@section('title', 'Dashboard Eksekutif')
 
 @section('content')
+@php
+    $sumGrades = array_sum($gradeDistribution);
+    $rapotDone = $expectedTotalEntries > 0 && $gradeCompletionPercentage >= 100;
+    $ringPct = max(0, min(100, (float) $gradeCompletionPercentage));
+    $ringCircumference = 2 * M_PI * 52;
+    $ppdbHasData = $ppdbTotals['pendaftar'] > 0;
+    $acceptRate = $ppdbHasData ? round($ppdbTotals['diterima'] / $ppdbTotals['pendaftar'] * 100) : 0;
+    $incomplete = collect($incompleteSchedules ?? []);
 
-{{-- Banner Eksekutif Pimpinan Yayasan & Pengasuh Pondok (Read-Only + Unduh PDF) --}}
-<div class="mb-8 bg-gradient-to-br from-purple-800 via-purple-900 to-slate-900 rounded-2xl shadow-lg overflow-hidden text-white relative">
-    <div class="relative px-6 py-7 sm:px-8 sm:py-8 flex flex-col lg:flex-row lg:items-center gap-5 z-10">
-        <div class="shrink-0">
-            @if(auth()->user()->avatarUrl())
-                <img src="{{ auth()->user()->avatarUrl() }}" alt="{{ auth()->user()->name }}" class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white/30 shadow-xl">
-            @else
-                <div class="h-20 w-20 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-600 ring-4 ring-white/30 shadow-xl flex items-center justify-center">
-                    <span class="text-2xl font-bold text-white">{{ auth()->user()->initials() }}</span>
-                </div>
-            @endif
+    $card = 'rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900';
+@endphp
+
+<x-page-heading title="Dashboard Eksekutif" description="Ringkasan kondisi akademik dan penerimaan santri baru.">
+    <x-slot:actions>
+        <a href="{{ route('pimpinan.export-pdf') }}" target="_blank"
+           class="inline-flex h-10 items-center gap-2 rounded-lg bg-primary-600 px-4 text-sm font-bold text-white transition hover:bg-primary-700">
+            <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Unduh ringkasan PDF
+        </a>
+    </x-slot:actions>
+</x-page-heading>
+
+{{-- 1 · Statistik utama (netral, satu aksen) --}}
+<section aria-label="Statistik utama" class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <x-stat-card label="Santri aktif" :value="$totalSantriAktif" :hint="$totalSantriLulus.' lulus/alumni · '.$totalSantriMutasi.' mutasi'">
+        <x-slot:icon><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></x-slot:icon>
+    </x-stat-card>
+
+    <x-stat-card label="Pengajar aktif" :value="$totalPengajar" :hint="$totalKelas.' kelas pada periode ini'">
+        <x-slot:icon><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0121 17.5M12 14L5.84 10.578A12.083 12.083 0 003 17.5M12 14v7"/></svg></x-slot:icon>
+    </x-stat-card>
+
+    <x-stat-card label="PPDB diterima" :value="$ppdbTotals['diterima']" :suffix="'/ '.$ppdbTotals['pendaftar']" :hint="$ppdbHasData ? $acceptRate.'% dari seluruh pendaftar diterima' : 'Belum ada pendaftar'">
+        <x-slot:icon><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg></x-slot:icon>
+    </x-stat-card>
+
+    <x-stat-card label="Rata-rata kehadiran" :value="$attendancePercentage.'%'" hint="Presensi semester aktif">
+        <x-slot:icon><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></x-slot:icon>
+    </x-stat-card>
+
+    <x-stat-card label="Rata-rata nilai" :value="$sumGrades > 0 ? number_format($averageGrade, 2) : '—'" :hint="$sumGrades > 0 ? 'Capaian akademik semester aktif' : 'Belum ada nilai yang diinput'">
+        <x-slot:icon><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></x-slot:icon>
+    </x-stat-card>
+
+    <x-stat-card label="Pendaftar menunggu" :value="$ppdbTotals['pending']" :hint="$ppdbTotals['pending'] > 0 ? 'Perlu ditinjau oleh panitia' : 'Tidak ada antrean'">
+        <x-slot:icon><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></x-slot:icon>
+    </x-stat-card>
+</section>
+
+{{-- 2 · Analitik PPDB: tren (line) + status (doughnut) --}}
+<section aria-label="Analitik PPDB" class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="{{ $card }} p-6 lg:col-span-2">
+        <div class="mb-6">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">Tren pendaftaran PPDB</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pendaftar dan santri diterima pada setiap tahun ajaran.</p>
+        </div>
+        @if ($ppdbTrends->isNotEmpty())
+            <div class="h-72"><canvas id="ppdbTrendChart" role="img" aria-label="Grafik garis tren pendaftar dan santri diterima per tahun ajaran"></canvas></div>
+        @else
+            @include('pimpinan.partials.empty-state', ['text' => 'Belum ada riwayat pendaftar PPDB tercatat.'])
+        @endif
+    </div>
+
+    <div class="{{ $card }} p-6">
+        <div class="mb-6">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">Status PPDB</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ $ppdbTotals['pendaftar'] }} total pendaftar</p>
+        </div>
+        @if ($ppdbHasData)
+            <div class="h-64"><canvas id="ppdbStatusChart" role="img" aria-label="Grafik donat status pendaftar: {{ $ppdbTotals['diterima'] }} diterima, {{ $ppdbTotals['pending'] }} menunggu, {{ $ppdbTotals['ditolak'] }} ditolak"></canvas></div>
+        @else
+            @include('pimpinan.partials.empty-state', ['text' => 'Belum ada pendaftar untuk ditampilkan.'])
+        @endif
+    </div>
+</section>
+
+{{-- 3 · Rapor & nilai: progress ring + distribusi nilai --}}
+<section aria-label="Rapor dan nilai" class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="{{ $card }} p-6">
+        <div class="mb-6">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">Ketuntasan pengisian rapor</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Semester aktif, seluruh kelas.</p>
         </div>
 
-        <div class="flex-1 min-w-0">
-            <h1 class="text-2xl sm:text-3xl font-bold text-white truncate">{{ auth()->user()->name }}</h1>
-            <div class="flex flex-wrap items-center gap-3 mt-2">
-                @include('partials.admin-role-badge', ['user' => auth()->user()])
-                <span class="text-purple-200 text-xs">
-                    Periode Aktif: <strong class="text-white">{{ $activeYear->nama_tahun_ajaran ?? '-' }} (Semester {{ $activeYear->semester ?? '-' }})</strong>
-                </span>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2 shrink-0">
-            <a href="{{ route('pimpinan.export-pdf') }}" target="_blank"
-               class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-900 text-sm font-bold rounded-xl shadow transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                Unduh Ringkasan Eksekutif (PDF)
-            </a>
-        </div>
-    </div>
-</div>
-
-{{-- Kartu Ringkasan Track Record Makro --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-emerald-500">
-        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Santri Aktif</h3>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalSantriAktif }}</p>
-        <p class="text-[11px] text-emerald-600 mt-1 font-medium">Mukim &amp; Belajar</p>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-teal-500">
-        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Lulus / Alumni</h3>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalSantriLulus }}</p>
-        <p class="text-[11px] text-teal-600 mt-1 font-medium">Mutasi: {{ $totalSantriMutasi }} Santri</p>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-indigo-500">
-        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Ustaz &amp; Kelas</h3>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $totalPengajar }} <span class="text-sm font-normal text-gray-400">/ {{ $totalKelas }} Kls</span></p>
-        <p class="text-[11px] text-indigo-600 mt-1 font-medium">Pengajar Aktif &amp; Rombel</p>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-amber-500">
-        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">PPDB (Diterima)</h3>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $ppdbTotals['diterima'] }} <span class="text-sm font-normal text-gray-400">/ {{ $ppdbTotals['pendaftar'] }}</span></p>
-        <p class="text-[11px] text-amber-600 mt-1 font-medium">Total Pendaftar Masuk</p>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
-        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Rata-Rata Hadir</h3>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ $attendancePercentage }}%</p>
-        <p class="text-[11px] text-blue-600 mt-1 font-medium">Presensi Semester Aktif</p>
-    </div>
-
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
-        <h3 class="text-[11px] font-semibold text-gray-600 uppercase">Rata-Rata Nilai</h3>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ number_format($averageGrade, 2) }}</p>
-        <p class="text-[11px] text-purple-600 mt-1 font-medium">Capaian Akademik</p>
-    </div>
-</div>
-
-{{-- Indikator Ketuntasan Pengisian Nilai Rapor oleh Dewan Guru --}}
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-3">
-        <div>
-            <h2 class="font-bold text-gray-900 dark:text-gray-100 text-base flex items-center gap-2">
-                Indikator Ketuntasan Pengisian Nilai Rapor Seluruh Kelas
-                @if($expectedTotalEntries > 0 && $gradeCompletionPercentage >= 100)
-                    <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">100% Tuntas Siap Cetak Rapor</span>
-                @else
-                    <span class="px-2.5 py-1 text-2xs uppercase tracking-wide font-bold rounded-md bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Dalam Proses Pengisian Guru</span>
-                @endif
-            </h2>
-            <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                Tercatat <strong>{{ $filledTotalEntries }}</strong> dari <strong>{{ $expectedTotalEntries }}</strong> entri nilai santri aktif pada semester ini telah diinput oleh ustaz/ustazah pengampu.
-            </p>
-        </div>
-        <div class="text-right shrink-0">
-            <span class="text-3xl font-extrabold {{ $gradeCompletionPercentage >= 100 && $expectedTotalEntries > 0 ? 'text-emerald-600' : 'text-purple-700 dark:text-purple-400' }}">
-                {{ $gradeCompletionPercentage }}%
-            </span>
-        </div>
-    </div>
-
-    <div class="w-full bg-gray-100 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
-        <div class="{{ $gradeCompletionPercentage >= 100 && $expectedTotalEntries > 0 ? 'bg-emerald-500' : 'bg-purple-600' }} h-full transition-all duration-500"
-             style="width: {{ min($gradeCompletionPercentage, 100) }}%"></div>
-    </div>
-
-    @if(!empty($incompleteSchedules))
-        <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <p class="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">
-                Mata Pelajaran yang Belum 100% Terisi ({{ count($incompleteSchedules) }} Jadwal):
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                @foreach(array_slice($incompleteSchedules, 0, 6) as $inc)
-                    <div class="px-3 py-2 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between gap-2 text-xs">
-                        <div class="min-w-0">
-                            <p class="font-bold text-gray-800 dark:text-gray-200 truncate">{{ $inc['mapel'] }} ({{ $inc['kelas'] }})</p>
-                            <p class="text-[11px] text-gray-600 truncate">{{ $inc['pengajar'] }}</p>
-                        </div>
-                        <span class="font-bold text-amber-700 dark:text-amber-300 shrink-0">{{ $inc['filled'] }}/{{ $inc['expected'] }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-</div>
-
-{{-- Grid Grafik Track Record PPDB Tahunan & Sebaran Predikat Nilai --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    {{-- Track Record PPDB Tahunan --}}
-    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base">Track Record PPDB Tahunan (Pendaftar vs Diterima)</h3>
-                <p class="text-xs text-gray-600">Perbandingan animo calon santri baru dan santri yang resmi diterima tiap periode.</p>
-            </div>
-        </div>
-
-        @php
-            $maxPpdb = max(1, (int) ($ppdbTrends->max('total_pendaftar') ?? 1));
-        @endphp
-
-        <div class="space-y-4">
-            @forelse($ppdbTrends as $row)
-                @php
-                    $pctTotal = round(($row->total_pendaftar / $maxPpdb) * 100);
-                    $pctAcc   = $row->total_pendaftar > 0 ? round(($row->diterima / $row->total_pendaftar) * 100, 1) : 0;
-                @endphp
-                <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200/70 dark:border-gray-700">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <span class="font-bold text-sm text-gray-900 dark:text-gray-100">Tahun Ajaran {{ $row->periode }}</span>
-                        <div class="flex flex-wrap items-center gap-2 text-xs">
-                            <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-semibold text-gray-800 dark:text-gray-200">
-                                Pendaftar: {{ $row->total_pendaftar }}
-                            </span>
-                            <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 font-bold text-emerald-800 dark:text-emerald-300">
-                                Diterima: {{ $row->diterima }} ({{ $pctAcc }}%)
-                            </span>
-                            @if($row->pending > 0)
-                                <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 font-semibold text-amber-800 dark:text-amber-300">
-                                    Pending: {{ $row->pending }}
-                                </span>
-                            @endif
-                            @if($row->ditolak > 0)
-                                <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 font-semibold text-rose-800 dark:text-rose-300">
-                                    Ditolak: {{ $row->ditolak }}
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden flex">
-                        <div class="bg-emerald-500 h-full" style="width: {{ ($row->diterima / $maxPpdb) * 100 }}%" title="Diterima"></div>
-                        <div class="bg-amber-400 h-full" style="width: {{ ($row->pending / $maxPpdb) * 100 }}%" title="Pending"></div>
-                        <div class="bg-rose-400 h-full" style="width: {{ ($row->ditolak / $maxPpdb) * 100 }}%" title="Ditolak"></div>
-                    </div>
-                </div>
-            @empty
-                <p class="text-center py-8 text-gray-600 text-xs">Belum ada riwayat pendaftar PPDB tercatat.</p>
-            @endforelse
-        </div>
-    </div>
-
-    {{-- Sebaran Predikat Nilai --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5">
-        <h3 class="font-bold text-gray-800 dark:text-gray-100 text-base mb-1">Sebaran Predikat Nilai</h3>
-        <p class="text-xs text-gray-600 mb-4">Distribusi huruf mutu akademik semester aktif.</p>
-        @php
-            $gradeStyles = [
-                'A' => ['bar' => 'bg-emerald-500', 'label' => 'Grade A (≥85 Sangat Baik)'],
-                'B' => ['bar' => 'bg-blue-500',    'label' => 'Grade B (75–84 Baik)'],
-                'C' => ['bar' => 'bg-amber-500',   'label' => 'Grade C (65–74 Cukup)'],
-                'D' => ['bar' => 'bg-orange-500',  'label' => 'Grade D (50–64 Kurang)'],
-                'E' => ['bar' => 'bg-rose-500',    'label' => 'Grade E (<50 Perlu Pembinaan)'],
-            ];
-            $sumGrades = array_sum($gradeDistribution);
-        @endphp
-        <div class="space-y-3.5">
-            @foreach($gradeStyles as $g => $meta)
-            @php $cnt = $gradeDistribution[$g] ?? 0; @endphp
-            <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                    <span class="text-gray-700 dark:text-gray-300">{{ $meta['label'] }}</span>
-                    <span class="text-gray-600">{{ $cnt }} Nilai</span>
-                </div>
-                <div class="w-full bg-gray-100 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
-                    <div class="{{ $meta['bar'] }} h-full" style="width: {{ $sumGrades > 0 ? ($cnt / $sumGrades * 100) : 0 }}%"></div>
+        <div class="flex flex-wrap items-center gap-6">
+            <div class="relative size-32 shrink-0" role="img" aria-label="Ketuntasan rapor {{ $gradeCompletionPercentage }} persen">
+                <svg viewBox="0 0 128 128" class="size-full -rotate-90">
+                    <circle cx="64" cy="64" r="52" fill="none" stroke-width="12" class="stroke-gray-200 dark:stroke-gray-700"/>
+                    <circle cx="64" cy="64" r="52" fill="none" stroke-width="12" stroke-linecap="round"
+                            class="{{ $rapotDone ? 'stroke-primary-500' : 'stroke-primary-500' }} transition-all duration-700"
+                            stroke-dasharray="{{ round($ringCircumference, 2) }}"
+                            stroke-dashoffset="{{ round($ringCircumference * (1 - $ringPct / 100), 2) }}"/>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-3xl font-extrabold leading-none text-gray-900 dark:text-white">{{ $gradeCompletionPercentage }}%</span>
                 </div>
             </div>
-            @endforeach
+            <div class="min-w-0">
+                <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $filledTotalEntries }} <span class="font-medium text-gray-600 dark:text-gray-400">dari {{ $expectedTotalEntries }} entri</span></p>
+                <div class="mt-2">
+                    @if ($rapotDone)
+                        <span class="chip chip-success">Siap cetak rapor</span>
+                    @else
+                        <span class="chip chip-warning">Dalam pengisian</span>
+                    @endif
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-{{-- Tabel Rekapitulasi Evaluasi Per Kelas --}}
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-    <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-            <h3 id="executive-class-table-heading" class="font-bold text-gray-800 dark:text-gray-100 text-base">
-                Daftar Rekapitulasi Akademik &amp; Kehadiran Per Kelas
-            </h3>
-            <p class="text-xs text-gray-600">Ringkasan wali kelas, jumlah santri aktif, tingkat kehadiran, rata-rata nilai, dan progres pengisian rapor.</p>
+        @if ($incomplete->isNotEmpty())
+            <div class="mt-6 border-t border-gray-200 pt-6 dark:border-gray-800">
+                <p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Belum lengkap <span class="font-medium text-gray-600 dark:text-gray-400">({{ $incomplete->count() }} jadwal)</span></p>
+                <ul class="divide-y divide-gray-200 dark:divide-gray-800">
+                    @foreach ($incomplete->take(5) as $inc)
+                        <li class="flex items-center justify-between gap-4 py-2">
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $inc['mapel'] }}</p>
+                                <p class="truncate text-xs text-gray-700 dark:text-gray-400">{{ $inc['kelas'] }} · {{ $inc['pengajar'] }}</p>
+                            </div>
+                            <span class="shrink-0 text-sm font-bold text-gray-900 dark:text-gray-100">{{ $inc['filled'] }}/{{ $inc['expected'] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    </div>
+
+    <div class="{{ $card }} p-6 lg:col-span-2">
+        <div class="mb-6">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">Distribusi nilai</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Jumlah nilai per predikat pada semester aktif.</p>
         </div>
+        @if ($sumGrades > 0)
+            <div class="h-64"><canvas id="gradeChart" role="img" aria-label="Grafik batang jumlah nilai per predikat A sampai E"></canvas></div>
+            <p class="mt-4 text-xs text-gray-700 dark:text-gray-400">A ≥ 85 · B 75–84 · C 65–74 · D 50–64 · E &lt; 50</p>
+        @else
+            @include('pimpinan.partials.empty-state', ['text' => 'Belum ada nilai yang tersedia pada semester ini.'])
+        @endif
+    </div>
+</section>
+
+{{-- 4 · Rekap per kelas --}}
+<section aria-labelledby="executive-class-table-heading" class="{{ $card }} overflow-hidden">
+    <div class="border-b border-gray-200 p-6 dark:border-gray-800">
+        <h2 id="executive-class-table-heading" class="text-base font-bold text-gray-900 dark:text-white">Rekap per kelas</h2>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Wali kelas, jumlah santri, kehadiran, nilai rata-rata, dan progres pengisian rapor.</p>
     </div>
 
-    <div tabindex="0" role="region" aria-labelledby="executive-class-table-heading" class="overflow-x-auto max-h-[70vh]">
+    <div tabindex="0" role="region" aria-labelledby="executive-class-table-heading" class="max-h-[70vh] overflow-x-auto p-2">
         <table class="table-builder min-w-full border-separate border-spacing-0">
             <thead class="sticky top-0 z-10">
                 <tr>
-                    <th scope="col" class="px-5 py-3 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Kelas</th>
-                    <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Wali Kelas</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Santri Aktif</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">% Kehadiran</th>
-                    <th scope="col" class="px-4 py-3 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Rata-Rata Nilai</th>
-                    <th scope="col" class="px-5 py-3 text-left text-xs font-bold text-gray-600 min-w-[200px] border-b border-gray-200 dark:border-gray-700">Ketuntasan Input Rapor</th>
+                    <th scope="col" class="px-4 py-3 text-left">Kelas</th>
+                    <th scope="col" class="px-4 py-3 text-left">Wali kelas</th>
+                    <th scope="col" class="px-4 py-3 text-right">Santri</th>
+                    <th scope="col" class="px-4 py-3 text-right">Kehadiran</th>
+                    <th scope="col" class="px-4 py-3 text-right">Rata-rata nilai</th>
+                    <th scope="col" class="min-w-56 px-4 py-3 text-left">Ketuntasan rapor</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                @forelse($classSummaries as $c)
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
-                    <th scope="row" class="sticky left-0 z-[1] bg-white dark:bg-gray-800 px-5 py-3.5 whitespace-nowrap text-left font-bold text-gray-900 dark:text-gray-100 text-sm border-b border-gray-100 dark:border-gray-700/60">
-                        {{ $c['nama_kelas'] }}
-                        <span class="block text-[11px] font-normal text-gray-600">{{ $c['jumlah_mapel'] }} Mata Pelajaran</span>
-                    </th>
-                    <td class="px-4 py-3.5 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
-                        {{ $c['wali_kelas'] }}
-                    </td>
-                    <td class="px-4 py-3.5 text-center text-sm font-semibold text-purple-700 dark:text-purple-400 whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
-                        {{ $c['jumlah_santri'] }} Santri
-                    </td>
-                    <td class="px-4 py-3.5 text-center text-sm font-semibold text-blue-700 dark:text-blue-400 whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
-                        {{ $c['attendance_pct'] }}%
-                    </td>
-                    <td class="px-4 py-3.5 text-center text-sm font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap border-b border-gray-100 dark:border-gray-700/60">
-                        {{ $c['avg_grade'] > 0 ? number_format($c['avg_grade'], 2) : '-' }}
-                    </td>
-                    <td class="px-5 py-3.5 border-b border-gray-100 dark:border-gray-700/60">
-                        <div class="flex items-center justify-between text-xs font-semibold mb-1">
-                            <span class="{{ $c['completion_pct'] >= 100 && $c['expected_grades'] > 0 ? 'text-emerald-600' : 'text-amber-600' }}">
-                                {{ $c['completion_pct'] }}%
-                            </span>
-                            <span class="text-gray-400 text-[11px]">{{ $c['filled_grades'] }}/{{ $c['expected_grades'] }}</span>
-                        </div>
-                        <div class="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                            <div class="{{ $c['completion_pct'] >= 100 && $c['expected_grades'] > 0 ? 'bg-emerald-500' : 'bg-amber-500' }} h-full"
-                                 style="width: {{ min($c['completion_pct'], 100) }}%"></div>
-                        </div>
-                    </td>
-                </tr>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                @forelse ($classSummaries as $c)
+                    <tr>
+                        <th scope="row" class="whitespace-nowrap px-4 py-4 text-left text-sm font-bold text-gray-900 dark:text-white">
+                            {{ $c['nama_kelas'] }}
+                            <span class="block text-xs font-medium text-gray-700 dark:text-gray-400">{{ $c['jumlah_mapel'] }} mata pelajaran</span>
+                        </th>
+                        <td class="whitespace-nowrap px-4 py-4 text-sm text-gray-700 dark:text-gray-300">{{ $c['wali_kelas'] }}</td>
+                        <td class="whitespace-nowrap px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $c['jumlah_santri'] }}</td>
+                        <td class="whitespace-nowrap px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $c['attendance_pct'] }}%</td>
+                        <td class="whitespace-nowrap px-4 py-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $c['avg_grade'] > 0 ? number_format($c['avg_grade'], 2) : '—' }}</td>
+                        <td class="px-4 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="progress-track flex-1"><div class="progress-fill bg-primary-500" style="width: {{ min($c['completion_pct'], 100) }}%"></div></div>
+                                <span class="w-12 text-right text-sm font-bold text-gray-900 dark:text-gray-100">{{ $c['completion_pct'] }}%</span>
+                                <span class="w-12 text-xs font-medium text-gray-700 dark:text-gray-400">{{ $c['filled_grades'] }}/{{ $c['expected_grades'] }}</span>
+                            </div>
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="6" class="text-center py-8 text-gray-600 text-xs">Belum ada data rombongan belajar terdaftar.</td>
-                </tr>
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-700 dark:text-gray-400">Belum ada data rombongan belajar terdaftar.</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-</div>
+</section>
 @endsection
+
+@push('scripts')
+    @include('partials.charts-bootstrap')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trend = @json($ppdbTrends->map(fn ($r) => ['periode' => $r->periode, 'pendaftar' => (int) $r->total_pendaftar, 'diterima' => (int) $r->diterima])->values());
+            const ppdb = @json($ppdbTotals);
+            const grades = @json($gradeDistribution);
+
+            NK.mount('ppdbTrendChart', ({ defaults, axes, color }) => ({
+                type: 'line',
+                data: {
+                    labels: trend.map((r) => r.periode),
+                    datasets: [
+                        { label: 'Pendaftar', data: trend.map((r) => r.pendaftar), borderColor: color.neutral, backgroundColor: color.neutral, pointBackgroundColor: color.neutral, borderWidth: 2, tension: 0.35, pointRadius: 4 },
+                        { label: 'Diterima', data: trend.map((r) => r.diterima), borderColor: color.primary, backgroundColor: color.primary, pointBackgroundColor: color.primary, borderWidth: 2.5, tension: 0.35, pointRadius: 4 },
+                    ],
+                },
+                options: {
+                    ...defaults,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { ...defaults.plugins, tooltip: { ...defaults.plugins.tooltip, displayColors: true, boxWidth: 8, boxHeight: 8, usePointStyle: true } },
+                    scales: axes,
+                },
+            }));
+
+            NK.mount('ppdbStatusChart', ({ defaults, color }) => ({
+                type: 'doughnut',
+                data: {
+                    labels: ['Diterima', 'Menunggu', 'Ditolak'],
+                    datasets: [{ data: [ppdb.diterima, ppdb.pending, ppdb.ditolak], backgroundColor: [color.primary, color.warning, color.error], borderWidth: 0, spacing: 2, borderRadius: 4 }],
+                },
+                options: { ...defaults, cutout: '75%' },
+                plugins: [NK.centerText(String(ppdb.pendaftar), 'pendaftar')],
+            }));
+
+            NK.mount('gradeChart', ({ defaults, axes, color }) => {
+                const labels = ['A', 'B', 'C', 'D', 'E'];
+                const axis = axes;
+                return {
+                    type: 'bar',
+                    data: {
+                        labels: labels.map((g) => 'Predikat ' + g),
+                        datasets: [{ label: 'Jumlah nilai', data: labels.map((g) => grades[g] ?? 0), backgroundColor: labels.map((g) => (g === 'D' || g === 'E') ? color.error : color.primary), borderRadius: 6, borderSkipped: false, maxBarThickness: 24 }],
+                    },
+                    options: {
+                        ...defaults,
+                        indexAxis: 'y',
+                        plugins: { ...defaults.plugins, legend: { display: false } },
+                        scales: { x: { ...axis.y, beginAtZero: true }, y: { ...axis.x } },
+                    },
+                };
+            });
+        });
+    </script>
+@endpush
