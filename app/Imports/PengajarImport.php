@@ -89,7 +89,7 @@ class PengajarImport implements ShouldQueue, ToModel, WithChunkReading, WithEven
                     $batch = ImportBatch::find($this->batchId);
                     if ($batch) {
                         $batch->update([
-                            'status' => ImportBatch::STATUS_COMPLETED,
+                            'status' => $batch->invalid_rows > 0 ? ImportBatch::STATUS_COMPLETED_WITH_ERRORS : ImportBatch::STATUS_COMPLETED,
                             'total_rows' => $batch->total_rows ?: $batch->processed_rows,
                         ]);
                     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ClassPromotionController;
 use App\Http\Controllers\Admin\ClassRoomController;
 use App\Http\Controllers\Admin\EducationFeeController;
+use App\Http\Controllers\Admin\ImportDataController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\SantriManagementController;
 use App\Http\Controllers\Admin\ScheduleController;
@@ -171,10 +172,15 @@ Route::middleware(['auth', 'role:super_admin,pengurus_akademik'])->group(functio
     Route::delete('admin/registrations/{registration}', [SantriRegistrationController::class, 'destroy'])->name('admin.registrations.destroy');
 
     // Data Migration & Background Queue (Import Santri & Pengajar)
-    Route::get('admin/imports', [\App\Http\Controllers\Admin\ImportDataController::class, 'index'])->name('admin.imports.index');
-    Route::post('admin/imports/santri', [\App\Http\Controllers\Admin\ImportDataController::class, 'uploadSantri'])->name('admin.imports.santri');
-    Route::post('admin/imports/pengajar', [\App\Http\Controllers\Admin\ImportDataController::class, 'uploadPengajar'])->name('admin.imports.pengajar');
-    Route::get('admin/imports/template/{type}', [\App\Http\Controllers\Admin\ImportDataController::class, 'downloadTemplate'])->name('admin.imports.template');
+    Route::get('admin/imports', [ImportDataController::class, 'index'])->name('admin.imports.index');
+    Route::post('admin/imports/santri', [ImportDataController::class, 'uploadSantri'])->name('admin.imports.santri');
+    Route::post('admin/imports/pengajar', [ImportDataController::class, 'uploadPengajar'])->name('admin.imports.pengajar');
+    Route::get('admin/imports/template/{type}', [ImportDataController::class, 'downloadTemplate'])->name('admin.imports.template');
+    Route::get('admin/imports/status', [ImportDataController::class, 'status'])->name('admin.imports.status');
+    Route::get('admin/imports/{batch}', [ImportDataController::class, 'show'])->whereNumber('batch')->name('admin.imports.show');
+    Route::post('admin/imports/{batch}/confirm', [ImportDataController::class, 'confirm'])->whereNumber('batch')->name('admin.imports.confirm');
+    Route::post('admin/imports/{batch}/cancel', [ImportDataController::class, 'cancel'])->whereNumber('batch')->name('admin.imports.cancel');
+    Route::get('admin/imports/{batch}/errors', [ImportDataController::class, 'errors'])->whereNumber('batch')->name('admin.imports.errors');
 });
 
 // 4. Modul Akademik Guru & Pemantauan Kepatuhan (Super Admin, Pengurus Akademik, Kepala Sekolah, & Tenaga Pengajar)

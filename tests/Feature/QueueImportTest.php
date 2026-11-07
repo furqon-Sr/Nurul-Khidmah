@@ -11,8 +11,10 @@ use App\Models\Pengajar;
 use App\Models\Santri;
 use App\Models\TahunAjaran;
 use App\Models\User;
+use App\Services\QueueHealth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -79,9 +81,11 @@ class QueueImportTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.imports.index'));
 
         $response->assertOk();
-        $response->assertSee('Migrasi &amp; Import Data Massal', false);
-        $response->assertSee('Import Data Santri');
-        $response->assertSee('Import Data Pengajar');
+        $response->assertSee('Import Data');
+        $response->assertSee('Santri');
+        $response->assertSee('Pengajar');
+        $response->assertSee('Unggah & validasi', false);
+        $response->assertSee('Layanan import aktif'); // queue sync pada lingkungan test = langsung aktif
     }
 
     public function test_unauthorized_user_cannot_access_import_page(): void
@@ -94,7 +98,7 @@ class QueueImportTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_upload_santri_stores_file_creates_batch_and_pushes_job_to_queue(): void
+    public function test_upload_santri_is_validated_first_and_does_not_touch_main_tables_or_queue(): void
     {
         Storage::fake('local');
         Queue::fake();
@@ -108,29 +112,157 @@ class QueueImportTest extends TestCase
 
         $file = UploadedFile::fake()->createWithContent('santri_batch_2026.csv', $csvContent);
 
-        $response = $this->actingAs($admin)->post(route('admin.imports.santri'), [
-            'file' => $file,
-        ]);
+        $response = $this->actingAs($admin)->post(route('admin.imports.santri'), ['file' => $file]);
 
-        $response->assertRedirect(route('admin.imports.index'));
-        $response->assertSessionHas('success');
-
-        // 1. Assert file tersimpan di storage local (imports/...)
         $batch = ImportBatch::first();
         $this->assertNotNull($batch);
+        $response->assertRedirect(route('admin.imports.show', $batch));
+
         $this->assertEquals('santri_batch_2026.csv', $batch->file_name);
         $this->assertEquals('santri', $batch->type);
-        $this->assertEquals(ImportBatch::STATUS_PENDING, $batch->status);
+        $this->assertEquals(ImportBatch::STATUS_VALIDATED, $batch->status);
         $this->assertEquals(2, $batch->total_rows);
+        $this->assertEquals(2, $batch->valid_rows);
+        $this->assertEquals(0, $batch->invalid_rows);
         $this->assertEquals($admin->id, $batch->created_by);
-
         Storage::disk('local')->assertExists($batch->file_path);
 
-        // 2. Assert job ter-push ke Queue
-        Queue::assertPushed(QueueImport::class);
+        // Tahap validasi: belum ada job, belum ada data santri
+        Queue::assertNothingPushed();
+        $this->assertSame(0, Santri::count());
+
+        $this->actingAs($admin)->get(route('admin.imports.show', $batch))
+            ->assertOk()
+            ->assertSee('Pratinjau import')
+            ->assertSee('baris akan diimpor');
     }
 
-    public function test_upload_pengajar_stores_file_creates_batch_and_pushes_job_to_queue(): void
+    public function test_validation_reports_invalid_rows_duplicates_and_existing_records(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+
+        $env = $this->createAcademicEnvironment();
+        $admin = $env['adminTU'];
+
+        Santri::create(['nis' => '26MTS777', 'nama_lengkap' => 'Sudah Ada', 'jenis_kelamin' => 'Laki-laki', 'status_santri' => 'Aktif']);
+
+        $csv = "nama_lengkap,nis,jenis_kelamin,tanggal_lahir\n".
+               "Budi Valid,26MTS100,Laki-laki,2012-01-02\n".      // baris 2: valid
+               ",26MTS101,Laki-laki,2012-01-02\n".                  // baris 3: nama kosong
+               "Citra Salah JK,26MTS102,Tidak Jelas,2012-01-02\n".  // baris 4: jenis kelamin tidak dikenal
+               "Dedi Tanggal,26MTS103,Laki-laki,bukan-tanggal\n".   // baris 5: tanggal tidak valid
+               "Eko Duplikat,26MTS100,Laki-laki,2012-01-02\n".      // baris 6: NIS dobel dengan baris 2
+               "Fajar Sudah Ada,26MTS777,Laki-laki,2012-01-02\n";   // baris 7: sudah terdaftar
+
+        $this->actingAs($admin)->post(route('admin.imports.santri'), [
+            'file' => UploadedFile::fake()->createWithContent('campur.csv', $csv),
+        ])->assertRedirect();
+
+        $batch = ImportBatch::first();
+        $this->assertSame(6, $batch->total_rows);
+        $this->assertSame(1, $batch->valid_rows);
+        $this->assertSame(4, $batch->invalid_rows);
+        $this->assertSame(1, $batch->duplicate_rows);
+
+        $issues = collect($batch->report['issues'])->keyBy('n');
+        $this->assertSame('invalid', $issues[3]['status']);
+        $this->assertSame('invalid', $issues[4]['status']);
+        $this->assertSame('invalid', $issues[5]['status']);
+        $this->assertSame('invalid', $issues[6]['status']);
+        $this->assertStringContainsString('baris 2', $issues[6]['errors'][0]);
+        $this->assertSame('exists', $issues[7]['status']);
+
+        // Laporan kesalahan dapat diunduh
+        $download = $this->actingAs($admin)->get(route('admin.imports.errors', $batch));
+        $download->assertOk();
+        $this->assertStringContainsString('Nama lengkap wajib diisi.', $download->streamedContent());
+    }
+
+    public function test_upload_rejects_file_missing_required_column_and_wrong_extension(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+
+        $env = $this->createAcademicEnvironment();
+        $admin = $env['adminTU'];
+
+        $this->actingAs($admin)->post(route('admin.imports.santri'), [
+            'file' => UploadedFile::fake()->createWithContent('tanpa_nama.csv', "nis,alamat\n26MTS001,Lamongan\n"),
+        ])->assertSessionHasErrors('file');
+
+        $this->actingAs($admin)->post(route('admin.imports.santri'), [
+            'file' => UploadedFile::fake()->create('dokumen.pdf', 10, 'application/pdf'),
+        ])->assertSessionHasErrors('file');
+
+        $this->assertSame(0, ImportBatch::count());
+    }
+
+    public function test_confirm_queues_only_valid_rows_and_respects_existing_data_mode(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+
+        $env = $this->createAcademicEnvironment();
+        $admin = $env['adminTU'];
+
+        Santri::create(['nis' => '26MTS777', 'nama_lengkap' => 'Sudah Ada', 'jenis_kelamin' => 'Laki-laki', 'status_santri' => 'Aktif']);
+
+        $csv = "nama_lengkap,nis,jenis_kelamin\n".
+               "Budi Valid,26MTS100,Laki-laki\n".
+               ",26MTS101,Laki-laki\n".
+               "Fajar Sudah Ada,26MTS777,Laki-laki\n";
+
+        $this->actingAs($admin)->post(route('admin.imports.santri'), [
+            'file' => UploadedFile::fake()->createWithContent('campur.csv', $csv),
+        ]);
+        $batch = ImportBatch::first();
+
+        // Mode lewati: hanya 1 baris valid; baris sudah-ada dilewati; baris invalid tidak ikut
+        $this->actingAs($admin)->post(route('admin.imports.confirm', $batch), ['mode' => 'skip'])
+            ->assertRedirect(route('admin.imports.index'));
+
+        $batch->refresh();
+        $this->assertSame(ImportBatch::STATUS_PENDING, $batch->status);
+        $this->assertSame(1, $batch->total_rows);
+        $this->assertSame(1, $batch->skipped_rows);
+        $this->assertSame(1, $batch->invalid_rows);
+        Queue::assertPushed(QueueImport::class);
+
+        $clean = Storage::disk('local')->get('imports/clean_'.$batch->id.'.csv');
+        $this->assertStringContainsString('Budi Valid', $clean);
+        $this->assertStringNotContainsString('Fajar Sudah Ada', $clean);
+
+        // Sudah dikonfirmasi: tidak dapat dikonfirmasi ulang
+        $this->actingAs($admin)->post(route('admin.imports.confirm', $batch), ['mode' => 'skip'])->assertStatus(409);
+    }
+
+    public function test_update_mode_includes_existing_rows_and_cancel_discards_batch(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+
+        $env = $this->createAcademicEnvironment();
+        $admin = $env['adminTU'];
+
+        Santri::create(['nis' => '26MTS777', 'nama_lengkap' => 'Sudah Ada', 'jenis_kelamin' => 'Laki-laki', 'status_santri' => 'Aktif']);
+        $csv = "nama_lengkap,nis\nBudi Valid,26MTS100\nFajar Update,26MTS777\n";
+
+        $this->actingAs($admin)->post(route('admin.imports.santri'), ['file' => UploadedFile::fake()->createWithContent('a.csv', $csv)]);
+        $this->actingAs($admin)->post(route('admin.imports.santri'), ['file' => UploadedFile::fake()->createWithContent('b.csv', $csv)]);
+        [$first, $second] = ImportBatch::orderBy('id')->get()->all();
+
+        $this->actingAs($admin)->post(route('admin.imports.confirm', $first), ['mode' => 'update']);
+        $this->assertSame(2, $first->fresh()->total_rows);
+        $this->assertSame(0, $first->fresh()->skipped_rows);
+
+        $this->actingAs($admin)->post(route('admin.imports.cancel', $second))->assertRedirect(route('admin.imports.index'));
+        $this->assertSame(ImportBatch::STATUS_CANCELLED, $second->fresh()->status);
+        Storage::disk('local')->assertMissing($second->file_path);
+        $this->assertSame(0, Santri::where('nis', '26MTS100')->count());
+    }
+
+    public function test_upload_pengajar_is_validated_with_status_rules(): void
     {
         Storage::fake('local');
         Queue::fake();
@@ -138,28 +270,60 @@ class QueueImportTest extends TestCase
         $env = $this->createAcademicEnvironment();
         $superAdmin = $env['superAdmin'];
 
-        $csvContent = "nama_lengkap,nomor_identitas,jenis_kelamin,alamat,nomor_telepon\n".
-                      "Ust. Zaidan Pengajar,,Laki-laki,Lamongan,081234567890\n";
+        $csv = "nama_lengkap,nomor_identitas,jenis_kelamin,alamat,nomor_telepon,status_pengajar\n".
+               "Ust. Zaidan Pengajar,,Laki-laki,Lamongan,081234567890,Aktif\n".
+               "Ust. Salah Status,,Laki-laki,Lamongan,081234567890,Pensiun\n";
 
-        $file = UploadedFile::fake()->createWithContent('guru_batch_2026.csv', $csvContent);
-
-        $response = $this->actingAs($superAdmin)->post(route('admin.imports.pengajar'), [
-            'file' => $file,
-        ]);
-
-        $response->assertRedirect(route('admin.imports.index'));
-        $response->assertSessionHas('success');
+        $this->actingAs($superAdmin)->post(route('admin.imports.pengajar'), [
+            'file' => UploadedFile::fake()->createWithContent('guru_batch_2026.csv', $csv),
+        ])->assertRedirect();
 
         $batch = ImportBatch::where('type', 'pengajar')->first();
         $this->assertNotNull($batch);
-        $this->assertEquals('guru_batch_2026.csv', $batch->file_name);
-        $this->assertEquals('pengajar', $batch->type);
-        $this->assertEquals(ImportBatch::STATUS_PENDING, $batch->status);
-        $this->assertEquals(1, $batch->total_rows);
-
+        $this->assertEquals(ImportBatch::STATUS_VALIDATED, $batch->status);
+        $this->assertEquals(2, $batch->total_rows);
+        $this->assertEquals(1, $batch->valid_rows);
+        $this->assertEquals(1, $batch->invalid_rows);
+        Queue::assertNothingPushed();
         Storage::disk('local')->assertExists($batch->file_path);
+    }
 
-        Queue::assertPushed(QueueImport::class);
+    public function test_status_endpoint_and_history_filters(): void
+    {
+        $env = $this->createAcademicEnvironment();
+        $admin = $env['adminTU'];
+
+        $done = ImportBatch::create(['file_name' => 'selesai.csv', 'type' => 'santri', 'status' => ImportBatch::STATUS_COMPLETED, 'total_rows' => 4, 'processed_rows' => 4]);
+        $run = ImportBatch::create(['file_name' => 'berjalan.csv', 'type' => 'pengajar', 'status' => ImportBatch::STATUS_PROCESSING, 'total_rows' => 10, 'processed_rows' => 5]);
+
+        $this->actingAs($admin)->getJson(route('admin.imports.status', ['ids' => [$done->id, $run->id]]))
+            ->assertOk()
+            ->assertJsonPath('service.state', 'active')
+            ->assertJsonFragment(['id' => $run->id, 'percent' => 50, 'active' => true])
+            ->assertJsonFragment(['id' => $done->id, 'status_label' => 'Selesai']);
+
+        $this->actingAs($admin)->get(route('admin.imports.index', ['status' => 'processing']))
+            ->assertOk()->assertSee('berjalan.csv')->assertDontSee('selesai.csv');
+        $this->actingAs($admin)->get(route('admin.imports.index', ['type' => 'santri']))
+            ->assertOk()->assertSee('selesai.csv')->assertDontSee('berjalan.csv');
+    }
+
+    public function test_queue_health_reflects_real_worker_signal(): void
+    {
+        config(['queue.default' => 'database']);
+        Cache::flush();
+
+        // Belum ada detak & belum ada probe → belum diketahui
+        $this->assertSame('unknown', QueueHealth::status()['state']);
+
+        // Worker memproses probe → aktif
+        QueueHealth::recordHeartbeat();
+        $this->assertSame('active', QueueHealth::status()['state']);
+
+        // Probe terkirim sudah lama tanpa detak baru → tidak tersedia
+        Cache::flush();
+        Cache::put(QueueHealth::PROBE_KEY, now()->subMinutes(5)->timestamp, now()->addHour());
+        $this->assertSame('unavailable', QueueHealth::status()['state']);
     }
 
     public function test_santri_import_model_maps_data_and_auto_generates_nis_when_empty(): void
