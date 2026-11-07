@@ -21,9 +21,15 @@ class AcademicRaporService
     {
         $activeYear = TahunAjaran::getAktif();
 
-        $historyYearIds = RiwayatKelasSantri::where('santri_id', $santri->id)
-            ->whereNotNull('tahun_ajaran_id')
-            ->pluck('tahun_ajaran_id');
+        $historyRecords = RiwayatKelasSantri::where('santri_id', $santri->id)->get(['tahun_ajaran_id', 'kelas_lama_id', 'kelas_baru_id']);
+        $historyYearIds = $historyRecords->pluck('tahun_ajaran_id')->filter();
+        $historyKelasIds = $historyRecords->pluck('kelas_lama_id')
+            ->merge($historyRecords->pluck('kelas_baru_id'))
+            ->filter()
+            ->unique();
+        $kelasHistoryYearIds = $historyKelasIds->isNotEmpty()
+            ? Kelas::whereIn('id', $historyKelasIds)->whereNotNull('tahun_ajaran_id')->pluck('tahun_ajaran_id')
+            : collect();
 
         $nilaiYearIds = JadwalPelajaran::whereIn(
             'id',
@@ -37,6 +43,7 @@ class AcademicRaporService
 
         $yearIds = collect([$activeYear?->id, $santri->kelas?->tahun_ajaran_id])
             ->merge($historyYearIds)
+            ->merge($kelasHistoryYearIds)
             ->merge($nilaiYearIds)
             ->merge($absensiYearIds)
             ->filter()
@@ -78,6 +85,16 @@ class AcademicRaporService
 
         if ($history && $history->kelasBaru) {
             return $history->kelasBaru;
+        }
+
+        $oldClassHistory = RiwayatKelasSantri::with(['kelasLama.waliKelas', 'kelasLama.tahunAjaran', 'kelasLama.educationalUnit.headmaster'])
+            ->where('santri_id', $santri->id)
+            ->whereHas('kelasLama', fn ($q) => $q->where('tahun_ajaran_id', $tahunAjaran->id))
+            ->latest('id')
+            ->first();
+
+        if ($oldClassHistory && $oldClassHistory->kelasLama) {
+            return $oldClassHistory->kelasLama;
         }
 
         // Cek dari jejak jadwal nilai atau presensi pada tahun ajaran tersebut
@@ -206,9 +223,10 @@ class AcademicRaporService
         if ($targetYearId) {
             if ($santri->relationLoaded('raporSemesters')) {
                 $raporSemester = $santri->raporSemesters->firstWhere('tahun_ajaran_id', $targetYearId);
+                $raporSemester?->loadMissing(['approvedBy', 'publishedBy']);
             }
             if (! $raporSemester) {
-                $raporSemester = RaporSemester::with(['approvedBy'])
+                $raporSemester = RaporSemester::with(['approvedBy', 'publishedBy'])
                     ->where('santri_id', $santri->id)
                     ->where('tahun_ajaran_id', $targetYearId)
                     ->first();

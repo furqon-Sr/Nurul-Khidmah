@@ -232,6 +232,8 @@ Route::middleware(['auth', 'role:super_admin,pimpinan'])->group(function () {
 Route::middleware(['auth', 'role:super_admin,pengurus_akademik,kepala_sekolah,tenaga_pengajar'])->group(function () {
     Route::get('admin/reports', [AcademicReportController::class, 'index'])->name('admin.reports.index');
     Route::post('admin/reports/wali-notes/{kelas}', [AcademicReportController::class, 'updateWaliNotes'])->name('admin.reports.wali-notes');
+    Route::post('admin/reports/santri-evaluation/{santri}', [AcademicReportController::class, 'updateSantriEvaluation'])->name('admin.reports.santri-evaluation');
+    Route::post('admin/reports/validate-rapor', [AcademicReportController::class, 'validateRapor'])->name('admin.reports.validate');
     Route::get('admin/reports/attendance-pdf', [AcademicReportController::class, 'exportAttendancePdf'])->name('admin.reports.attendance-pdf');
     Route::get('admin/reports/attendance-pdf/download', [AcademicReportController::class, 'downloadAttendancePdf'])->name('admin.reports.attendance.download');
     Route::get('admin/reports/grades-pdf', [AcademicReportController::class, 'exportGradesPdf'])->name('admin.reports.grades-pdf');
@@ -240,11 +242,13 @@ Route::middleware(['auth', 'role:super_admin,pengurus_akademik,kepala_sekolah,te
     Route::get('admin/reports/santri-rapor-pdf/{santri}/download', [AcademicReportController::class, 'downloadSantriRaporPdf'])->name('admin.reports.santri-rapor.download');
 });
 
-// Alur Persetujuan Rapor (Grade Locking & Immutability: Khusus Kepala Sekolah, Pimpinan & Super Admin)
+// Alur Persetujuan, Penerbitan & Revisi Resmi Rapor (Grade Locking & Immutability: Khusus Kepala Sekolah, Pimpinan & Super Admin)
 Route::middleware(['auth', 'role:super_admin,kepala_sekolah,pimpinan'])->group(function () {
     Route::post('admin/reports/approve', [AcademicReportController::class, 'approveReport'])->name('admin.reports.approve');
     Route::post('admin/reports/approve-santri/{santri}', [AcademicReportController::class, 'approveSantri'])->name('admin.reports.approve-santri');
     Route::post('admin/reports/approve-class/{kelas}', [AcademicReportController::class, 'approveClass'])->name('admin.reports.approve-class');
+    Route::post('admin/reports/publish', [AcademicReportController::class, 'publishRapor'])->name('admin.reports.publish');
+    Route::post('admin/reports/request-revision/{santri}', [AcademicReportController::class, 'requestRevision'])->name('admin.reports.request-revision');
 });
 
 // 8. Manajemen Sistem & Keamanan (Khusus Super Admin)

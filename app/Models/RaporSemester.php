@@ -20,12 +20,25 @@ class RaporSemester extends Model
         'catatan_wali_kelas',
         'nilai_sikap',
         'status_publikasi',
+        'workflow_stage',
+        'version',
+        'validated_by',
+        'validated_at',
         'approved_by',
         'approved_at',
+        'published_by',
+        'published_at',
+        'revision_note',
+        'revision_requested_by',
+        'revision_requested_at',
     ];
 
     protected $casts = [
+        'version' => 'integer',
+        'validated_at' => 'datetime',
         'approved_at' => 'datetime',
+        'published_at' => 'datetime',
+        'revision_requested_at' => 'datetime',
     ];
 
     public function santri(): BelongsTo
@@ -43,9 +56,24 @@ class RaporSemester extends Model
         return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 
+    public function validatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
+    }
+
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function publishedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'published_by');
+    }
+
+    public function revisionRequestedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'revision_requested_by');
     }
 
     public function isDraft(): bool
@@ -61,5 +89,20 @@ class RaporSemester extends Model
     public function isPublished(): bool
     {
         return $this->status_publikasi === 'published';
+    }
+
+    public function isFinalLocked(): bool
+    {
+        if ($this->status_publikasi === 'approved') {
+            return true;
+        }
+
+        if ($this->status_publikasi === 'published') {
+            return in_array($this->workflow_stage, ['approved', 'published'], true)
+                || $this->approved_at !== null
+                || $this->published_at !== null;
+        }
+
+        return false;
     }
 }

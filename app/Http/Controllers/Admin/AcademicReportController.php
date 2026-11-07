@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Absensi;
 use App\Models\AdminActivityLog;
 use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
@@ -86,8 +87,22 @@ class AcademicReportController extends Controller
             ? $classes->firstWhere('id', (int) $filterKelasInput)
             : null;
 
+        $requestedTab = (string) $request->input('tab', '');
+        $activeTab = in_array($requestedTab, ['laporan', 'kelola', 'persetujuan', 'riwayat'], true)
+            ? $requestedTab
+            : 'laporan';
+
         // Query santri terfilter (terhubung langsung ke daftar santri & tombol Cetak Rapor PDF)
-        $santrisQuery = Santri::with(['kelas.waliKelas', 'kelas.tahunAjaran', 'raporSemesters'])
+        $santrisQuery = Santri::with([
+            'kelas.waliKelas',
+            'kelas.tahunAjaran',
+            'raporSemesters.approvedBy',
+            'raporSemesters.publishedBy',
+            'raporSemesters.validatedBy',
+            'raporSemesters.revisionRequestedBy',
+            'riwayatKelas.kelasBaru.waliKelas',
+            'riwayatKelas.kelasLama.waliKelas',
+        ])
             ->whereIn('status_santri', ['Aktif', 'Lulus'])
             ->orderBy('nama_lengkap');
 
@@ -107,6 +122,12 @@ class AcademicReportController extends Controller
                         if ($selectedYear) {
                             $rq->where('tahun_ajaran_id', $selectedYear->id);
                         }
+                    })
+                    ->orWhereHas('riwayatKelas', function ($rq) use ($kId, $selectedYear) {
+                        $rq->where('kelas_lama_id', $kId);
+                        if ($selectedYear) {
+                            $rq->whereHas('kelasLama', fn ($kq) => $kq->where('tahun_ajaran_id', $selectedYear->id));
+                        }
                     });
             });
         } elseif ($selectedTingkat !== '') {
@@ -125,6 +146,7 @@ class AcademicReportController extends Controller
             $santrisQuery->where(function ($q) use ($yearClassIds, $selectedYear) {
                 $q->whereIn('kelas_id', $yearClassIds)
                     ->orWhereHas('riwayatKelas', fn ($rq) => $rq->where('tahun_ajaran_id', $selectedYear->id))
+                    ->orWhereHas('riwayatKelas.kelasLama', fn ($kq) => $kq->where('tahun_ajaran_id', $selectedYear->id))
                     ->orWhereHas('nilais.jadwalPelajaran', fn ($nq) => $nq->where('tahun_ajaran_id', $selectedYear->id));
             });
         }
@@ -138,7 +160,7 @@ class AcademicReportController extends Controller
 
         $santris = $santrisQuery->get();
 
-        // Kelas acuan untuk form simpan evaluasi Wali Kelas
+        // Kelas acuan untuk konteks laporan & evaluasi Wali Kelas
         $selectedEvalKelas = $selectedFilterKelas
             ?? ($filteredClasses->count() === 1 ? $filteredClasses->first() : $filteredClasses->first() ?? $classes->first());
 
@@ -158,6 +180,22 @@ class AcademicReportController extends Controller
         }
         $subjects = $subjectsQuery->get();
 
+        // Komputasi metadata kesiapan, status alur kerja, kelengkapan mapel, & presensi secara bulk (bebas N+1)
+        [$santriReportMeta, $workflowSummary, $archivedRapors] = $this->buildSantriWorkspaceMeta($santris, $selectedYear);
+
+        $historyLogs = AdminActivityLog::query()
+            ->whereIn('action', ['approve', 'publish', 'validate', 'revision', 'export', 'update'])
+            ->where(function ($q) {
+                $q->whereIn('target_type', ['RaporSemester', 'Kelas', 'Santri'])
+                    ->orWhere('description', 'like', '%rapor%')
+                    ->orWhere('description', 'like', '%Rapor%')
+                    ->orWhere('description', 'like', '%Leger%')
+                    ->orWhere('description', 'like', '%Presensi%');
+            })
+            ->orderByDesc('id')
+            ->limit(25)
+            ->get();
+
         return view('reports.index', compact(
             'classes',
             'filteredClasses',
@@ -170,7 +208,12 @@ class AcademicReportController extends Controller
             'activeYear',
             'selectedEvalKelas',
             'evalSantris',
-            'subjects'
+            'subjects',
+            'activeTab',
+            'santriReportMeta',
+            'workflowSummary',
+            'archivedRapors',
+            'historyLogs'
         ));
     }
 
@@ -186,12 +229,21 @@ class AcademicReportController extends Controller
             'evaluasi.*.nilai_sikap' => 'nullable|string|max:50',
             'evaluasi.*.catatan_wali_kelas' => 'nullable|string|max:1000',
             'allow_filtered' => 'nullable|boolean',
+            'save_mode' => 'nullable|in:draft,validate',
+            'tab' => 'nullable|in:laporan,kelola,persetujuan,riwayat',
         ]);
 
         $allowFiltered = $request->boolean('allow_filtered');
+        $hasExplicitMode = $request->filled('save_mode');
+        $saveMode = $request->input('save_mode', 'draft');
+        $explicitTaId = $request->filled('tahun_ajaran_id') ? (int) $request->input('tahun_ajaran_id') : null;
+
+        $savedCount = 0;
+        $validatedCount = 0;
+        $skippedLockedCount = 0;
 
         foreach ($validated['evaluasi'] as $santriId => $data) {
-            $santri = Santri::with('kelas')->find($santriId);
+            $santri = Santri::with(['kelas', 'raporSemesters'])->find($santriId);
             if (! $santri) {
                 continue;
             }
@@ -204,9 +256,53 @@ class AcademicReportController extends Controller
             }
 
             $targetKelas = $santri->kelas ?? $kelas;
-            $targetTaId = $targetKelas->tahun_ajaran_id ?? $kelas->tahun_ajaran_id ?? TahunAjaran::getAktif()?->id;
+            $targetTaId = $explicitTaId ?? $targetKelas->tahun_ajaran_id ?? $kelas->tahun_ajaran_id ?? TahunAjaran::getAktif()?->id;
 
-            if ($targetTaId) {
+            if (! $targetTaId) {
+                continue;
+            }
+
+            $existing = $santri->raporSemesters->firstWhere('tahun_ajaran_id', $targetTaId);
+            if ($hasExplicitMode && $existing && $existing->isFinalLocked()) {
+                $skippedLockedCount++;
+
+                continue;
+            }
+
+            $sikapVal = filled($data['nilai_sikap'] ?? null) ? $data['nilai_sikap'] : null;
+            $catatanVal = filled($data['catatan_wali_kelas'] ?? null) ? trim($data['catatan_wali_kelas']) : null;
+
+            if ($hasExplicitMode) {
+                $nextWorkflowStage = ($existing && $existing->workflow_stage === 'revision') ? 'revision' : 'draft';
+                $attributes = [
+                    'kelas_id' => $targetKelas->id,
+                    'nilai_sikap' => $sikapVal,
+                    'catatan_wali_kelas' => $catatanVal,
+                    'status_publikasi' => 'draft',
+                    'workflow_stage' => $nextWorkflowStage,
+                ];
+
+                $record = RaporSemester::updateOrCreate(
+                    [
+                        'santri_id' => $santri->id,
+                        'tahun_ajaran_id' => $targetTaId,
+                    ],
+                    $attributes
+                );
+
+                if ($saveMode === 'validate') {
+                    $readiness = $this->assessSantriRaporReadiness($santri, $targetTaId, $record);
+                    if ($readiness['ready']) {
+                        $record->update([
+                            'workflow_stage' => 'validated',
+                            'validated_by' => Auth::id(),
+                            'validated_at' => now(),
+                        ]);
+                        $validatedCount++;
+                    }
+                }
+            } else {
+                // Kompatibilitas pemanggilan tanpa save_mode
                 RaporSemester::updateOrCreate(
                     [
                         'santri_id' => $santri->id,
@@ -214,22 +310,240 @@ class AcademicReportController extends Controller
                     ],
                     [
                         'kelas_id' => $targetKelas->id,
-                        'nilai_sikap' => filled($data['nilai_sikap'] ?? null) ? $data['nilai_sikap'] : null,
-                        'catatan_wali_kelas' => filled($data['catatan_wali_kelas'] ?? null) ? trim($data['catatan_wali_kelas']) : null,
+                        'nilai_sikap' => $sikapVal,
+                        'catatan_wali_kelas' => $catatanVal,
                         'status_publikasi' => 'published',
                     ]
                 );
             }
+
+            $savedCount++;
         }
 
-        AdminActivityLog::log('update', "Memperbarui nilai sikap & catatan wali kelas rapor ({$kelas->nama_kelas})", 'Kelas', $kelas->id);
+        AdminActivityLog::log('update', "Memperbarui nilai sikap & catatan wali kelas rapor ({$kelas->nama_kelas}, {$savedCount} santri)", 'Kelas', $kelas->id);
+
+        $message = $saveMode === 'validate'
+            ? "Perubahan disimpan ({$savedCount} santri) dan {$validatedCount} rapor siap disetujui."
+            : 'Perubahan draft penilaian sikap & catatan wali kelas berhasil disimpan.';
+
+        if ($skippedLockedCount > 0) {
+            $message .= " ({$skippedLockedCount} rapor yang sudah disetujui dilewati karena terkunci.)";
+        }
 
         return redirect()->route('admin.reports.index', array_filter([
             'tahun_ajaran_id' => $request->input('tahun_ajaran_id'),
             'tingkat' => $request->input('tingkat'),
             'filter_kelas_id' => $request->input('filter_kelas_id', $kelas->id),
             'search' => $request->input('search'),
-        ]))->with('success', 'Penilaian sikap & catatan wali kelas berhasil disimpan.');
+            'tab' => $request->input('tab', $hasExplicitMode ? 'kelola' : null),
+        ]))->with('success', $message);
+    }
+
+    /**
+     * Simpan evaluasi satu santri melalui Side Drawer (mendukung Draft maupun Simpan & Validasi).
+     */
+    public function updateSantriEvaluation(Request $request, Santri $santri)
+    {
+        $validated = $request->validate([
+            'nilai_sikap' => 'nullable|string|max:50',
+            'catatan_wali_kelas' => 'nullable|string|max:1000',
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
+            'save_mode' => 'nullable|in:draft,validate',
+            'tab' => 'nullable|in:laporan,kelola,persetujuan,riwayat',
+        ]);
+
+        $santri->loadMissing(['kelas', 'raporSemesters']);
+        $tahunAjaran = $request->filled('tahun_ajaran_id')
+            ? TahunAjaran::findOrFail((int) $request->input('tahun_ajaran_id'))
+            : (TahunAjaran::getAktif() ?? $santri->kelas?->tahunAjaran);
+
+        $kelasAcuan = $this->raporService->resolveKelasForSantriInYear($santri, $tahunAjaran) ?? $santri->kelas;
+        if ($kelasAcuan) {
+            $this->authorizeClassAccess($kelasAcuan);
+        }
+
+        $targetTaId = $tahunAjaran?->id ?? $kelasAcuan?->tahun_ajaran_id;
+        if (! $targetTaId) {
+            return $this->respondEvaluationError($request, 'Periode Tahun Ajaran tidak ditemukan untuk santri ini.');
+        }
+
+        $existing = $santri->raporSemesters->firstWhere('tahun_ajaran_id', $targetTaId);
+        if ($existing && $existing->isFinalLocked()) {
+            return $this->respondEvaluationError(
+                $request,
+                "Rapor {$santri->nama_lengkap} telah disetujui dan terkunci. Gunakan prosedur Buka Revisi Resmi apabila diperlukan perbaikan."
+            );
+        }
+
+        $sikapVal = filled($validated['nilai_sikap'] ?? null) ? $validated['nilai_sikap'] : null;
+        $catatanVal = filled($validated['catatan_wali_kelas'] ?? null) ? trim($validated['catatan_wali_kelas']) : null;
+        $saveMode = $validated['save_mode'] ?? 'draft';
+        $nextStage = ($existing && $existing->workflow_stage === 'revision') ? 'revision' : 'draft';
+
+        $record = RaporSemester::updateOrCreate(
+            [
+                'santri_id' => $santri->id,
+                'tahun_ajaran_id' => $targetTaId,
+            ],
+            [
+                'kelas_id' => $kelasAcuan?->id ?? $santri->kelas_id,
+                'nilai_sikap' => $sikapVal,
+                'catatan_wali_kelas' => $catatanVal,
+                'status_publikasi' => 'draft',
+                'workflow_stage' => $nextStage,
+            ]
+        );
+
+        $readiness = $this->assessSantriRaporReadiness($santri, $targetTaId, $record);
+        $warningMessage = null;
+
+        if ($saveMode === 'validate') {
+            if ($readiness['ready']) {
+                $record->update([
+                    'workflow_stage' => 'validated',
+                    'validated_by' => Auth::id(),
+                    'validated_at' => now(),
+                ]);
+                AdminActivityLog::log('validate', "Memvalidasi kesiapan rapor santri: {$santri->nama_lengkap} ({$santri->nis})", 'RaporSemester', $santri->id);
+            } else {
+                $warningMessage = 'Draft evaluasi tersimpan, namun rapor belum dapat divalidasi: '.implode(', ', $readiness['missing']).'.';
+                AdminActivityLog::log('update', "Menyimpan draft evaluasi rapor santri: {$santri->nama_lengkap} ({$santri->nis})", 'RaporSemester', $santri->id);
+            }
+        } else {
+            AdminActivityLog::log('update', "Menyimpan draft evaluasi rapor santri: {$santri->nama_lengkap} ({$santri->nis})", 'RaporSemester', $santri->id);
+        }
+
+        $successMessage = $warningMessage
+            ?? ($saveMode === 'validate'
+                ? "Evaluasi {$santri->nama_lengkap} berhasil disimpan & divalidasi (Siap Disetujui)."
+                : "Draft evaluasi {$santri->nama_lengkap} berhasil disimpan.");
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'validated' => $record->workflow_stage === 'validated',
+                'warning' => $warningMessage !== null,
+                'message' => $successMessage,
+                'santri_id' => $santri->id,
+                'nilai_sikap' => $record->nilai_sikap,
+                'catatan_wali_kelas' => $record->catatan_wali_kelas,
+                'workflow_stage' => $record->workflow_stage,
+                'missing_items' => $readiness['missing'],
+            ]);
+        }
+
+        $redirect = redirect()->route('admin.reports.index', array_filter([
+            'tahun_ajaran_id' => $targetTaId,
+            'tingkat' => $request->input('tingkat'),
+            'filter_kelas_id' => $request->input('filter_kelas_id'),
+            'search' => $request->input('search'),
+            'tab' => $request->input('tab', 'kelola'),
+        ]));
+
+        return $warningMessage
+            ? $redirect->with('error', $warningMessage)
+            : $redirect->with('success', $successMessage);
+    }
+
+    /**
+     * Validasi kelengkapan rapor (Tahap 2: Draft -> Validasi / Siap Disetujui)
+     */
+    public function validateRapor(Request $request)
+    {
+        $validated = $request->validate([
+            'santri_id' => 'nullable|exists:santris,id',
+            'kelas_id' => 'nullable|exists:kelasses,id',
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
+            'tab' => 'nullable|in:laporan,kelola,persetujuan,riwayat',
+        ]);
+
+        $activeYear = TahunAjaran::getAktif();
+        $targetTaId = $request->filled('tahun_ajaran_id')
+            ? (int) $request->input('tahun_ajaran_id')
+            : $activeYear?->id;
+
+        if (! empty($validated['santri_id'])) {
+            $santri = Santri::with(['kelas', 'raporSemesters'])->findOrFail($validated['santri_id']);
+            if ($santri->kelas) {
+                $this->authorizeClassAccess($santri->kelas);
+            }
+
+            $taId = $targetTaId ?? $santri->kelas?->tahun_ajaran_id;
+            $existing = $santri->raporSemesters->firstWhere('tahun_ajaran_id', $taId);
+            if ($existing && $existing->isFinalLocked()) {
+                return redirect()->back()->with('error', "Rapor {$santri->nama_lengkap} sudah disetujui dan terkunci.");
+            }
+
+            $check = $this->assessSantriRaporReadiness($santri, $taId, $existing);
+            if (! $check['ready']) {
+                return redirect()->back()->with('error', "Rapor {$santri->nama_lengkap} belum dapat divalidasi: ".implode(', ', $check['missing']).'.');
+            }
+
+            RaporSemester::updateOrCreate(
+                ['santri_id' => $santri->id, 'tahun_ajaran_id' => $taId],
+                [
+                    'kelas_id' => $check['kelas_id'] ?? $santri->kelas_id,
+                    'status_publikasi' => 'draft',
+                    'workflow_stage' => 'validated',
+                    'validated_by' => Auth::id(),
+                    'validated_at' => now(),
+                ]
+            );
+
+            AdminActivityLog::log('validate', "Memvalidasi kesiapan rapor santri: {$santri->nama_lengkap} ({$santri->nis})", 'RaporSemester', $santri->id);
+
+            return redirect()->back()->with('success', "Rapor {$santri->nama_lengkap} lolos validasi dan siap disetujui.");
+        }
+
+        if (! empty($validated['kelas_id'])) {
+            $kelas = Kelas::findOrFail($validated['kelas_id']);
+            $this->authorizeClassAccess($kelas);
+            $taObj = $targetTaId ? TahunAjaran::find($targetTaId) : ($kelas->tahunAjaran ?? $activeYear);
+            $taId = $taObj?->id;
+            $santrisInClass = $this->resolveSantrisForClassReport($kelas, $taObj);
+
+            $validatedCount = 0;
+            $incompleteCount = 0;
+
+            foreach ($santrisInClass as $santri) {
+                $existing = $santri->raporSemesters->firstWhere('tahun_ajaran_id', $taId);
+                if ($existing && $existing->isFinalLocked()) {
+                    continue;
+                }
+
+                $check = $this->assessSantriRaporReadiness($santri, $taId, $existing);
+                if ($check['ready'] && $taId) {
+                    RaporSemester::updateOrCreate(
+                        ['santri_id' => $santri->id, 'tahun_ajaran_id' => $taId],
+                        [
+                            'kelas_id' => $kelas->id,
+                            'status_publikasi' => 'draft',
+                            'workflow_stage' => 'validated',
+                            'validated_by' => Auth::id(),
+                            'validated_at' => now(),
+                        ]
+                    );
+                    $validatedCount++;
+                } else {
+                    $incompleteCount++;
+                }
+            }
+
+            if ($validatedCount === 0) {
+                return redirect()->back()->with('error', "Belum ada rapor di {$kelas->nama_kelas} yang memenuhi seluruh syarat validasi ({$incompleteCount} santri belum lengkap).");
+            }
+
+            AdminActivityLog::log('validate', "Memvalidasi kolektif kesiapan rapor {$kelas->nama_kelas} ({$validatedCount} santri siap disetujui)", 'Kelas', $kelas->id);
+
+            $msg = "{$validatedCount} rapor di {$kelas->nama_kelas} berhasil divalidasi dan siap disetujui.";
+            if ($incompleteCount > 0) {
+                $msg .= " ({$incompleteCount} santri belum lengkap dan tetap berstatus draft.)";
+            }
+
+            return redirect()->back()->with('success', $msg);
+        }
+
+        return redirect()->back()->with('error', 'Pilih santri atau kelas yang akan divalidasi.');
     }
 
     public function exportAttendancePdf(Request $request)
@@ -690,7 +1004,8 @@ class AcademicReportController extends Controller
             'kelas.waliKelas',
             'kelas.tahunAjaran',
             'kelas.educationalUnit.headmaster',
-            'raporSemesters',
+            'raporSemesters.approvedBy',
+            'raporSemesters.publishedBy',
             'nilais.mataPelajaran',
             'nilais.gradeComponent',
             'nilais.jadwalPelajaran.mataPelajaran',
@@ -739,7 +1054,8 @@ class AcademicReportController extends Controller
             'kelas.waliKelas',
             'kelas.tahunAjaran',
             'kelas.educationalUnit.headmaster',
-            'raporSemesters',
+            'raporSemesters.approvedBy',
+            'raporSemesters.publishedBy',
             'nilais.mataPelajaran',
             'nilais.gradeComponent',
             'nilais.jadwalPelajaran.mataPelajaran',
@@ -787,7 +1103,11 @@ class AcademicReportController extends Controller
             ->setPaper('a4', 'portrait')
             ->setOption(['isRemoteEnabled' => true, 'isHtml5ParserEnabled' => true]);
 
-        $fileName = 'Rapor_'.Str::slug($santri->nama_lengkap).'_'.($santri->nis).'.pdf';
+        $raporSem = $raporData['raporSemester'] ?? null;
+        $verSuffix = ($raporSem && $raporSem->isFinalLocked())
+            ? '_v'.($raporSem->version ?? 1)
+            : '_Draft';
+        $fileName = 'Rapor_'.Str::slug($santri->nama_lengkap).'_'.($santri->nis).$verSuffix.'.pdf';
 
         return $pdf->download($fileName);
     }
@@ -799,7 +1119,8 @@ class AcademicReportController extends Controller
         return Santri::with([
             'kelas.waliKelas',
             'kelas.tahunAjaran',
-            'raporSemesters',
+            'raporSemesters.approvedBy',
+            'raporSemesters.publishedBy',
             'absensis' => function ($aq) use ($kelas, $taId) {
                 $aq->whereHas('jadwalPelajaran', function ($jq) use ($kelas, $taId) {
                     $jq->where('kelas_id', $kelas->id);
@@ -828,6 +1149,12 @@ class AcademicReportController extends Controller
                         $rq->where('kelas_baru_id', $kelas->id);
                         if ($tahunAjaran) {
                             $rq->where('tahun_ajaran_id', $tahunAjaran->id);
+                        }
+                    })
+                    ->orWhereHas('riwayatKelas', function ($rq) use ($kelas, $tahunAjaran) {
+                        $rq->where('kelas_lama_id', $kelas->id);
+                        if ($tahunAjaran) {
+                            $rq->whereHas('kelasLama', fn ($kq) => $kq->where('tahun_ajaran_id', $tahunAjaran->id));
                         }
                     })
                     ->orWhereHas('nilais.jadwalPelajaran', function ($nq) use ($kelas, $tahunAjaran) {
@@ -866,27 +1193,62 @@ class AcademicReportController extends Controller
             abort(403, 'Hanya Kepala Sekolah atau Pimpinan yang berwenang menyetujui (approve) rapor santri.');
         }
 
+        $santri->loadMissing(['kelas', 'raporSemesters']);
         $activeYear = TahunAjaran::getAktif();
-        $targetTaId = $request->input('tahun_ajaran_id', $santri->kelas?->tahun_ajaran_id ?? $activeYear?->id);
+        $targetTaId = $request->filled('tahun_ajaran_id')
+            ? (int) $request->input('tahun_ajaran_id')
+            : ($santri->kelas?->tahun_ajaran_id ?? $activeYear?->id);
+
+        $existing = $targetTaId ? $santri->raporSemesters->firstWhere('tahun_ajaran_id', $targetTaId) : null;
+
+        if ($request->boolean('enforce_validation')) {
+            $check = $this->assessSantriRaporReadiness($santri, $targetTaId, $existing);
+            if (! $check['ready']) {
+                return redirect()->back()->with(
+                    'error',
+                    "Rapor {$santri->nama_lengkap} belum memenuhi syarat persetujuan: ".implode(', ', $check['missing']).'.'
+                );
+            }
+        }
+
+        $autoPublish = $request->boolean('auto_publish');
+        $newVersion = 1;
 
         if ($targetTaId) {
+            $wasRevision = $existing && ($existing->workflow_stage === 'revision' || ($existing->approved_at !== null && ! $existing->isFinalLocked()));
+            $newVersion = $existing
+                ? ($wasRevision ? ((int) ($existing->version ?? 1) + 1) : max(1, (int) ($existing->version ?? 1)))
+                : 1;
+
+            $attributes = [
+                'kelas_id' => $existing?->kelas_id ?? $santri->kelas_id,
+                'status_publikasi' => $autoPublish ? 'published' : 'approved',
+                'workflow_stage' => $autoPublish ? 'published' : 'approved',
+                'version' => $newVersion,
+                'approved_by' => $user->id,
+                'approved_at' => now(),
+            ];
+
+            if ($autoPublish) {
+                $attributes['published_by'] = $user->id;
+                $attributes['published_at'] = now();
+            }
+
             RaporSemester::updateOrCreate(
                 [
                     'santri_id' => $santri->id,
                     'tahun_ajaran_id' => $targetTaId,
                 ],
-                [
-                    'kelas_id' => $santri->kelas_id,
-                    'status_publikasi' => 'approved',
-                    'approved_by' => $user->id,
-                    'approved_at' => now(),
-                ]
+                $attributes
             );
         }
 
-        AdminActivityLog::log('approve', "Menyetujui (approve) rapor santri: {$santri->nama_lengkap} ({$santri->nis})", 'RaporSemester', $santri->id);
+        $actionLabel = $autoPublish ? 'Menyetujui & menerbitkan' : 'Menyetujui (approve)';
+        AdminActivityLog::log('approve', "{$actionLabel} rapor santri: {$santri->nama_lengkap} ({$santri->nis}) — Versi v{$newVersion}.0", 'RaporSemester', $santri->id);
 
-        return redirect()->back()->with('success', "Rapor santri {$santri->nama_lengkap} berhasil disetujui (Approved). Nilai dan presensi kini terkunci.");
+        $statusLabel = $autoPublish ? "disetujui & diterbitkan (Versi v{$newVersion}.0)" : "disetujui (Approved · Versi v{$newVersion}.0)";
+
+        return redirect()->back()->with('success', "Rapor santri {$santri->nama_lengkap} berhasil {$statusLabel}. Nilai dan presensi kini terkunci.");
     }
 
     public function approveClass(Request $request, Kelas $kelas)
@@ -897,32 +1259,86 @@ class AcademicReportController extends Controller
         }
 
         $activeYear = TahunAjaran::getAktif();
-        $targetTaId = $request->input('tahun_ajaran_id', $kelas->tahun_ajaran_id ?? $activeYear?->id);
+        $targetTaId = $request->filled('tahun_ajaran_id')
+            ? (int) $request->input('tahun_ajaran_id')
+            : ($kelas->tahun_ajaran_id ?? $activeYear?->id);
 
-        $kelas->load('santris');
+        $enforceValidation = $request->boolean('enforce_validation');
+        $autoPublish = $request->boolean('auto_publish');
+
+        $taObj = $targetTaId ? TahunAjaran::find($targetTaId) : null;
+        $santris = $enforceValidation
+            ? $this->resolveSantrisForClassReport($kelas, $taObj)
+            : $kelas->load('santris.raporSemesters')->santris;
+
         $count = 0;
+        $skippedIncomplete = 0;
 
-        foreach ($kelas->santris as $santri) {
-            if ($targetTaId) {
-                RaporSemester::updateOrCreate(
-                    [
-                        'santri_id' => $santri->id,
-                        'tahun_ajaran_id' => $targetTaId,
-                    ],
-                    [
-                        'kelas_id' => $kelas->id,
-                        'status_publikasi' => 'approved',
-                        'approved_by' => $user->id,
-                        'approved_at' => now(),
-                    ]
-                );
-                $count++;
+        foreach ($santris as $santri) {
+            if (! $targetTaId) {
+                continue;
             }
+
+            $existing = $santri->relationLoaded('raporSemesters')
+                ? $santri->raporSemesters->firstWhere('tahun_ajaran_id', $targetTaId)
+                : RaporSemester::where('santri_id', $santri->id)->where('tahun_ajaran_id', $targetTaId)->first();
+
+            if ($enforceValidation) {
+                if ($existing && $existing->isFinalLocked()) {
+                    continue;
+                }
+                $check = $this->assessSantriRaporReadiness($santri, $targetTaId, $existing);
+                if (! $check['ready']) {
+                    $skippedIncomplete++;
+
+                    continue;
+                }
+            }
+
+            $wasRevision = $existing && ($existing->workflow_stage === 'revision' || ($existing->approved_at !== null && ! $existing->isFinalLocked()));
+            $newVersion = $existing
+                ? ($wasRevision ? ((int) ($existing->version ?? 1) + 1) : max(1, (int) ($existing->version ?? 1)))
+                : 1;
+
+            $attributes = [
+                'kelas_id' => $kelas->id,
+                'status_publikasi' => $autoPublish ? 'published' : 'approved',
+                'workflow_stage' => $autoPublish ? 'published' : 'approved',
+                'version' => $newVersion,
+                'approved_by' => $user->id,
+                'approved_at' => now(),
+            ];
+
+            if ($autoPublish) {
+                $attributes['published_by'] = $user->id;
+                $attributes['published_at'] = now();
+            }
+
+            RaporSemester::updateOrCreate(
+                [
+                    'santri_id' => $santri->id,
+                    'tahun_ajaran_id' => $targetTaId,
+                ],
+                $attributes
+            );
+            $count++;
         }
 
-        AdminActivityLog::log('approve', "Menyetujui (approve) seluruh rapor kelas: {$kelas->nama_kelas} ({$count} santri)", 'Kelas', $kelas->id);
+        if ($enforceValidation && $count === 0) {
+            return redirect()->back()->with(
+                'error',
+                "Tidak ada rapor di {$kelas->nama_kelas} yang memenuhi syarat persetujuan ({$skippedIncomplete} santri belum lengkap nilai/evaluasinya)."
+            );
+        }
 
-        return redirect()->back()->with('success', "Seluruh rapor kelas {$kelas->nama_kelas} ({$count} santri) berhasil disetujui (Approved). Nilai dan presensi kini terkunci.");
+        AdminActivityLog::log('approve', "Menyetujui (approve) rapor kelas: {$kelas->nama_kelas} ({$count} santri)", 'Kelas', $kelas->id);
+
+        $msg = "Rapor kelas {$kelas->nama_kelas} ({$count} santri) berhasil disetujui. Nilai dan presensi kini terkunci.";
+        if ($skippedIncomplete > 0) {
+            $msg .= " ({$skippedIncomplete} santri dilewati karena data belum lengkap.)";
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function approveReport(Request $request)
@@ -939,7 +1355,7 @@ class AcademicReportController extends Controller
         ]);
 
         if (! empty($validated['santri_id'])) {
-            $santri = Santri::with('kelas')->findOrFail($validated['santri_id']);
+            $santri = Santri::with(['kelas', 'raporSemesters'])->findOrFail($validated['santri_id']);
 
             return $this->approveSantri($request, $santri);
         }
@@ -951,5 +1367,390 @@ class AcademicReportController extends Controller
         }
 
         return redirect()->back()->with('error', 'Silakan tentukan kelas atau santri yang ingin disetujui.');
+    }
+
+    /**
+     * Tahap 4: Penerbitan Rapor Resmi yang sudah disetujui (Approved -> Terbit)
+     */
+    public function publishRapor(Request $request)
+    {
+        $user = Auth::user();
+        if (! $user->isKepalaSekolah() && ! $user->isPimpinan() && ! $user->isSuperAdmin()) {
+            abort(403, 'Hanya Kepala Sekolah atau Pimpinan yang berwenang menerbitkan rapor resmi.');
+        }
+
+        $validated = $request->validate([
+            'santri_id' => 'nullable|exists:santris,id',
+            'kelas_id' => 'nullable|exists:kelasses,id',
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
+        ]);
+
+        $activeYear = TahunAjaran::getAktif();
+        $targetTaId = $request->filled('tahun_ajaran_id')
+            ? (int) $request->input('tahun_ajaran_id')
+            : $activeYear?->id;
+
+        if (! empty($validated['santri_id'])) {
+            $santri = Santri::with(['kelas', 'raporSemesters'])->findOrFail($validated['santri_id']);
+            $taId = $targetTaId ?? $santri->kelas?->tahun_ajaran_id;
+            $rapor = $santri->raporSemesters->firstWhere('tahun_ajaran_id', $taId);
+
+            if (! $rapor || ! $rapor->isFinalLocked()) {
+                return redirect()->back()->with('error', "Rapor {$santri->nama_lengkap} harus disetujui terlebih dahulu sebelum diterbitkan.");
+            }
+
+            $rapor->update([
+                'status_publikasi' => 'published',
+                'workflow_stage' => 'published',
+                'published_by' => $user->id,
+                'published_at' => now(),
+            ]);
+
+            AdminActivityLog::log('publish', "Menerbitkan dokumen rapor resmi: {$santri->nama_lengkap} ({$santri->nis}) — Versi v{$rapor->version}.0", 'RaporSemester', $santri->id);
+
+            return redirect()->back()->with('success', "Rapor resmi {$santri->nama_lengkap} (Versi v{$rapor->version}.0) berhasil diterbitkan.");
+        }
+
+        if (! empty($validated['kelas_id'])) {
+            $kelas = Kelas::findOrFail($validated['kelas_id']);
+            $taId = $targetTaId ?? $kelas->tahun_ajaran_id;
+
+            $approvedRapors = RaporSemester::where('kelas_id', $kelas->id)
+                ->when($taId, fn ($q) => $q->where('tahun_ajaran_id', $taId))
+                ->where(function ($q) {
+                    $q->where('status_publikasi', 'approved')
+                        ->orWhere('workflow_stage', 'approved');
+                })
+                ->get();
+
+            if ($approvedRapors->isEmpty()) {
+                return redirect()->back()->with('error', "Tidak ada rapor berstatus Disetujui di {$kelas->nama_kelas} yang siap diterbitkan.");
+            }
+
+            foreach ($approvedRapors as $rapor) {
+                $rapor->update([
+                    'status_publikasi' => 'published',
+                    'workflow_stage' => 'published',
+                    'published_by' => $user->id,
+                    'published_at' => now(),
+                ]);
+            }
+
+            AdminActivityLog::log('publish', "Menerbitkan kolektif dokumen rapor resmi {$kelas->nama_kelas} ({$approvedRapors->count()} santri)", 'Kelas', $kelas->id);
+
+            return redirect()->back()->with('success', "{$approvedRapors->count()} rapor di {$kelas->nama_kelas} berhasil diterbitkan secara resmi.");
+        }
+
+        return redirect()->back()->with('error', 'Pilih santri atau kelas yang akan diterbitkan.');
+    }
+
+    /**
+     * Prosedur Revisi Resmi untuk rapor yang sudah disetujui / diterbitkan.
+     */
+    public function requestRevision(Request $request, Santri $santri)
+    {
+        $user = Auth::user();
+        if (! $user->isKepalaSekolah() && ! $user->isPimpinan() && ! $user->isSuperAdmin()) {
+            abort(403, 'Hanya Kepala Sekolah atau Pimpinan yang berwenang membuka revisi resmi dokumen rapor.');
+        }
+
+        $validated = $request->validate([
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
+            'revision_note' => 'required|string|min:5|max:1000',
+        ], [
+            'revision_note.required' => 'Alasan atau catatan revisi resmi wajib diisi.',
+            'revision_note.min' => 'Catatan revisi minimal 5 karakter agar dapat diaudit.',
+        ]);
+
+        $santri->loadMissing(['kelas', 'raporSemesters']);
+        $targetTaId = $request->filled('tahun_ajaran_id')
+            ? (int) $request->input('tahun_ajaran_id')
+            : ($santri->kelas?->tahun_ajaran_id ?? TahunAjaran::getAktif()?->id);
+
+        $rapor = $targetTaId ? $santri->raporSemesters->firstWhere('tahun_ajaran_id', $targetTaId) : null;
+        if (! $rapor || ! $rapor->isFinalLocked()) {
+            return redirect()->back()->with('error', "Rapor {$santri->nama_lengkap} belum terkunci sehingga dapat langsung diedit tanpa prosedur revisi.");
+        }
+
+        $note = trim($validated['revision_note']);
+        $currentVer = $rapor->version ?? 1;
+
+        $rapor->update([
+            'status_publikasi' => 'draft',
+            'workflow_stage' => 'revision',
+            'revision_note' => $note,
+            'revision_requested_by' => $user->id,
+            'revision_requested_at' => now(),
+        ]);
+
+        AdminActivityLog::log(
+            'revision',
+            "Membuka revisi resmi rapor {$santri->nama_lengkap} ({$santri->nis}, v{$currentVer}.0 -> revisi v".($currentVer + 1).".0): {$note}",
+            'RaporSemester',
+            $santri->id
+        );
+
+        return redirect()->back()->with(
+            'success',
+            "Prosedur revisi resmi dibuka untuk rapor {$santri->nama_lengkap}. Setelah diperbaiki dan disetujui ulang, dokumen akan terbit sebagai Versi v".($currentVer + 1).'.0.'
+        );
+    }
+
+    /**
+     * Komputasi metadata alur rapor seluruh santri pada workspace secara bulk (bebas N+1 query).
+     */
+    private function buildSantriWorkspaceMeta($santris, ?TahunAjaran $selectedYear): array
+    {
+        $summary = [
+            'total' => $santris->count(),
+            'draft' => 0,
+            'incomplete' => 0,
+            'ready_review' => 0,
+            'ready_approve' => 0,
+            'approved' => 0,
+            'published' => 0,
+            'revision' => 0,
+        ];
+
+        if ($santris->isEmpty()) {
+            return [[], $summary, collect()];
+        }
+
+        $taId = $selectedYear?->id;
+        $santriIds = $santris->pluck('id');
+
+        // Resolusi kelas periode per santri menggunakan relasi yang telah di-eager-load
+        $resolvedKelasBySantri = [];
+        $relevantKelasIds = collect();
+
+        foreach ($santris as $s) {
+            $k = $s->kelas;
+            if ($taId && (! $k || (int) $k->tahun_ajaran_id !== (int) $taId)) {
+                $histNew = $s->riwayatKelas
+                    ->where('tahun_ajaran_id', $taId)
+                    ->whereNotNull('kelas_baru_id')
+                    ->sortByDesc('id')
+                    ->first();
+                if ($histNew && $histNew->kelasBaru) {
+                    $k = $histNew->kelasBaru;
+                } else {
+                    $histOld = $s->riwayatKelas
+                        ->filter(fn ($r) => $r->kelasLama && (int) $r->kelasLama->tahun_ajaran_id === (int) $taId)
+                        ->sortByDesc('id')
+                        ->first();
+                    if ($histOld && $histOld->kelasLama) {
+                        $k = $histOld->kelasLama;
+                    }
+                }
+            }
+            $resolvedKelasBySantri[$s->id] = $k;
+            if ($k) {
+                $relevantKelasIds->push($k->id);
+            }
+        }
+
+        $relevantKelasIds = $relevantKelasIds->unique()->values();
+
+        // 1. Jumlah mata pelajaran terjadwal per kelas
+        $scheduledMapelByKelas = $relevantKelasIds->isNotEmpty()
+            ? JadwalPelajaran::whereIn('kelas_id', $relevantKelasIds)
+                ->when($taId, fn ($q) => $q->where('tahun_ajaran_id', $taId))
+                ->select('kelas_id', 'mata_pelajaran_id')
+                ->get()
+                ->groupBy('kelas_id')
+                ->map(fn ($rows) => $rows->pluck('mata_pelajaran_id')->filter()->unique()->count())
+            : collect();
+
+        // 2. Capaian nilai per santri pada periode terpilih
+        $gradesBySantri = Nilai::with('jadwalPelajaran:id,kelas_id,tahun_ajaran_id,mata_pelajaran_id')
+            ->whereIn('santri_id', $santriIds)
+            ->whereNotNull('nilai_akhir')
+            ->when($taId, function ($q) use ($taId) {
+                $q->whereHas('jadwalPelajaran', fn ($jq) => $jq->where('tahun_ajaran_id', $taId));
+            })
+            ->get()
+            ->groupBy('santri_id');
+
+        // 3. Ringkasan presensi per santri pada periode terpilih
+        $attendanceRows = Absensi::query()
+            ->whereIn('santri_id', $santriIds)
+            ->when($taId, function ($q) use ($taId) {
+                $q->whereHas('jadwalPelajaran', fn ($jq) => $jq->where('tahun_ajaran_id', $taId));
+            })
+            ->selectRaw('santri_id, status_kehadiran, COUNT(*) as total')
+            ->groupBy('santri_id', 'status_kehadiran')
+            ->get()
+            ->groupBy('santri_id');
+
+        $meta = [];
+        $archived = collect();
+
+        foreach ($santris as $s) {
+            $kelasPeriode = $resolvedKelasBySantri[$s->id] ?? $s->kelas;
+            $effectiveTaId = $taId ?? $kelasPeriode?->tahun_ajaran_id;
+            $rSem = $s->raporSemesterForYear($effectiveTaId);
+
+            $scheduledCount = $kelasPeriode ? (int) ($scheduledMapelByKelas->get($kelasPeriode->id, 0)) : 0;
+            $sGrades = $gradesBySantri->get($s->id, collect());
+            $gradedMapelCount = $sGrades
+                ->map(fn ($n) => $n->jadwalPelajaran?->mata_pelajaran_id ?? ('j-'.$n->jadwal_pelajaran_id))
+                ->unique()
+                ->count();
+            $avgScore = $sGrades->isNotEmpty() ? round((float) $sGrades->avg('nilai_akhir'), 2) : null;
+
+            $sAbs = $attendanceRows->get($s->id, collect())->keyBy('status_kehadiran');
+            $hadir = (int) ($sAbs->get('Hadir')?->total ?? 0);
+            $izin = (int) ($sAbs->get('Izin')?->total ?? 0);
+            $sakit = (int) ($sAbs->get('Sakit')?->total ?? 0);
+            $alpa = (int) ($sAbs->get('Alpa')?->total ?? 0);
+
+            $sikap = $rSem?->nilai_sikap;
+            $catatan = $rSem?->catatan_wali_kelas;
+
+            $missing = [];
+            if ($scheduledCount === 0 && $gradedMapelCount === 0) {
+                $missing[] = 'Nilai akademik belum tersedia';
+            } elseif ($scheduledCount > 0 && $gradedMapelCount < $scheduledCount) {
+                $missing[] = ($scheduledCount - $gradedMapelCount).' mapel belum dinilai';
+            }
+            if (! filled($sikap)) {
+                $missing[] = 'Predikat sikap belum dipilih';
+            }
+            if (! filled($catatan)) {
+                $missing[] = 'Catatan wali kelas belum diisi';
+            }
+
+            $isComplete = empty($missing);
+            $isLocked = $rSem ? $rSem->isFinalLocked() : false;
+            $version = max(1, (int) ($rSem?->version ?? 1));
+
+            if ($rSem && ($rSem->workflow_stage === 'published' || $rSem->published_at !== null) && $isLocked) {
+                $statusKey = 'published';
+                $statusLabel = 'Terbit';
+                $summary['published']++;
+            } elseif ($isLocked) {
+                $statusKey = 'approved';
+                $statusLabel = 'Disetujui';
+                $summary['approved']++;
+            } elseif ($rSem && $rSem->workflow_stage === 'revision') {
+                $statusKey = 'revision';
+                $statusLabel = 'Perlu Revisi';
+                $summary['revision']++;
+            } elseif ($isComplete && $rSem && ($rSem->workflow_stage === 'validated' || ($rSem->status_publikasi === 'published' && ! $isLocked))) {
+                $statusKey = 'ready_approve';
+                $statusLabel = 'Siap Disetujui';
+                $summary['ready_approve']++;
+            } elseif ($isComplete) {
+                $statusKey = 'ready_review';
+                $statusLabel = 'Siap Ditinjau';
+                $summary['ready_review']++;
+            } elseif ($rSem !== null || filled($sikap) || filled($catatan)) {
+                $statusKey = 'incomplete';
+                $statusLabel = 'Belum Lengkap';
+                $summary['incomplete']++;
+            } else {
+                $statusKey = 'draft';
+                $statusLabel = 'Draft';
+                $summary['draft']++;
+            }
+
+            if ($rSem && ($isLocked || $rSem->workflow_stage === 'revision' || $version > 1)) {
+                $archived->push($s);
+            }
+
+            $meta[$s->id] = [
+                'kelas_periode' => $kelasPeriode,
+                'kelas_nama' => $kelasPeriode?->nama_kelas ?? $s->kelas?->nama_kelas ?? '-',
+                'rapor' => $rSem,
+                'nilai_sikap' => $sikap,
+                'catatan_wali_kelas' => $catatan,
+                'scheduled_mapel_count' => $scheduledCount,
+                'graded_mapel_count' => $gradedMapelCount,
+                'avg_score' => $avgScore,
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'alpa' => $alpa,
+                'missing_items' => $missing,
+                'is_complete' => $isComplete,
+                'is_locked' => $isLocked,
+                'version' => $version,
+                'status_key' => $statusKey,
+                'status_label' => $statusLabel,
+                'approved_by_name' => $rSem?->approvedBy?->name,
+                'approved_at_label' => $rSem?->approved_at?->translatedFormat('d M Y H:i'),
+                'published_by_name' => $rSem?->publishedBy?->name,
+                'published_at_label' => $rSem?->published_at?->translatedFormat('d M Y H:i'),
+                'revision_note' => $rSem?->revision_note,
+                'revision_by_name' => $rSem?->revisionRequestedBy?->name,
+                'revision_at_label' => $rSem?->revision_requested_at?->translatedFormat('d M Y H:i'),
+            ];
+        }
+
+        return [$meta, $summary, $archived];
+    }
+
+    /**
+     * Periksa kelengkapan komponen wajib rapor santri sebelum validasi / approval.
+     */
+    private function assessSantriRaporReadiness(Santri $santri, ?int $targetTaId, ?RaporSemester $existingRapor = null): array
+    {
+        $taObj = $targetTaId ? TahunAjaran::find($targetTaId) : null;
+        $kelasPeriode = $this->raporService->resolveKelasForSantriInYear($santri, $taObj) ?? $santri->kelas;
+        $rapor = $existingRapor ?? ($targetTaId
+            ? RaporSemester::where('santri_id', $santri->id)->where('tahun_ajaran_id', $targetTaId)->first()
+            : null);
+
+        $scheduledCount = $kelasPeriode
+            ? JadwalPelajaran::where('kelas_id', $kelasPeriode->id)
+                ->when($targetTaId, fn ($q) => $q->where('tahun_ajaran_id', $targetTaId))
+                ->distinct('mata_pelajaran_id')
+                ->count('mata_pelajaran_id')
+            : 0;
+
+        $gradedCount = Nilai::where('santri_id', $santri->id)
+            ->whereNotNull('nilai_akhir')
+            ->when($targetTaId, function ($q) use ($targetTaId) {
+                $q->whereHas('jadwalPelajaran', fn ($jq) => $jq->where('tahun_ajaran_id', $targetTaId));
+            })
+            ->with('jadwalPelajaran:id,mata_pelajaran_id')
+            ->get()
+            ->map(fn ($n) => $n->jadwalPelajaran?->mata_pelajaran_id ?? ('j-'.$n->jadwal_pelajaran_id))
+            ->unique()
+            ->count();
+
+        $missing = [];
+        if ($scheduledCount === 0 && $gradedCount === 0) {
+            $missing[] = 'nilai akademik belum diinput';
+        } elseif ($scheduledCount > 0 && $gradedCount < $scheduledCount) {
+            $missing[] = ($scheduledCount - $gradedCount).' mata pelajaran belum dinilai';
+        }
+
+        if (! filled($rapor?->nilai_sikap)) {
+            $missing[] = 'predikat sikap belum dipilih';
+        }
+
+        if (! filled($rapor?->catatan_wali_kelas)) {
+            $missing[] = 'catatan wali kelas belum diisi';
+        }
+
+        return [
+            'ready' => empty($missing),
+            'missing' => $missing,
+            'rapor' => $rapor,
+            'kelas_id' => $kelasPeriode?->id ?? $santri->kelas_id,
+        ];
+    }
+
+    private function respondEvaluationError(Request $request, string $message)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => false,
+                'message' => $message,
+            ], 422);
+        }
+
+        return redirect()->back()->with('error', $message);
     }
 }

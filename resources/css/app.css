@@ -602,3 +602,31 @@ dialog::backdrop {
         margin: 0;
     }
 }
+
+/* ── Non-Modal Side Drawer for Rapor Evaluation (<dialog popover="manual">) ── */
+.rapor-side-drawer {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    margin: 0;
+    padding: 0;
+    width: min(27rem, 94dvw);
+    height: 100svh;
+    max-height: 100svh;
+    border: 0;
+}
+
+.rapor-side-drawer:is(:popover-open, .\:popover-open) {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Auto-Fitting Evaluation Textarea (field-sizing: content) ── */
+.rapor-eval-textarea {
+    field-sizing: content;
+    width: 100%;
+    height: auto;
+    min-block-size: 4.5lh;
+    max-block-size: 11lh;
+}

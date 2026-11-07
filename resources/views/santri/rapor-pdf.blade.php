@@ -243,7 +243,7 @@
                     NIY. {{ $kelasRapor->waliKelas->nomor_identitas ?? '-' }}
                 </td>
                 <td width="34%">
-                    Lamongan, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                    Lamongan, {{ (($raporSemester?->published_at ?? $raporSemester?->approved_at) ?? \Carbon\Carbon::now())->translatedFormat('d F Y') }}<br>
                     Pimpinan Pondok / Kepala Sekolah,
                     <div class="signature-space"></div>
                     <strong><u>{{ $kepalaMadrasah }}</u></strong><br>
@@ -251,5 +251,30 @@
                 </td>
             </tr>
         </table>
+    </div>
+
+    {{-- Rekam Keabsahan, Nomor Versi & Audit Penerbitan Dokumen --}}
+    @php
+        $docRapor = $raporSemester ?? null;
+        $docIsOfficial = $docRapor && $docRapor->isFinalLocked();
+        $docVersion = max(1, (int) ($docRapor?->version ?? 1));
+        $docApprover = $docRapor?->approvedBy?->name ?: $kepalaMadrasah;
+        $docTimestamp = ($docRapor?->published_at ?? $docRapor?->approved_at)?->translatedFormat('d M Y, H:i');
+    @endphp
+    <div style="margin-top: 12px; padding: 6px 10px; border: 1px solid {{ $docIsOfficial ? '#9ca3af' : '#d97706' }}; background-color: {{ $docIsOfficial ? '#f9fafb' : '#fffbeb' }}; font-size: 9.5px; color: #374151; page-break-inside: avoid;">
+        @if($docIsOfficial)
+            <strong>STATUS DOKUMEN RESMI TERVALIDASI</strong>
+            &nbsp;|&nbsp; <strong>Versi Dokumen: v{{ $docVersion }}.0</strong>{{ $docVersion > 1 ? ' (Dokumen Hasil Revisi Resmi)' : '' }}
+            &nbsp;|&nbsp; Disetujui oleh: <strong>{{ $docApprover }}</strong>
+            @if($docTimestamp)
+                &nbsp;|&nbsp; Waktu Penerbitan: <strong>{{ $docTimestamp }} WIB</strong>
+            @endif
+        @elseif($docRapor && $docRapor->workflow_stage === 'revision')
+            <strong style="color: #92400e;">STATUS: DALAM REVISI RESMI (Menuju Versi v{{ $docVersion + 1 }}.0)</strong>
+            &nbsp;|&nbsp; Dokumen pratinjau sementara selama masa perbaikan — belum mengikat secara akademik.
+        @else
+            <strong style="color: #92400e;">SALINAN DRAFT PRATINJAU — BELUM DISETUJUI</strong>
+            &nbsp;|&nbsp; Dokumen ini belum melalui persetujuan resmi Kepala Sekolah / Pimpinan.
+        @endif
     </div>
 @endsection
