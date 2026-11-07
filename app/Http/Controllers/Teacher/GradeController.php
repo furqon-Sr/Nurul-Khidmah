@@ -17,28 +17,87 @@ class GradeController extends Controller
     {
         $user = Auth::user();
         $activeYear = TahunAjaran::getAktif();
+        $academicYears = TahunAjaran::orderByDesc('id')->get();
 
-        $query = JadwalPelajaran::with(['tahunAjaran', 'kelas', 'mataPelajaran', 'pengajar', 'santris'])
-            ->withCount('nilais');
+        // Periode: 'semua' (atau parameter lama semua_periode), tahun ajaran tertentu, atau periode aktif.
+        $periodParam = $request->input('tahun_ajaran_id', $request->filled('semua_periode') ? 'semua' : $activeYear?->id);
+        $selectedYearId = $periodParam === 'semua' || $periodParam === null ? null : (int) $periodParam;
 
-        if ($activeYear && ! $request->filled('semua_periode')) {
-            $query->where('tahun_ajaran_id', $activeYear->id);
+        $query = JadwalPelajaran::with(['tahunAjaran', 'kelas', 'mataPelajaran', 'pengajar']);
+
+        if ($selectedYearId) {
+            $query->where('tahun_ajaran_id', $selectedYearId);
         }
 
-        if ($user->isTenagaPengajar()) {
-            $pengajarId = $user->pengajar?->id ?? 0;
-            $query->where('pengajar_id', $pengajarId);
+        $isTeacherView = $user->isTenagaPengajar();
+        if ($isTeacherView) {
+            $query->where('pengajar_id', $user->pengajar?->id ?? 0);
         }
 
         $schedules = $query->orderByHari()->orderBy('waktu_mulai')->get();
 
-        // Hitung jumlah santri aktif per kelas untuk indikator progres ketuntasan input nilai guru
-        $activeSantriCounts = Santri::where('status_santri', 'Aktif')
-            ->selectRaw('kelas_id, COUNT(*) as total')
+        // Santri aktif per kelas (daftar id, bukan sekadar jumlah) agar progres dihitung per santri.
+        $activeByClass = Santri::where('status_santri', 'Aktif')
+            ->get(['id', 'kelas_id'])
             ->groupBy('kelas_id')
-            ->pluck('total', 'kelas_id');
+            ->map(fn ($group) => $group->pluck('id')->all());
 
-        return view('teacher.grades.index', compact('schedules', 'activeYear', 'activeSantriCounts'));
+        $nilaiBySchedule = Nilai::whereIn('jadwal_pelajaran_id', $schedules->pluck('id'))
+            ->get(['jadwal_pelajaran_id', 'santri_id'])
+            ->groupBy('jadwal_pelajaran_id');
+
+        $items = $schedules->map(function (JadwalPelajaran $schedule) use ($activeByClass, $nilaiBySchedule) {
+            $activeIds = $activeByClass->get($schedule->kelas_id, []);
+            $expected = count($activeIds);
+
+            $rows = ($nilaiBySchedule->get($schedule->id) ?? collect())->whereIn('santri_id', $activeIds);
+
+            // Santri dihitung "sudah dinilai" bila memiliki baris nilai pada jadwal ini. Skema saat ini menyimpan
+            // komponen kosong sebagai 0 sehingga kelengkapan per komponen (Tugas/UTS/UAS) belum dapat dibedakan.
+            $complete = $rows->pluck('santri_id')->unique()->count();
+
+            $status = match (true) {
+                $expected === 0 => 'no_students',
+                $complete >= $expected => 'done',
+                $complete > 0 => 'in_progress',
+                default => 'not_started',
+            };
+
+            return [
+                'id' => $schedule->id,
+                'mapel' => $schedule->mataPelajaran->nama_mapel ?? '-',
+                'kelas' => $schedule->kelas->nama_kelas ?? '-',
+                'pengajar' => $schedule->pengajar->nama_lengkap ?? '-',
+                'periode' => ($schedule->tahunAjaran->nama_tahun_ajaran ?? '').' · '.($schedule->tahunAjaran->semester ?? ''),
+                'jadwal' => trim(($schedule->hari ?? '').' '.($schedule->waktu_mulai ? date('H:i', strtotime($schedule->waktu_mulai)) : '')),
+                'expected' => $expected,
+                'complete' => $complete,
+                'pending' => max(0, $expected - $complete),
+                'percent' => $expected > 0 ? (int) round($complete / $expected * 100) : null,
+                'status' => $status,
+                'url' => route('teacher.grades.edit', $schedule->id),
+            ];
+        })->values();
+
+        $withStudents = $items->where('expected', '>', 0);
+        $summary = [
+            'schedules' => $items->count(),
+            'pending_students' => $withStudents->sum('pending'),
+            'complete_entries' => $withStudents->sum('complete'),
+            'expected_entries' => $withStudents->sum('expected'),
+            'needs_action' => $withStudents->whereIn('status', ['not_started', 'in_progress'])->count(),
+            'without_students' => $items->where('status', 'no_students')->count(),
+        ];
+
+        return view('teacher.grades.index', [
+            'items' => $items,
+            'summary' => $summary,
+            'activeYear' => $activeYear,
+            'academicYears' => $academicYears,
+            'selectedYearId' => $selectedYearId,
+            'showTeacherName' => ! $isTeacherView,
+            'canViewClasses' => $user->isSuperAdmin() || $user->isPengurusAkademik() || $user->isKepalaSekolah(),
+        ]);
     }
 
     public function edit(JadwalPelajaran $schedule)
