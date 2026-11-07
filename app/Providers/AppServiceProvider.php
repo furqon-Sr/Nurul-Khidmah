@@ -69,6 +69,8 @@ class AppServiceProvider extends ServiceProvider
                     $result['footer_text'] = $allContents->get('footer_text')?->content_text;
                     $result['email'] = $allContents->get('contact_email')?->content_text;
                     $result['address'] = $allContents->get('contact_address')?->content_text;
+                    $result['staff_login_image_path'] = $allContents->get('staff_login_image')?->image_path;
+                    $result['wali_login_image_path'] = $allContents->get('wali_login_image')?->image_path;
 
                     // Store contents as plain array of arrays for cache safety
                     $result['contents'] = $allContents->map(fn ($c) => [
@@ -93,6 +95,8 @@ class AppServiceProvider extends ServiceProvider
             $settings->footer_text = $cachedArray['footer_text'] ?? null;
             $settings->email = $cachedArray['email'] ?? null;
             $settings->address = $cachedArray['address'] ?? null;
+            $settings->staff_login_image_path = $cachedArray['staff_login_image_path'] ?? null;
+            $settings->wali_login_image_path = $cachedArray['wali_login_image_path'] ?? null;
 
             // Rebuild $contents as a Collection keyed by section_key
             $contentsArray = $cachedArray['contents'] ?? [];

@@ -35,7 +35,7 @@
             <div class="bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-100 min-h-[580px]">
                 
                 <!-- Left Pane: Info (Dark Green) -->
-                <div class="w-full md:w-5/12 bg-[#045F33] p-8 md:p-12 text-white flex flex-col justify-between">
+                <div class="w-full md:w-5/12 bg-gradient-to-br from-[#045F33] to-[#004524] p-8 md:p-12 text-white flex flex-col justify-between">
                     
                     <div class="space-y-8">
                         <!-- Brand/Logo and description -->

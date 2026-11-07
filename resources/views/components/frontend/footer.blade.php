@@ -1,4 +1,4 @@
-<footer class="bg-[#045F33] pt-16 pb-8 text-white text-sm md:text-base">
+<footer class="bg-gradient-to-b from-[#045F33] to-[#004524] pt-16 pb-8 text-white text-sm md:text-base">
     <div class="container mx-auto px-4 md:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
             

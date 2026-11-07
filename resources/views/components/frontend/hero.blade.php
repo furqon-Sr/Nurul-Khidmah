@@ -11,7 +11,7 @@
                 this.activeSlide = (this.activeSlide + 1) % this.slidesCount;
             }, 6000);
         }
-    }" x-init="autoplay()" class="relative bg-[#045F33] min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden">
+    }" x-init="autoplay()" class="relative bg-gradient-to-r from-[#045F33] to-[#004524] min-h-[500px] md:min-h-[600px] flex items-center overflow-hidden">
         
         <!-- Slides -->
         @foreach($heroes as $index => $hero)
@@ -26,8 +26,8 @@
                  
                 <!-- Background Image covering full width -->
                 <div class="absolute inset-0 w-full h-full bg-black/25 mix-blend-multiply" style="background-image: url('{{ Storage::url($hero->image_path) }}'); background-size: cover; background-position: center;"></div>
-                <!-- Smooth gradient overlay: solid green on the left, fading to transparent on the right -->
-                <div class="absolute inset-0 bg-gradient-to-r from-[#045F33] via-[#045F33] via-45% to-transparent"></div>
+                <!-- Smooth gradient overlay: emerald green gradient on the left, fading to transparent on the right -->
+                <div class="absolute inset-0 bg-gradient-to-r from-[#045F33] via-[#004524] via-45% to-transparent"></div>
             </div>
         @endforeach
 
@@ -81,12 +81,12 @@
     </section>
 @else
     <!-- Fallback static hero section if no heroes added in database -->
-    <section class="relative bg-[#045F33] py-24 md:py-32 lg:py-40">
+    <section class="relative bg-gradient-to-r from-[#045F33] to-[#004524] py-24 md:py-32 lg:py-40">
         <div class="absolute inset-0 z-0 overflow-hidden">
             <!-- Background Image covering full width -->
             <div class="absolute inset-0 w-full h-full bg-black/20 mix-blend-multiply" style="background-image: url('https://images.unsplash.com/photo-1601625463695-1f9e2ed36b8e?q=80&w=1470&auto=format&fit=crop'); background-size: cover; background-position: center; opacity: 0.4;"></div>
-            <!-- Smooth gradient overlay: solid green on the left, fading to transparent on the right -->
-            <div class="absolute inset-0 bg-gradient-to-r from-[#045F33] via-[#045F33] via-45% to-transparent"></div>
+            <!-- Smooth gradient overlay: emerald green gradient on the left, fading to transparent on the right -->
+            <div class="absolute inset-0 bg-gradient-to-r from-[#045F33] via-[#004524] via-45% to-transparent"></div>
         </div>
 
         <div class="container mx-auto px-4 md:px-8 relative z-10">

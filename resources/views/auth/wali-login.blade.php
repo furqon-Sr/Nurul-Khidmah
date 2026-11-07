@@ -29,7 +29,7 @@
     <main class="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
         <div class="w-full max-w-md bg-white border border-emerald-900/10 rounded-3xl shadow-xl shadow-emerald-950/10 overflow-hidden">
             {{-- Header Ramah Wali Santri --}}
-            <div class="bg-gradient-to-br from-[#045F33] to-emerald-800 px-6 py-7 text-center text-white">
+            <div class="bg-gradient-to-br from-[#045F33] to-[#004524] px-6 py-7 text-center text-white">
                 <div class="mx-auto mb-3 h-16 w-16 rounded-full bg-white p-1.5 shadow-md flex items-center justify-center overflow-hidden">
                     @if(isset($settings->logo_path) && $settings->logo_path)
                         <img src="{{ asset('storage/' . $settings->logo_path) }}" alt="Logo Nurul Khidmah" class="h-full w-full object-contain" />
@@ -122,7 +122,7 @@
                     </div>
 
                     <button type="submit"
-                            class="w-full min-h-12 rounded-2xl bg-[#045F33] hover:bg-[#034a28] px-5 py-3.5 text-base font-bold text-white shadow-lg shadow-[#045F33]/20 transition flex items-center justify-center gap-2">
+                            class="w-full min-h-12 rounded-2xl bg-gradient-to-r from-[#045F33] to-[#004524] hover:from-[#034a28] hover:to-[#00381d] px-5 py-3.5 text-base font-bold text-white shadow-lg shadow-[#045F33]/20 transition flex items-center justify-center gap-2">
                         Masuk ke Portal Wali Santri →
                     </button>
                 </form>

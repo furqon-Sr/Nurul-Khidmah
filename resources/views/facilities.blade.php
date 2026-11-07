@@ -33,7 +33,7 @@
         <div class="container mx-auto px-4 md:px-8 max-w-6xl">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 @forelse($facilities as $facility)
-                    <div class="flex flex-col sm:flex-row bg-[#045F33] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                    <div class="flex flex-col sm:flex-row bg-gradient-to-br from-[#045F33] to-[#004524] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
                         <!-- Image Container -->
                         <div class="sm:w-2/5 h-48 sm:h-auto shrink-0 relative">
                             <img src="{{ Storage::url($facility->icon_or_image_path) }}" alt="{{ $facility->title }}" class="absolute inset-0 w-full h-full object-cover">

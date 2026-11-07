@@ -1,4 +1,4 @@
-<section class="py-20 bg-[#045F33]">
+<section class="py-20 bg-gradient-to-br from-[#045F33] to-[#004524]">
     <div class="container mx-auto px-4 md:px-8">
         <h2 class="text-3xl md:text-4xl font-bold text-[#F2C94C] text-center mb-12">
             VISI & MISI

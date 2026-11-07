@@ -88,10 +88,24 @@ class SiteSettingsController extends Controller
                 'about_kyai_name', 'about_kyai_text_1', 'about_kyai_text_2', 'about_kyai_image',
             ]);
         }
+        if ($formType === 'login_staf' || $formType === 'all') {
+            $definedKeys = array_merge($definedKeys, [
+                'staff_login_image', 'staff_login_title', 'staff_login_subtitle',
+            ]);
+        }
 
         // Validate and Update Page Contents
         foreach ($definedKeys as $key) {
             $content = PageContent::where('section_key', $key)->first();
+
+            // Cek apakah ada permintaan penghapusan gambar
+            if ($request->boolean("remove_{$key}")) {
+                if ($content && $content->image_path) {
+                    Storage::disk('public')->delete($content->image_path);
+                    $content->update(['image_path' => null]);
+                }
+                continue;
+            }
             
             // If it's an image or file field
             if (str_ends_with($key, '_image') || $key === 'logo' || $key === 'favicon' || $key === 'education_fee_pdf' || $key === 'kop_surat') {
@@ -146,6 +160,11 @@ class SiteSettingsController extends Controller
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
         \App\Models\AdminActivityLog::log('update', "Memperbarui pengaturan situs (bagian: {$formType})");
 
-        return redirect()->route('settings.index')->with('success', 'Pengaturan situs berhasil diperbarui.');
+        $redirectUrl = route('settings.index');
+        if ($formType === 'login_staf') {
+            $redirectUrl .= '?tab=login_staf';
+        }
+
+        return redirect()->to($redirectUrl)->with('success', 'Pengaturan situs berhasil diperbarui.');
     }
 }

@@ -33,7 +33,7 @@
                         </div>
                     @endif
 
-                    <div x-data="{ activeTab: 'identitas' }">
+                    <div x-data="{ activeTab: '{{ request('tab', 'identitas') }}' }">
                         <!-- Tabs Navigation -->
                         <div class="border-b border-gray-200 mb-6">
                             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
@@ -51,6 +51,12 @@
                                     :class="activeTab === 'konten' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
                                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                                     Konten Halaman
+                                </button>
+                                <button @click="activeTab = 'login_staf'" 
+                                    :class="activeTab === 'login_staf' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'"
+                                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm inline-flex items-center gap-1.5">
+                                    <span>🔐</span>
+                                    <span>Login Staf</span>
                                 </button>
                             </nav>
                         </div>
@@ -267,6 +273,139 @@
 
                         </div>
                         {{-- /Tab 3 --}}
+
+                        <!-- Tab 4: Halaman Login Staf -->
+                        <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" x-show="activeTab === 'login_staf'" x-cloak>
+                            @csrf
+                            <input type="hidden" name="form_type" value="login_staf">
+
+                            <div class="space-y-6">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-100 dark:border-slate-800">
+                                    <div>
+                                        <h3 class="text-lg leading-6 font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                            <span>🖼️</span> Visual &amp; Konten Halaman Login Staf
+                                        </h3>
+                                        <p class="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                                            Kelola gambar banner visual di sisi kanan dan teks pada formulir login portal staf (<code class="bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-xs text-green-700 font-mono">/portal-staf</code>).
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('staff.login') }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0D6B3A] hover:underline bg-green-50 hover:bg-green-100 dark:bg-green-950/40 px-3.5 py-2 rounded-xl transition">
+                                        <span>Buka Halaman Login Staf ↗</span>
+                                    </a>
+                                </div>
+
+                                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                    {{-- Kolom Pengaturan (Kiri) --}}
+                                    <div class="lg:col-span-7 space-y-6">
+                                        {{-- Field Upload Banner Image --}}
+                                        <div class="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4">
+                                            <div>
+                                                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
+                                                    Gambar Banner Visual (Sisi Kanan)
+                                                </h4>
+                                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                                    Unggah gambar foto gedung pesantren, kegiatan belajar, atau grafis kustom untuk menggantikan tampilan ilustrasi bawaan.
+                                                </p>
+                                            </div>
+
+                                            @include('partials.image-crop-field', [
+                                                'name' => 'staff_login_image',
+                                                'label' => 'Pilih Gambar Banner Baru',
+                                                'aspectRatio' => null,
+                                                'aspectLabel' => 'Bebas / Vertikal (Rekomendasi rasio potret 4:5 atau 3:4)',
+                                                'hint' => 'Format: JPG, JPEG, PNG, WEBP. Maksimal 20MB. Anda dapat memotong area gambar pada modal cropper.',
+                                                'currentImageUrl' => isset($contents['staff_login_image']) && $contents['staff_login_image']->image_path ? asset('storage/' . $contents['staff_login_image']->image_path) : null,
+                                            ])
+
+                                            @if(isset($contents['staff_login_image']) && $contents['staff_login_image']->image_path)
+                                                <div class="mt-4 p-3.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl flex items-center justify-between">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                        <span class="text-xs font-medium text-slate-700 dark:text-slate-300">Banner kustom aktif terpasang</span>
+                                                    </div>
+                                                    <label class="inline-flex items-center gap-2 text-xs font-semibold text-rose-700 dark:text-rose-400 cursor-pointer hover:underline">
+                                                        <input type="checkbox" name="remove_staff_login_image" value="1" class="rounded border-rose-300 text-rose-600 focus:ring-rose-500">
+                                                        <span>Hapus gambar (kembali ke grafis bawaan)</span>
+                                                    </label>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Teks Sambutan & Subjudul --}}
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                                                    Judul Sambutan
+                                                </label>
+                                                <input type="text" name="staff_login_title" value="{{ old('staff_login_title', $contents['staff_login_title']->content_text ?? 'Welcome Back') }}" placeholder="Welcome Back" class="w-full rounded-xl border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100 text-sm">
+                                                <p class="text-xs text-gray-500 mt-1">Ditampilkan pada judul formulir login (ikon lambaian 👋 disematkan otomatis).</p>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                                                    Subjudul / Tagline Singkat
+                                                </label>
+                                                <input type="text" name="staff_login_subtitle" value="{{ old('staff_login_subtitle', $contents['staff_login_subtitle']->content_text ?? 'Nurul Khidmah – Where Every Event Begins With Insight.') }}" placeholder="Contoh: Nurul Khidmah – Where Every Event Begins With Insight." class="w-full rounded-xl border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900 dark:text-slate-100 text-sm">
+                                                <p class="text-xs text-gray-500 mt-1">Ditampilkan di bawah judul sambutan.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Kolom Pratinjau (Kanan) --}}
+                                    <div class="lg:col-span-5">
+                                        <div class="border border-slate-200 dark:border-slate-700 rounded-2xl p-4 bg-slate-50/60 dark:bg-slate-900/60 space-y-3">
+                                            <div class="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
+                                                <span>Pratinjau Banner Sisi Kanan</span>
+                                                <span class="text-[11px] font-normal text-slate-400">Sesuai Referensi</span>
+                                            </div>
+
+                                            <div class="w-full h-80 rounded-2xl overflow-hidden relative shadow-md flex items-center justify-center border border-slate-200/80 bg-slate-100">
+                                                @if(isset($contents['staff_login_image']) && $contents['staff_login_image']->image_path)
+                                                    <img src="{{ asset('storage/' . $contents['staff_login_image']->image_path) }}" alt="Pratinjau Banner" class="w-full h-full object-cover">
+                                                @else
+                                                    {{-- Default reference art preview --}}
+                                                    <div class="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#EBF5F0] via-[#E2EFE9] to-[#CDE4DA] flex items-center justify-center p-4">
+                                                        {{-- Top right orb --}}
+                                                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#045F33] via-[#02522c] to-[#004524] opacity-90 shadow-xl"></div>
+                                                        <div class="absolute top-3 right-10 w-1.5 h-1.5 rounded-full bg-[#004524]"></div>
+                                                        <div class="absolute top-9 right-14 w-2 h-2 rounded-full bg-[#045F33]"></div>
+
+                                                        {{-- Bottom left orb --}}
+                                                        <div class="absolute -bottom-10 -left-10 w-28 h-28 rounded-full bg-gradient-to-tr from-[#004524] via-[#02522c] to-[#045F33] opacity-90 shadow-xl"></div>
+                                                        <div class="absolute bottom-6 left-16 w-1.5 h-1.5 rounded-full bg-[#004524]"></div>
+
+                                                        {{-- Center emblem & title --}}
+                                                        <div class="relative z-10 flex items-center gap-3">
+                                                            <div class="w-14 h-14 rounded-full bg-white shadow-lg flex items-center justify-center p-2 border border-white">
+                                                                @if(isset($contents['logo']) && $contents['logo']->image_path)
+                                                                    <img src="{{ asset('storage/' . $contents['logo']->image_path) }}" alt="Logo" class="max-h-full max-w-full object-contain">
+                                                                @else
+                                                                    <span class="text-xs font-black text-slate-800">NK</span>
+                                                                @endif
+                                                            </div>
+                                                            <span class="text-xl font-black text-slate-900 tracking-tight">
+                                                                {{ $contents['site_name']->content_text ?? 'Eventure' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            <p class="text-[11px] text-slate-500 dark:text-slate-400 text-center">
+                                                Jika gambar kustom belum diunggah, grafis latar default (warna perak-kebiruan, orbs 3D, emblem putih) akan ditampilkan otomatis.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 border-t border-gray-200 dark:border-slate-700 pt-5 flex justify-end">
+                                    <button type="submit" class="bg-[#0D6B3A] text-white px-6 py-2.5 rounded-xl hover:bg-green-800 transition shadow font-medium text-sm flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <span>Simpan Pengaturan Login Staf</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
 
                     </div>{{-- /x-data tabs --}}
 
