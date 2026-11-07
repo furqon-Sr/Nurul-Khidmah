@@ -93,6 +93,11 @@ class SiteSettingsController extends Controller
                 'staff_login_image', 'staff_login_title', 'staff_login_subtitle',
             ]);
         }
+        if ($formType === 'login_wali' || $formType === 'all') {
+            $definedKeys = array_merge($definedKeys, [
+                'wali_login_image', 'wali_login_title', 'wali_login_subtitle',
+            ]);
+        }
 
         // Validate and Update Page Contents
         foreach ($definedKeys as $key) {
@@ -161,8 +166,8 @@ class SiteSettingsController extends Controller
         \App\Models\AdminActivityLog::log('update', "Memperbarui pengaturan situs (bagian: {$formType})");
 
         $redirectUrl = route('settings.index');
-        if ($formType === 'login_staf') {
-            $redirectUrl .= '?tab=login_staf';
+        if ($formType === 'login_staf' || $formType === 'login_wali') {
+            $redirectUrl .= '?tab=' . $formType;
         }
 
         return redirect()->to($redirectUrl)->with('success', 'Pengaturan situs berhasil diperbarui.');
