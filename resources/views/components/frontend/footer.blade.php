@@ -1,11 +1,11 @@
-<footer class="bg-gray-900 pt-16 pb-8 text-white text-sm md:text-base">
+<footer class="bg-gradient-to-br from-primary-700 to-primary-900 pt-16 pb-8 text-white text-sm md:text-base">
     <div class="container mx-auto px-4 md:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
             
             <!-- Yayasan -->
             <div>
                 <h4 class="text-secondary-400 font-extrabold text-base mb-6 uppercase tracking-wider">YAYASAN AL-MACHMUDI BANTANY</h4>
-                <p class="text-gray-300 leading-relaxed mb-6 font-medium">
+                <p class="text-primary-50 leading-relaxed mb-6 font-medium">
                     {{ isset($settings) && !empty($settings->footer_text) ? $settings->footer_text : "Pondok Pesantren Nurul Khidmah adalah lembaga pendidikan Islam terpadu yang bertekad mencetak generasi qur'ani yang mandiri, berakhlak mulia, dan berdaya saing global." }}
                 </p>
                 <!-- Social Icons -->
@@ -32,7 +32,7 @@
             <!-- Unit Pendidikan -->
             <div>
                 <h4 class="text-secondary-400 font-extrabold text-base mb-6 uppercase tracking-wider">UNIT PENDIDIKAN</h4>
-                <ul class="space-y-3 text-gray-300 font-medium">
+                <ul class="space-y-3 text-primary-50 font-medium">
                     <li>• Madrasah Tsanawiyah (MTs)</li>
                     <li>• Madrasah Aliyah (MA)</li>
                     <li>• SMK Otomotif</li>
@@ -40,25 +40,25 @@
                 </ul>
 
                 <h4 class="text-secondary-400 font-extrabold text-base mt-8 mb-4 uppercase tracking-wider">JAM OPERASIONAL</h4>
-                <p class="text-gray-300 font-medium">Senin - Sabtu: 08:00 - 15:00 WIB</p>
+                <p class="text-primary-50 font-medium">Senin - Sabtu: 08:00 - 15:00 WIB</p>
             </div>
 
             <!-- Sekretariat -->
             <div>
                 <h4 class="text-secondary-400 font-extrabold text-base mb-6 uppercase tracking-wider">SEKRETARIAT & CONTACT</h4>
                 
-                <div class="flex items-center justify-center md:justify-start gap-3 text-gray-300 mb-3 font-medium">
+                <div class="flex items-center justify-center md:justify-start gap-3 text-primary-50 mb-3 font-medium">
                     <svg class="w-5 h-5 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     <span>{{ isset($settings) && !empty($settings->email) ? $settings->email : 'Sekretariat@media.ppnk' }}</span>
                 </div>
 
-                <div class="flex items-center justify-center md:justify-start gap-3 text-gray-300 mb-8 font-medium">
+                <div class="flex items-center justify-center md:justify-start gap-3 text-primary-50 mb-8 font-medium">
                     <svg class="w-5 h-5 text-secondary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     <span>{{ isset($settings) && !empty($settings->whatsapp) ? $settings->whatsapp : '08 54 77 68 98 11' }}</span>
                 </div>
 
                 <h4 class="text-secondary-400 font-extrabold text-base mb-4 uppercase tracking-wider text-center md:text-left">ALAMAT LEMBAGA</h4>
-                <div class="flex items-start justify-center md:justify-start gap-3 text-gray-300 font-medium text-center md:text-left">
+                <div class="flex items-start justify-center md:justify-start gap-3 text-primary-50 font-medium text-center md:text-left">
                     <svg class="w-5 h-5 text-secondary-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     <p>{{ isset($settings) && !empty($settings->address) ? $settings->address : 'Wringinanom, Lopang, Kembang Bahu, Kabupaten Lamongan, Jawa Timur' }}</p>
                 </div>
@@ -66,7 +66,7 @@
 
         </div>
 
-        <div class="border-t border-gray-700 pt-8 text-center text-gray-400 text-xs md:text-sm font-medium">
+        <div class="border-t border-primary-500/40 pt-8 text-center text-primary-100 text-xs md:text-sm font-medium">
             &copy; {{ date('Y') }} Pondok Pesantren Nurul Khidmah - Hak Cipta Dilindungi Undang-Undang.
         </div>
     </div>
