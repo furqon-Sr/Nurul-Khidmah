@@ -1,125 +1,130 @@
 @extends('layouts.admin')
 
-@section('title', 'Transkrip Nilai Ananda')
+@section('title', 'Rincian Nilai & KHS Santri')
 
 @section('content')
 @php
-    $queryParams = array_filter([
-        'santri_id' => auth()->user()->isPengurusAkademik() && isset($santri) ? $santri->id : null,
-        'tahun_ajaran_id' => $tahunAjaran?->id,
-        'tingkat' => auth()->user()->isPengurusAkademik() ? request('tingkat') : null,
-        'filter_kelas_id' => auth()->user()->isPengurusAkademik() ? request('filter_kelas_id') : null,
-        'search' => auth()->user()->isPengurusAkademik() ? request('search') : null,
-    ], fn ($v) => $v !== null && $v !== '');
     $displayKelas = $kelasPeriode ?? $santri->kelas;
+    $activeCatatan = $catatanWaliKelas ?? null;
+    $activeSikap = $nilaiSikap ?? null;
+    $hasValidGrades = ($gradedCount ?? collect($subjectRows ?? [])->where('has_nilai', true)->count()) > 0;
 @endphp
 
-@include('santri.partials.portal-filter-bar', ['actionRoute' => route('wali.grades')])
-
-<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div>
-        <h1 id="wali-grades-caption" class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Transkrip Nilai Spesifik Per Mata Pelajaran (KHS)</h1>
-        <p class="text-gray-600 dark:text-gray-400 text-sm">Rincian nilai spesifik tiap mata pelajaran: Tugas (30%), UTS (30%), UAS (40%), Nilai Akhir, Predikat, serta Jumlah &amp; Rata-Rata.</p>
-    </div>
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('wali.dashboard', $queryParams) }}" class="min-h-11 inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 text-gray-800 dark:text-gray-200 text-sm font-semibold rounded-xl transition">
-            ← Dashboard
-        </a>
-        <a href="{{ route('wali.rapor-pdf', $queryParams) }}" target="_blank" class="min-h-11 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold rounded-xl transition text-sm inline-flex items-center gap-2 shadow-sm">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Unduh Rapor Ananda (PDF)
-        </a>
-    </div>
-</div>
-
-@php
-    $activeCatatan = $catatanWaliKelas ?? $santri->catatan_wali_kelas;
-    $activeSikap = $nilaiSikap ?? $santri->nilai_sikap;
-@endphp
+@include('santri.partials.portal-filter-bar', [
+    'actionRoute' => route('wali.grades'),
+    'headingId' => 'wali-grades-heading',
+])
 
 @if($activeSikap || $activeCatatan)
-<div class="mb-6 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-    <div>
-        <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Catatan Evaluasi Wali Kelas ({{ $displayKelas->waliKelas->nama_lengkap ?? '-' }})</p>
-        <p class="text-sm text-gray-800 dark:text-gray-200 mt-1 italic">"{{ $activeCatatan ?: 'Pertahankan ketekunan belajar dan adab di pesantren.' }}"</p>
+    <div class="mb-5 rounded-xl border border-gray-200/90 bg-white p-4 sm:p-5 shadow-2xs dark:border-gray-800 dark:bg-gray-900">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Catatan Evaluasi Wali Kelas ({{ $displayKelas->waliKelas->nama_lengkap ?? '-' }})
+            </h2>
+            @if($activeSikap)
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-semibold text-primary-700 ring-1 ring-inset ring-primary-600/20 dark:bg-primary-500/15 dark:text-primary-300">
+                    Sikap / Kepesantrenan: {{ $activeSikap }}
+                </span>
+            @endif
+        </div>
+        <p class="text-sm text-gray-700 dark:text-gray-300">
+            "{{ $activeCatatan ?: 'Pertahankan ketekunan belajar dan adab di pesantren.' }}"
+        </p>
     </div>
-    @if($activeSikap)
-        <span class="px-3 py-1.5 text-xs font-extrabold rounded-lg bg-emerald-600 text-white shrink-0 w-fit">
-            Sikap / Kepesantrenan: {{ $activeSikap }}
-        </span>
-    @endif
-</div>
 @endif
 
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-    <div class="p-4 bg-teal-50 dark:bg-teal-950/40 border-b border-teal-100 dark:border-teal-900/40 flex flex-wrap justify-between items-center gap-3 text-sm">
-        <div class="flex flex-wrap items-center gap-4">
-            <span class="font-semibold text-teal-900 dark:text-teal-300">Jumlah Nilai: <strong class="text-base text-teal-950 dark:text-white">{{ number_format($jumlahNilai ?? 0, 2) }}</strong></span>
-            <span class="font-semibold text-teal-900 dark:text-teal-300">Rata-Rata Akhir: <strong class="text-base text-teal-950 dark:text-white">{{ number_format($gpa, 2) }}</strong></span>
+<div class="rounded-xl border border-gray-200/90 bg-white shadow-2xs dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 sm:px-5 py-3.5 dark:border-gray-800/80">
+        <div>
+            <h2 id="wali-grades-caption" class="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+                Transkrip Nilai per Mata Pelajaran
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+                Bobot komponen: Tugas 30% · UTS 30% · UAS 40%
+            </p>
         </div>
-        <span class="text-xs text-teal-700 dark:text-teal-400">Ananda: {{ $santri->nama_lengkap }} (NIS: {{ $santri->nis }} • {{ $displayKelas->nama_kelas ?? '-' }})</span>
+
+        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+            @if($hasValidGrades)
+                <span class="rounded-lg bg-gray-100 px-3 py-1 font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                    Jumlah Nilai: <strong class="font-bold text-gray-900 dark:text-white tabular-nums">{{ number_format($jumlahNilai ?? 0, 2) }}</strong>
+                </span>
+                <span class="rounded-lg bg-primary-50 px-3 py-1 font-medium text-primary-800 dark:bg-primary-500/15 dark:text-primary-300">
+                    Rata-Rata: <strong class="font-bold tabular-nums">{{ number_format($gpa, 2) }}</strong>
+                </span>
+            @else
+                <span class="rounded-lg bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    Rata-Rata: <strong>—</strong> (Belum ada nilai)
+                </span>
+            @endif
+        </div>
     </div>
 
-    <div tabindex="0" role="region" aria-labelledby="wali-grades-caption" class="overflow-auto max-w-full max-h-[75vh]">
-        <table class="table-builder min-w-full border-separate border-spacing-0">
-            <thead class="sticky top-0 z-10">
+    <div tabindex="0" role="region" aria-labelledby="wali-grades-caption" class="overflow-x-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500">
+        <table class="min-w-[780px] w-full border-collapse text-left">
+            <thead class="border-b border-gray-100 bg-white dark:border-gray-800/80 dark:bg-gray-900">
                 <tr>
-                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 sticky left-0 z-20">Mata Pelajaran</th>
-                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Pengajar</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Tugas (30%)</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">UTS (30%)</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">UAS (40%)</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Nilai Akhir</th>
-                    <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Predikat</th>
-                    <th scope="col" class="px-5 py-3.5 text-left text-xs font-bold text-gray-600 border-b border-gray-200 dark:border-gray-700">Catatan Evaluasi</th>
+                    <th scope="col" class="px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400">Mata Pelajaran</th>
+                    <th scope="col" class="px-4 py-3 text-xs font-medium text-gray-500 dark:text-gray-400">Pengajar</th>
+                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Tugas (30%)</th>
+                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">UTS (30%)</th>
+                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">UAS (40%)</th>
+                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Nilai Akhir</th>
+                    <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Predikat</th>
+                    <th scope="col" class="px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400">Catatan Evaluasi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-100 bg-white dark:divide-gray-800/80 dark:bg-gray-900">
                 @forelse($subjectRows ?? [] as $row)
-                @php
-                    $gradeColor = match($row->grade) {
-                        'A' => 'bg-emerald-100 text-emerald-800',
-                        'B' => 'bg-blue-100 text-blue-800',
-                        'C' => 'bg-amber-100 text-amber-800',
-                        'D' => 'bg-orange-100 text-orange-800',
-                        'E' => 'bg-rose-100 text-rose-800',
-                        default => 'bg-gray-100 text-gray-600',
-                    };
-                @endphp
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-                    <th scope="row" class="px-5 py-4 whitespace-nowrap text-left font-bold text-gray-900 dark:text-gray-100 text-sm border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 sticky left-0 z-[1]">
-                        {{ $row->nama_mapel }}
-                    </th>
-                    <td class="px-5 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                        {{ $row->pengajar_nama }}
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                        {{ $row->has_nilai && $row->nilai_tugas !== null ? number_format($row->nilai_tugas, 2) : '-' }}
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                        {{ $row->has_nilai && $row->nilai_uts !== null ? number_format($row->nilai_uts, 2) : '-' }}
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                        {{ $row->has_nilai && $row->nilai_uas !== null ? number_format($row->nilai_uas, 2) : '-' }}
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-bold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700">
-                        {{ $row->has_nilai && $row->nilai_akhir !== null ? number_format($row->nilai_akhir, 2) : '-' }}
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-center border-b border-gray-200 dark:border-gray-700">
-                        <span class="px-2.5 py-1 text-xs font-extrabold rounded {{ $gradeColor }}">
-                            {{ $row->has_nilai ? ($row->grade ?? '-') : '-' }}
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-xs text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                        {{ $row->has_nilai ? ($row->keterangan ?: '-') : 'Menunggu input nilai pengajar' }}
-                    </td>
-                </tr>
+                    @php
+                        $gradeColor = match ($row->grade) {
+                            'A' => 'bg-success-50 text-success-700 ring-success-600/20 dark:bg-success-500/15 dark:text-success-300',
+                            'B' => 'bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-500/15 dark:text-blue-300',
+                            'C' => 'bg-warning-50 text-warning-800 ring-warning-600/20 dark:bg-warning-400/15 dark:text-warning-300',
+                            'D' => 'bg-orange-50 text-orange-700 ring-orange-600/20 dark:bg-orange-500/15 dark:text-orange-300',
+                            'E' => 'bg-error-50 text-error-700 ring-error-600/20 dark:bg-error-500/15 dark:text-error-300',
+                            default => 'bg-gray-100 text-gray-500 ring-gray-300/40 dark:bg-gray-800 dark:text-gray-400',
+                        };
+                    @endphp
+                    <tr class="h-14 hover:bg-gray-50/75 dark:hover:bg-gray-800/40 transition-colors">
+                        <th scope="row" class="px-5 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {{ $row->nama_mapel }}
+                        </th>
+                        <td class="px-4 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                            {{ $row->pengajar_nama }}
+                        </td>
+                        <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 dark:text-gray-300 tabular-nums">
+                            {{ $row->has_nilai && $row->nilai_tugas !== null ? number_format($row->nilai_tugas, 2) : '—' }}
+                        </td>
+                        <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 dark:text-gray-300 tabular-nums">
+                            {{ $row->has_nilai && $row->nilai_uts !== null ? number_format($row->nilai_uts, 2) : '—' }}
+                        </td>
+                        <td class="px-3 py-3 whitespace-nowrap text-center text-sm text-gray-700 dark:text-gray-300 tabular-nums">
+                            {{ $row->has_nilai && $row->nilai_uas !== null ? number_format($row->nilai_uas, 2) : '—' }}
+                        </td>
+                        <td class="px-3 py-3 whitespace-nowrap text-center text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+                            {{ $row->has_nilai && $row->nilai_akhir !== null ? number_format($row->nilai_akhir, 2) : '—' }}
+                        </td>
+                        <td class="px-3 py-3 whitespace-nowrap text-center">
+                            @if($row->has_nilai && $row->grade)
+                                <span class="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-bold ring-1 ring-inset {{ $gradeColor }}">
+                                    {{ $row->grade }}
+                                </span>
+                            @else
+                                <span class="text-xs text-gray-400">—</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3 text-xs text-gray-500 dark:text-gray-400">
+                            {{ $row->has_nilai ? ($row->keterangan ?: '—') : 'Belum ada nilai' }}
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="8" class="px-6 py-10 text-center text-gray-600 text-sm">
-                        Belum ada mata pelajaran / nilai pada periode semester ini.
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Belum ada mata pelajaran atau nilai pada periode ini</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Rincian nilai akan tampil setelah jadwal dan komponen nilai diinput oleh pengajar.</p>
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

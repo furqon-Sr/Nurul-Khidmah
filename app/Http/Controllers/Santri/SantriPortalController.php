@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Absensi;
 use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
+use App\Models\Nilai;
 use App\Models\PageContent;
 use App\Models\Santri;
 use App\Models\TahunAjaran;
 use App\Services\AcademicRaporService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -25,6 +27,7 @@ class SantriPortalController extends Controller
     {
         [$santri, $allSantrisForPreview, $previewClasses, $totalMatchingSantris] = $this->resolveSantriForPortal($request);
         $activeYear = TahunAjaran::getAktif();
+        $todayName = $this->resolveTodayIndonesianName();
 
         if (! $santri) {
             return view('santri.dashboard', [
@@ -36,11 +39,19 @@ class SantriPortalController extends Controller
                 'previewClasses' => $previewClasses,
                 'totalMatchingSantris' => $totalMatchingSantris,
                 'schedules' => collect(),
+                'todayName' => $todayName,
+                'todaySchedules' => collect(),
                 'totalHadir' => 0,
                 'totalIzin' => 0,
                 'totalSakit' => 0,
                 'totalAlpa' => 0,
+                'totalPertemuan' => 0,
+                'gradedCount' => 0,
+                'totalMapelCount' => 0,
                 'gpa' => 0,
+                'subjectRows' => collect(),
+                'chartSubjects' => [],
+                'semesterTrend' => [],
             ]);
         }
 
@@ -59,6 +70,49 @@ class SantriPortalController extends Controller
                 ->get();
         }
 
+        $todayAliases = $todayName === 'Minggu' ? ['minggu', 'ahad'] : [strtolower($todayName)];
+        $todaySchedules = $schedules
+            ->filter(fn ($s) => in_array(strtolower(trim((string) $s->hari)), $todayAliases, true))
+            ->values();
+
+        $totalPertemuan = $raporData['totalHadir']
+            + $raporData['totalIzin']
+            + $raporData['totalSakit']
+            + $raporData['totalAlpa']
+            + ($raporData['totalTerlambat'] ?? 0)
+            + ($raporData['totalBolos'] ?? 0);
+
+        $chartSubjects = $raporData['subjectRows']
+            ->filter(fn ($r) => $r->has_nilai && $r->nilai_akhir !== null)
+            ->map(fn ($r) => [
+                'label' => $r->nama_mapel,
+                'score' => round((float) $r->nilai_akhir, 2),
+                'grade' => $r->grade ?? '-',
+            ])
+            ->values()
+            ->all();
+
+        $semesterTrend = [];
+        if ($availableYears->isNotEmpty()) {
+            $avgByYear = Nilai::query()
+                ->join('jadwal_pelajarans', 'nilais.jadwal_pelajaran_id', '=', 'jadwal_pelajarans.id')
+                ->where('nilais.santri_id', $santri->id)
+                ->whereNotNull('nilais.nilai_akhir')
+                ->whereIn('jadwal_pelajarans.tahun_ajaran_id', $availableYears->pluck('id'))
+                ->groupBy('jadwal_pelajarans.tahun_ajaran_id')
+                ->selectRaw('jadwal_pelajarans.tahun_ajaran_id as year_id, ROUND(AVG(nilais.nilai_akhir), 2) as avg_score')
+                ->pluck('avg_score', 'year_id');
+
+            foreach ($availableYears->sortBy('id') as $yr) {
+                if (isset($avgByYear[$yr->id])) {
+                    $semesterTrend[] = [
+                        'label' => $yr->nama_tahun_ajaran.' · '.$yr->semester,
+                        'avg' => (float) $avgByYear[$yr->id],
+                    ];
+                }
+            }
+        }
+
         return view('santri.dashboard', [
             'santri' => $santri,
             'tahunAjaran' => $tahunAjaran,
@@ -68,11 +122,19 @@ class SantriPortalController extends Controller
             'previewClasses' => $previewClasses,
             'totalMatchingSantris' => $totalMatchingSantris,
             'schedules' => $schedules,
+            'todayName' => $todayName,
+            'todaySchedules' => $todaySchedules,
             'totalHadir' => $raporData['totalHadir'],
             'totalIzin' => $raporData['totalIzin'],
             'totalSakit' => $raporData['totalSakit'],
             'totalAlpa' => $raporData['totalAlpa'],
+            'totalPertemuan' => $totalPertemuan,
+            'gradedCount' => $raporData['gradedCount'],
+            'totalMapelCount' => $raporData['totalMapelCount'],
             'gpa' => $raporData['rataRata'],
+            'subjectRows' => $raporData['subjectRows'],
+            'chartSubjects' => $chartSubjects,
+            'semesterTrend' => $semesterTrend,
             'catatanWaliKelas' => $raporData['catatanWaliKelas'],
             'nilaiSikap' => $raporData['nilaiSikap'],
             'raporSemester' => $raporData['raporSemester'],
@@ -87,7 +149,7 @@ class SantriPortalController extends Controller
             return redirect()->route('wali.dashboard')->with('error', 'Data Santri tidak ditemukan.');
         }
 
-        $santri->load(['kelas', 'kelas.tahunAjaran']);
+        $santri->load(['kelas', 'kelas.waliKelas', 'kelas.tahunAjaran']);
         [$tahunAjaran, $availableYears] = $this->resolveSelectedYear($request, $santri);
         $kelasPeriode = $this->raporService->resolveKelasForSantriInYear($santri, $tahunAjaran);
 
@@ -134,6 +196,8 @@ class SantriPortalController extends Controller
             'totalMatchingSantris' => $totalMatchingSantris,
             'subjectRows' => $raporData['subjectRows'],
             'nilais' => $raporData['nilais'],
+            'gradedCount' => $raporData['gradedCount'],
+            'totalMapelCount' => $raporData['totalMapelCount'],
             'jumlahNilai' => $raporData['jumlahNilai'],
             'gpa' => $raporData['rataRata'],
             'catatanWaliKelas' => $raporData['catatanWaliKelas'],
@@ -220,6 +284,19 @@ class SantriPortalController extends Controller
         return $pdf->download($fileName);
     }
 
+    private function resolveTodayIndonesianName(): string
+    {
+        return match (Carbon::now('Asia/Jakarta')->dayOfWeekIso) {
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu',
+            default => 'Minggu',
+        };
+    }
+
     private function resolveSelectedYear(Request $request, Santri $santri): array
     {
         $availableYears = $this->raporService->resolveAvailableYearsForSantri($santri);
@@ -238,17 +315,11 @@ class SantriPortalController extends Controller
         return [$defaultYear, $availableYears];
     }
 
-    /**
-     * Resolusi data santri:
-     * - Wali Santri (role=santri): otomatis terikat ke santri-santri ananda ($user->santris).
-     *   Jika memiliki lebih dari 1 anak terdaftar, wali dapat memilih ananda aktif via session.
-     * - Super Admin / Pengurus Akademik / Kepala Sekolah: mode pantau dilengkapi Filter Tingkat (7/8/9), Filter Kelas, & Search Cepat (Nama/NIS).
-     */
     private function resolveSantriForPortal(Request $request): array
     {
         $user = Auth::user();
 
-        if ($user->isPengurusAkademik() || $user->isKepalaSekolah() || $user->isPimpinan()) {
+        if ($user->isPengurusAkademik() || $user->isKepalaSekolah() || $user->isPimpinan() || $user->isSuperAdmin()) {
             $previewClasses = Kelas::with('tahunAjaran')
                 ->orderBy('tingkat_kelas')
                 ->orderBy('nama_kelas')
@@ -278,18 +349,16 @@ class SantriPortalController extends Controller
             }
 
             $totalMatchingSantris = (clone $query)->count();
-            $filteredSantris = $query->limit(60)->get();
+            $filteredSantris = $query->limit(300)->get();
 
             $requestedId = $request->input('santri_id');
             $santri = null;
 
             if ($request->filled('search') || $request->filled('filter_kelas_id') || $request->filled('tingkat')) {
-                // Saat ada filter atau pencarian aktif: utamakan santri hasil pencarian
                 if ($requestedId) {
                     $santri = $filteredSantris->firstWhere('id', (int) $requestedId);
                 }
 
-                // Jika santri_id lama tidak ada dalam hasil pencarian, ambil santri pertama yang cocok
                 if (! $santri) {
                     $santri = $filteredSantris->firstWhere('status_santri', 'Aktif') ?? $filteredSantris->first();
                 }
