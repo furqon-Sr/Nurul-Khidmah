@@ -272,9 +272,9 @@
         </div>
 
         <div class="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <h3 class="text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">Rincian Biaya</h3>
+            <h3 class="text-gray-600 dark:text-gray-300 text-xs font-semibold uppercase">Dokumen Biaya</h3>
             <p class="text-3xl font-bold leading-none tracking-tight text-gray-900 dark:text-white mt-2">{{ $totalFees ?? 0 }}</p>
-            <p class="text-xs font-medium text-amber-600 mt-1">Komponen Informasi Biaya</p>
+            <p class="text-xs font-medium text-amber-600 mt-1">File Foto / PDF / CSV Aktif</p>
         </div>
     </div>
 

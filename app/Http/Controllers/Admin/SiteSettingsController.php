@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Models\Hero;
 use App\Models\PageContent;
 use App\Services\ImageCropService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class SiteSettingsController extends Controller
@@ -14,10 +16,11 @@ class SiteSettingsController extends Controller
     public function __construct(
         protected ImageCropService $imageCrop
     ) {}
+
     public function index()
     {
         $heroes = Hero::orderBy('position')->get();
-        
+
         // Pad to ensure we always have 3 heroes in the view for the form
         while ($heroes->count() < 3) {
             $heroes->push(new Hero(['position' => $heroes->count() + 1]));
@@ -36,14 +39,14 @@ class SiteSettingsController extends Controller
             // Validate Heroes
             for ($i = 1; $i <= 3; $i++) {
                 $hero = Hero::where('position', $i)->first();
-                
+
                 $hasTitle = $request->filled("hero_{$i}_title");
                 $hasImageFile = $request->hasFile("hero_{$i}_image");
-                
+
                 // Process only if user has filled title, uploaded image, or it already exists in DB
                 if ($hasTitle || $hasImageFile || ($hero && $hero->image_path)) {
                     $imageRule = $hero && $hero->image_path ? 'nullable|image|mimes:jpg,jpeg,png,webp|max:20480' : 'required|image|mimes:jpg,jpeg,png,webp|max:20480';
-                    
+
                     $heroImageField = "hero_{$i}_image";
                     $request->validate(array_merge([
                         "hero_{$i}_title" => 'required|string|max:255',
@@ -109,13 +112,14 @@ class SiteSettingsController extends Controller
                     Storage::disk('public')->delete($content->image_path);
                     $content->update(['image_path' => null]);
                 }
+
                 continue;
             }
-            
+
             // If it's an image or file field
             if (str_ends_with($key, '_image') || $key === 'logo' || $key === 'favicon' || $key === 'education_fee_pdf' || $key === 'kop_surat') {
                 $rule = match (true) {
-                    $key === 'education_fee_pdf' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
+                    $key === 'education_fee_pdf' => 'nullable|file|mimes:pdf,csv,txt,jpg,jpeg,png,webp|max:5120',
                     $key === 'favicon' => 'nullable|file|mimes:ico,png,jpg,jpeg,svg|max:2048',
                     $key === 'kop_surat' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:20480',
                     default => ($content && $content->image_path ? 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:20480' : 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:20480'),
@@ -162,12 +166,12 @@ class SiteSettingsController extends Controller
             }
         }
 
-        \Illuminate\Support\Facades\Cache::forget('site_global_data');
-        \App\Models\AdminActivityLog::log('update', "Memperbarui pengaturan situs (bagian: {$formType})");
+        Cache::forget('site_global_data');
+        AdminActivityLog::log('update', "Memperbarui pengaturan situs (bagian: {$formType})");
 
         $redirectUrl = route('settings.index');
         if ($formType === 'login_staf' || $formType === 'login_wali') {
-            $redirectUrl .= '?tab=' . $formType;
+            $redirectUrl .= '?tab='.$formType;
         }
 
         return redirect()->to($redirectUrl)->with('success', 'Pengaturan situs berhasil diperbarui.');

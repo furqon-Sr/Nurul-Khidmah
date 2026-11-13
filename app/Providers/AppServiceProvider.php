@@ -4,7 +4,12 @@ namespace App\Providers;
 
 use App\Listeners\LogFailedLogin;
 use App\Listeners\LogSuccessfulLogin;
+use App\Models\Absensi;
+use App\Models\EducationProgram;
+use App\Models\Nilai;
 use App\Models\PageContent;
+use App\Policies\AbsensiPolicy;
+use App\Policies\NilaiPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -13,6 +18,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -37,8 +43,8 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         // Registrasi Policies Keamanan Akademik (Grade & Attendance Locking)
-        \Illuminate\Support\Facades\Gate::policy(\App\Models\Nilai::class, \App\Policies\NilaiPolicy::class);
-        \Illuminate\Support\Facades\Gate::policy(\App\Models\Absensi::class, \App\Policies\AbsensiPolicy::class);
+        Gate::policy(Nilai::class, NilaiPolicy::class);
+        Gate::policy(Absensi::class, AbsensiPolicy::class);
 
         // Daftarkan event listener untuk mencatat login berhasil & gagal (Audit Keamanan)
         Event::listen(Login::class, LogSuccessfulLogin::class);
@@ -56,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
                     'email' => null,
                     'address' => null,
                     'contents' => [],
+                    'active_programs' => [],
                 ];
 
                 try {
@@ -79,6 +86,13 @@ class AppServiceProvider extends ServiceProvider
                         'content_text' => $c->content_text,
                         'image_path' => $c->image_path,
                     ])->toArray();
+
+                    $result['active_programs'] = EducationProgram::active()
+                        ->orderBy('order')
+                        ->orderBy('name')
+                        ->get(['id', 'name', 'slug', 'description', 'image_path', 'is_registration_open', 'is_coming_soon', 'order'])
+                        ->map(fn (EducationProgram $p) => $p->toArray())
+                        ->all();
 
                 } catch (\Exception $e) {
                     // DB not ready yet — return empty result
@@ -110,8 +124,22 @@ class AppServiceProvider extends ServiceProvider
                 return $obj;
             })->keyBy('section_key');
 
+            $navPrograms = collect($cachedArray['active_programs'] ?? [])->map(function ($item) {
+                $obj = new \stdClass;
+                $obj->id = $item['id'] ?? null;
+                $obj->name = $item['name'] ?? '';
+                $obj->slug = $item['slug'] ?? '';
+                $obj->description = $item['description'] ?? null;
+                $obj->image_path = $item['image_path'] ?? null;
+                $obj->is_registration_open = (bool) ($item['is_registration_open'] ?? false);
+                $obj->is_coming_soon = (bool) ($item['is_coming_soon'] ?? false);
+
+                return $obj;
+            });
+
             $view->with('settings', $settings);
             $view->with('contents', $contents);
+            $view->with('navPrograms', $navPrograms);
         });
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EducationFee;
 use App\Models\EducationProgram;
 use App\Models\Facility;
 use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
 use App\Models\News;
+use App\Models\PageContent;
 use App\Models\Pengajar;
 use App\Models\Santri;
 use App\Models\SantriRegistration;
@@ -106,7 +106,13 @@ class DashboardController extends Controller
         $activeProgramsCount = EducationProgram::where('is_active', true)->count();
         $totalNews = News::count();
         $totalFacilities = Facility::count();
-        $totalFees = EducationFee::count();
+        $totalFees = PageContent::query()
+            ->where(function ($q) {
+                $q->where('section_key', 'education_fee_pdf')
+                    ->orWhere('section_key', 'like', 'education_fee_file_%');
+            })
+            ->whereNotNull('image_path')
+            ->count();
 
         $pendingRegistrants = SantriRegistration::where('status', 'pending')
             ->latest()
