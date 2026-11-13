@@ -32,7 +32,7 @@
             </select>
 
             <select name="kelas_id" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option value="">-- Semua Kelas --</option>
+                <option value=""> Semua Kelas </option>
                 @foreach($kelasses as $k)
                     <option value="{{ $k->id }}" {{ request('kelas_id') == $k->id ? 'selected' : '' }}>
                         {{ $k->nama_kelas }} ({{ $k->tahunAjaran->nama_tahun_ajaran ?? '-' }})
@@ -41,14 +41,14 @@
             </select>
 
             <select name="hari" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option value="">-- Semua Hari --</option>
+                <option value="">Semua Hari </option>
                 @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
                     <option value="{{ $h }}" {{ request('hari') == $h ? 'selected' : '' }}>{{ $h }}</option>
                 @endforeach
             </select>
 
             <select name="pengajar_id" onchange="this.form.submit()" class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500">
-                <option value="">-- Semua Ustaz / Pengajar --</option>
+                <option value=""> Semua Ustaz / Pengajar </option>
                 @foreach($pengajars as $p)
                     <option value="{{ $p->id }}" {{ request('pengajar_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_lengkap }}</option>
                 @endforeach

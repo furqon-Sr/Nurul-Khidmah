@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Auth\WaliPortalAuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EducationController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
@@ -24,20 +25,17 @@ use App\Http\Controllers\Pimpinan\PimpinanDashboardController;
 use App\Http\Controllers\PublicRegistrationController;
 use App\Http\Controllers\Santri\SantriPortalController;
 use App\Http\Controllers\SantriRegistrationController;
+use App\Http\Controllers\StaffProfileController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\GradeController;
 use App\Models\AdminActivityLog;
-use App\Models\EducationFee;
-use App\Models\EducationProgram;
 use App\Models\Facility;
 use App\Models\News;
-use App\Models\PageContent;
 use App\Models\Santri;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -45,12 +43,8 @@ Route::get('/tentang-kami', function () {
     return view('about');
 })->name('about');
 
-Route::get('/pendidikan', function () {
-    $fees = EducationFee::orderBy('name')->get();
-    $programs = EducationProgram::active()->orderBy('order')->orderBy('name')->get();
-
-    return view('education', compact('fees', 'programs'));
-})->name('education');
+Route::get('/pendidikan', [EducationController::class, 'index'])->name('education');
+Route::get('/pendidikan/{program:slug}', [EducationController::class, 'show'])->name('education.program');
 
 Route::get('/fasilitas', function () {
     $facilities = Facility::all();
@@ -79,17 +73,7 @@ Route::post('/pendaftaran', [PublicRegistrationController::class, 'store'])->nam
 Route::get('/kontak', [ContactController::class, 'index'])->name('contact');
 Route::post('/kontak', [ContactController::class, 'store'])->name('contact.store');
 
-Route::get('/biaya-pendidikan/download', function () {
-    $pdfContent = PageContent::where('section_key', 'education_fee_pdf')->first();
-    if ($pdfContent && $pdfContent->image_path && Storage::disk('public')->exists($pdfContent->image_path)) {
-        $ext = pathinfo($pdfContent->image_path, PATHINFO_EXTENSION) ?: 'pdf';
-        $filename = 'Biaya_Pendidikan_Nurul_Khidmah.'.$ext;
-
-        return Storage::disk('public')->download($pdfContent->image_path, $filename);
-    }
-
-    return abort(404, 'Dokumen biaya pendidikan belum diunggah.');
-})->name('education.download-fee');
+Route::get('/biaya-pendidikan/download', [EducationController::class, 'downloadFee'])->name('education.download-fee');
 
 // Pintu 1 (Publik & Ramah Wali Santri): Login terisolasi khusus Role Wali Santri via NIS atau Email
 Route::get('/portal-wali', [WaliPortalAuthController::class, 'showLoginForm'])->name('wali.login');
@@ -106,6 +90,13 @@ Route::get('/portal-staf', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+// Foto Profil Mandiri untuk Seluruh Jajaran Yayasan (Selain Wali Santri)
+Route::middleware(['auth', 'role:super_admin,pimpinan,kepala_sekolah,pengurus_akademik,tenaga_pengajar'])->group(function () {
+    Route::get('profil-saya', [StaffProfileController::class, 'edit'])->name('staff.profile.edit');
+    Route::post('profil-saya/avatar', [StaffProfileController::class, 'updateAvatar'])->name('staff.profile.avatar.update');
+    Route::delete('profil-saya/avatar', [StaffProfileController::class, 'destroyAvatar'])->name('staff.profile.avatar.destroy');
 });
 
 Route::middleware(['auth'])->post('/logout', function (Request $request) {
@@ -138,7 +129,9 @@ Route::middleware(['auth', 'role:super_admin,pengurus_akademik,admin'])->group(f
 
 // 2. Modul Informasi Program & Biaya Pendidikan (Super Admin & Staf TU / Pengurus Akademik)
 Route::middleware(['auth', 'role:super_admin,pengurus_akademik,admin'])->group(function () {
-    Route::resource('admin/fees', EducationFeeController::class)->names('admin.fees');
+    Route::post('admin/fees/document', [EducationFeeController::class, 'uploadDocument'])->name('admin.fees.upload-document');
+    Route::delete('admin/fees/document/{sectionKey}', [EducationFeeController::class, 'destroyDocument'])->name('admin.fees.destroy-document');
+    Route::get('admin/fees', [EducationFeeController::class, 'index'])->name('admin.fees.index');
     Route::resource('admin/programs', ProgramController::class)->names('admin.programs');
     Route::post('admin/programs/{program}/toggle', [ProgramController::class, 'toggle'])->name('admin.programs.toggle');
 });
@@ -148,6 +141,7 @@ Route::middleware(['auth', 'role:super_admin,pengurus_akademik,kepala_sekolah'])
     Route::resource('admin/classes', ClassRoomController::class)->names('admin.classes');
     Route::resource('admin/santri', SantriManagementController::class)->names('admin.santri');
     Route::resource('admin/schedules', ScheduleController::class)->names('admin.schedules');
+    Route::resource('admin/teachers', TeacherController::class)->names('admin.teachers');
 });
 
 Route::middleware(['auth', 'role:super_admin,pengurus_akademik'])->group(function () {
@@ -155,7 +149,6 @@ Route::middleware(['auth', 'role:super_admin,pengurus_akademik'])->group(functio
     Route::post('admin/academic-years/{academicYear}/toggle', [AcademicYearController::class, 'toggleActive'])->name('admin.academic-years.toggle');
 
     Route::resource('admin/subjects', SubjectController::class)->names('admin.subjects');
-    Route::resource('admin/teachers', TeacherController::class)->names('admin.teachers');
 
     // Kenaikan Kelas & Kelulusan Kolektif Lintas Tahun Ajaran
     Route::get('admin/promotions', [ClassPromotionController::class, 'index'])->name('admin.promotions.index');

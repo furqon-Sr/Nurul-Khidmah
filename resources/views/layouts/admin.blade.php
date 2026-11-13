@@ -104,7 +104,7 @@
                     </span>
                 </div>
                 <button type="button" @click="sidebarOpen = false" aria-label="Tutup menu navigasi"
-                        class="lg:hidden min-h-10 min-w-10 inline-flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-800">
+                        class="lg:hidden min-h-10 min-w-10 inline-flex items-center justify-center rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:text-white dark:hover:bg-gray-800">
                     <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -136,7 +136,7 @@
                                         @click="open = !open"
                                         :aria-expanded="open"
                                         :class="sidebarCollapsed ? 'lg:hidden' : ''"
-                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 hover:bg-gray-100/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800/60 dark:hover:text-gray-300 transition cursor-pointer">
+                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                                     <span class="truncate text-left">Eksekutif Pimpinan</span>
                                     <svg class="size-3.5 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -174,7 +174,7 @@
                                         @click="open = !open"
                                         :aria-expanded="open"
                                         :class="sidebarCollapsed ? 'lg:hidden' : ''"
-                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 hover:bg-gray-100/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800/60 dark:hover:text-gray-300 transition cursor-pointer">
+                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                                     <span class="truncate text-left">{{ auth()->user()->isKepalaSekolah() ? 'Data Akademik Madrasah' : 'SIAKAD & PPDB Santri' }}</span>
                                     <svg class="size-3.5 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -244,24 +244,26 @@
                                             <span class="truncate" :class="sidebarCollapsed ? 'lg:hidden' : ''">Jadwal Pelajaran</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="{{ route('admin.promotions.index') }}"
-                                           title="Kenaikan & Kelulusan"
-                                           :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
-                                           class="sidebar-item {{ request()->routeIs('admin.promotions.*') ? 'nav-active' : '' }}">
-                                            <svg class="size-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                                            <span class="truncate" :class="sidebarCollapsed ? 'lg:hidden' : ''">Kenaikan &amp; Kelulusan</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('admin.imports.index') }}"
-                                           title="Migrasi & Import Data"
-                                           :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
-                                           class="sidebar-item {{ request()->routeIs('admin.imports.*') ? 'nav-active' : '' }}">
-                                            <svg class="size-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                            <span class="truncate" :class="sidebarCollapsed ? 'lg:hidden' : ''">Migrasi &amp; Import Data</span>
-                                        </a>
-                                    </li>
+                                    @if(auth()->user()->isPengurusAkademik())
+                                        <li>
+                                            <a href="{{ route('admin.promotions.index') }}"
+                                               title="Kenaikan & Kelulusan"
+                                               :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
+                                               class="sidebar-item {{ request()->routeIs('admin.promotions.*') ? 'nav-active' : '' }}">
+                                                <svg class="size-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                                <span class="truncate" :class="sidebarCollapsed ? 'lg:hidden' : ''">Kenaikan &amp; Kelulusan</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('admin.imports.index') }}"
+                                               title="Migrasi & Import Data"
+                                               :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''"
+                                               class="sidebar-item {{ request()->routeIs('admin.imports.*') ? 'nav-active' : '' }}">
+                                                <svg class="size-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                <span class="truncate" :class="sidebarCollapsed ? 'lg:hidden' : ''">Migrasi &amp; Import Data</span>
+                                            </a>
+                                        </li>
+                                    @endif
                                     <li>
                                         <a href="{{ route('wali.dashboard') }}"
                                            title="Pantau Portal Wali"
@@ -283,7 +285,7 @@
                                         @click="{{ auth()->user()->isTenagaPengajar() ? '' : 'open = !open' }}"
                                         :aria-expanded="open"
                                         :class="sidebarCollapsed ? 'lg:hidden' : ''"
-                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 hover:bg-gray-100/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800/60 dark:hover:text-gray-300 transition cursor-pointer">
+                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                                     <span class="truncate text-left">{{ auth()->user()->isKepalaSekolah() ? 'Supervisi Guru & Rapor' : 'Menu Akademik & Rapor' }}</span>
                                     @unless(auth()->user()->isTenagaPengajar())
                                     <svg class="size-3.5 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
@@ -329,7 +331,7 @@
                                         @click="open = !open"
                                         :aria-expanded="open"
                                         :class="sidebarCollapsed ? 'lg:hidden' : ''"
-                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 hover:bg-gray-100/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800/60 dark:hover:text-gray-300 transition cursor-pointer">
+                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                                     <span class="truncate text-left">Konten Website Yayasan</span>
                                     <svg class="size-3.5 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -395,7 +397,7 @@
                                         @click="open = !open"
                                         :aria-expanded="open"
                                         :class="sidebarCollapsed ? 'lg:hidden' : ''"
-                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 hover:bg-gray-100/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800/60 dark:hover:text-gray-300 transition cursor-pointer">
+                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                                     <span class="truncate text-left">Portal Wali Santri</span>
                                     <svg class="size-3.5 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -439,7 +441,7 @@
                                         @click="open = !open"
                                         :aria-expanded="open"
                                         :class="sidebarCollapsed ? 'lg:hidden' : ''"
-                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400 hover:bg-gray-100/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800/60 dark:hover:text-gray-300 transition cursor-pointer">
+                                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                                     <span class="truncate text-left">Sistem &amp; Keamanan</span>
                                     <svg class="size-3.5 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -477,7 +479,7 @@
                         :aria-label="sidebarCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
                         :title="sidebarCollapsed ? 'Perluas sidebar (264px)' : 'Ciutkan sidebar (72px)'"
                         :class="sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-2.5'"
-                        class="flex h-9 w-full items-center rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-100/80 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/70 dark:hover:text-gray-100 transition cursor-pointer">
+                        class="flex h-9 w-full items-center rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800/70 dark:hover:text-white transition cursor-pointer">
                     <span class="truncate" :class="sidebarCollapsed ? 'hidden' : ''">Ciutkan Menu</span>
                     <svg class="size-[18px] shrink-0 transition-transform duration-200" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
@@ -494,7 +496,7 @@
                 <div class="flex min-w-0 items-center gap-2.5">
                     {{-- Mobile Hamburger --}}
                     <button type="button" @click="sidebarOpen = true" aria-label="Buka menu navigasi"
-                            class="lg:hidden -ml-2 inline-flex size-10 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800">
+                            class="lg:hidden -ml-2 inline-flex size-10 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white">
                         <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
 
@@ -503,7 +505,7 @@
                             @click="toggleSidebarCollapse()"
                             :aria-label="sidebarCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
                             :title="sidebarCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'"
-                            class="hidden lg:inline-flex -ml-2 size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100 transition cursor-pointer">
+                            class="hidden lg:inline-flex -ml-2 size-9 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white transition cursor-pointer">
                         <svg class="size-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                             <rect x="3" y="4" width="18" height="16" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 4v16"/>
@@ -512,8 +514,8 @@
 
                     <nav aria-label="Breadcrumb" class="min-w-0">
                         <ol class="flex min-w-0 items-center gap-2 text-sm">
-                            <li class="hidden sm:block"><a href="{{ route('dashboard') }}" class="font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Beranda</a></li>
-                            <li class="hidden sm:block text-gray-400" aria-hidden="true">/</li>
+                            <li class="hidden sm:block"><a href="{{ route('dashboard') }}" class="font-semibold text-gray-700 hover:text-primary-700 dark:text-gray-200 dark:hover:text-primary-300 transition-colors">Beranda</a></li>
+                            <li class="hidden sm:block font-semibold text-gray-500 dark:text-gray-400" aria-hidden="true">/</li>
                             <li class="truncate font-bold text-gray-900 dark:text-white" aria-current="page">@yield('title', 'Nurul Khidmah')</li>
                         </ol>
                     </nav>
@@ -521,10 +523,10 @@
 
                 <div class="flex shrink-0 items-center gap-2">
                     @if($activePeriod)
-                        <span class="hidden md:inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200" title="Periode akademik aktif">
-                            <svg class="size-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            {{ $activePeriod->nama_tahun_ajaran }}
-                            <span class="font-medium text-gray-500">· {{ $activePeriod->semester }}</span>
+                        <span class="hidden md:inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 bg-gray-50/90 px-3 text-xs font-bold text-gray-900 dark:border-gray-700 dark:bg-gray-800/90 dark:text-white" title="Periode akademik aktif">
+                            <svg class="size-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>{{ $activePeriod->nama_tahun_ajaran }}</span>
+                            <span class="font-semibold text-gray-700 dark:text-gray-200">· {{ $activePeriod->semester }}</span>
                         </span>
                     @endif
 
@@ -533,25 +535,34 @@
                     @auth
                         <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
                             <button type="button" @click="open = !open" :aria-expanded="open" aria-haspopup="menu" aria-label="Menu profil"
-                                    class="flex items-center gap-2 rounded-lg p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                    class="flex items-center gap-2 rounded-lg p-1 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white">
                                 @if(auth()->user()->avatarUrl())
                                     <img src="{{ auth()->user()->avatarUrl() }}" alt="{{ auth()->user()->name }}" class="size-8 rounded-full object-cover">
                                 @else
                                     <span class="avatar avatar-primary size-8 text-xs">{{ auth()->user()->initials() }}</span>
                                 @endif
-                                <svg class="hidden sm:block size-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                <svg class="hidden sm:block size-4 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div x-show="open" x-cloak x-transition.opacity role="menu"
                                  class="absolute right-0 z-40 mt-2 w-72 rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900">
                                 <div class="p-3">
                                     <p class="truncate text-sm font-bold text-gray-900 dark:text-white">{{ auth()->user()->name }}</p>
-                                    <p class="truncate text-xs text-gray-600 dark:text-gray-400">{{ auth()->user()->email }}</p>
+                                    <p class="truncate text-xs font-medium text-gray-700 dark:text-gray-300">{{ auth()->user()->email }}</p>
                                     <div class="mt-2">@include('partials.admin-role-badge', ['user' => auth()->user()])</div>
                                 </div>
+                                @if(! auth()->user()->isSantri())
+                                    <div class="border-t border-gray-200 pt-2 pb-1 dark:border-gray-700">
+                                        <a href="{{ route('staff.profile.edit') }}" role="menuitem"
+                                           class="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-800 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-100 dark:hover:bg-gray-800 dark:hover:text-white">
+                                            <svg class="size-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            Ubah Foto Profil
+                                        </a>
+                                    </div>
+                                @endif
                                 <div class="border-t border-gray-200 pt-2 dark:border-gray-700">
                                     <form method="POST" action="{{ url('/logout') }}">
                                         @csrf
-                                        <button type="submit" role="menuitem" class="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-700 hover:bg-error-50 hover:text-error-600 dark:text-gray-300 dark:hover:bg-error-500/10 dark:hover:text-error-400">
+                                        <button type="submit" role="menuitem" class="flex min-h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-800 hover:bg-error-50 hover:text-error-600 dark:text-gray-100 dark:hover:bg-error-500/10 dark:hover:text-error-400">
                                             <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                                             Keluar
                                         </button>
