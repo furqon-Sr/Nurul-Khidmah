@@ -275,7 +275,7 @@ class UrsFase6OptimizationTest extends TestCase
 
         $responseAttendanceCreate = $this->actingAs($guruUser)->get(route('teacher.attendance.create', [
             'schedule_id' => $jadwal->id,
-            'tanggal' => now()->toDateString(),
+            'tanggal' => $jadwal->latestMatchingDate(),
         ]));
         $responseAttendanceCreate->assertOk();
         $responseAttendanceCreate->assertSee('Fatimah Az Zahra');

@@ -8,6 +8,7 @@ use App\Models\JadwalPelajaran;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AttendanceController extends Controller
 {
@@ -45,6 +46,12 @@ class AttendanceController extends Controller
         $this->authorizeScheduleAccess($schedule);
         $tanggal = $request->tanggal;
 
+        if ($dateError = $schedule->validateAttendanceDate($tanggal)) {
+            return redirect()
+                ->route('teacher.attendance.index')
+                ->withErrors(['tanggal' => $dateError]);
+        }
+
         return view('teacher.attendance.create', [
             'schedule' => $schedule,
             'jadwal' => $schedule,
@@ -67,6 +74,10 @@ class AttendanceController extends Controller
         $this->authorizeScheduleAccess($schedule);
 
         $tanggal = $validated['tanggal'];
+
+        if ($dateError = $schedule->validateAttendanceDate($tanggal)) {
+            throw ValidationException::withMessages(['tanggal' => $dateError]);
+        }
 
         foreach ($validated['absensi'] as $santriId => $data) {
             $absensi = $schedule->absensis->firstWhere('santri_id', (int) $santriId)

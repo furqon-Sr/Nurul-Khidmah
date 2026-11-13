@@ -9,6 +9,7 @@ use App\Models\Santri;
 use App\Models\TahunAjaran;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class BatchAttendanceInput extends Component
@@ -37,11 +38,15 @@ class BatchAttendanceInput extends Component
         }
 
         $this->jadwal = $targetJadwal;
-        $this->tanggal = $tanggal ?: now()->toDateString();
+        $this->tanggal = $tanggal ?: $this->jadwal->latestMatchingDate();
 
         $user = Auth::user();
         if ($user && $user->isTenagaPengajar() && (int) $this->jadwal->pengajar_id !== (int) ($user->pengajar?->id ?? 0)) {
             abort(403, 'Anda hanya dapat mengolah presensi pada jadwal mengajar Anda sendiri.');
+        }
+
+        if ($dateError = $this->jadwal->validateAttendanceDate($this->tanggal)) {
+            $this->addError('tanggal', $dateError);
         }
 
         $this->loadAttendanceData();
@@ -49,7 +54,12 @@ class BatchAttendanceInput extends Component
 
     public function updatedTanggal($newDate): void
     {
-        if (empty($newDate)) {
+        $this->resetErrorBag('tanggal');
+        $this->hasSaved = false;
+
+        if ($dateError = $this->jadwal->validateAttendanceDate($newDate)) {
+            $this->addError('tanggal', $dateError);
+
             return;
         }
 
@@ -131,6 +141,10 @@ class BatchAttendanceInput extends Component
     public function save()
     {
         $this->validate();
+
+        if ($dateError = $this->jadwal->validateAttendanceDate($this->tanggal)) {
+            throw ValidationException::withMessages(['tanggal' => $dateError]);
+        }
 
         $targetTaId = $this->jadwal->tahun_ajaran_id ?? TahunAjaran::getAktif()?->id;
         $santriIds = array_map('intval', array_keys($this->attendances));

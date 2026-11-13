@@ -4,12 +4,15 @@
             <h1 id="attendance-table-heading" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Input Presensi Harian &amp; Catatan Disiplin</h1>
             <p class="text-gray-600 dark:text-gray-400 text-sm">
                 {{ $jadwal->mataPelajaran->nama_mapel ?? '-' }} — {{ $jadwal->kelas->nama_kelas ?? '-' }}
+                <span class="text-xs text-emerald-700 dark:text-emerald-400 font-semibold ml-1">
+                    ({{ $jadwal->hari }} • {{ date('H:i', strtotime($jadwal->waktu_mulai)) }} - {{ date('H:i', strtotime($jadwal->waktu_selesai)) }})
+                </span>
             </p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-            <div class="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-2.5 py-1.5 text-xs shadow-sm">
-                <label for="pilih-tanggal" class="text-gray-600 dark:text-gray-400 font-semibold">Tanggal:</label>
-                <input id="pilih-tanggal" type="date" wire:model.live="tanggal"
+            <div class="flex items-center gap-1.5 bg-white dark:bg-gray-800 border {{ $errors->has('tanggal') ? 'border-rose-500 ring-1 ring-rose-500' : 'border-gray-300 dark:border-gray-600' }} rounded-lg px-2.5 py-1.5 text-xs shadow-sm">
+                <label for="pilih-tanggal" class="text-gray-600 dark:text-gray-400 font-semibold">Tanggal ({{ $jadwal->hari }}):</label>
+                <input id="pilih-tanggal" type="date" wire:model.live="tanggal" max="{{ date('Y-m-d') }}"
                        class="text-xs font-semibold bg-transparent border-0 p-0 focus:ring-0 text-gray-800 dark:text-gray-200 cursor-pointer">
             </div>
 

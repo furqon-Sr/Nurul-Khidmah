@@ -16,6 +16,16 @@
 </div>
 @endif
 
+@if($errors->any())
+<div class="mb-4 p-4 bg-rose-50 dark:bg-rose-950/50 border-l-4 border-rose-500 text-rose-700 dark:text-rose-300 rounded shadow-sm text-sm">
+    <ul class="list-disc list-inside space-y-0.5">
+        @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
     @forelse($schedules as $item)
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex flex-col justify-between hover:shadow-md transition">
@@ -35,13 +45,18 @@
             </p>
         </div>
 
-        <form action="{{ route('teacher.attendance.create') }}" method="GET" class="pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2">
-            <input type="hidden" name="schedule_id" value="{{ $item->id }}">
-            <input type="date" name="tanggal" value="{{ date('Y-m-d') }}" required
-                   class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500">
-            <button type="submit" class="flex-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition text-center shadow-sm">
-                Input Presensi
-            </button>
+        <form action="{{ route('teacher.attendance.create') }}" method="GET" class="pt-4 border-t border-gray-100 dark:border-gray-700 space-y-2">
+            <div class="flex items-center gap-2">
+                <input type="hidden" name="schedule_id" value="{{ $item->id }}">
+                <input type="date" name="tanggal" value="{{ $item->latestMatchingDate() }}" max="{{ date('Y-m-d') }}" required
+                       class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-xs font-medium focus:ring-2 focus:ring-emerald-500">
+                <button type="submit" class="flex-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition text-center shadow-sm">
+                    Input Presensi
+                </button>
+            </div>
+            <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                Hanya menerima tanggal hari <strong>{{ $item->hari }}</strong> (maks. hari ini).
+            </p>
         </form>
     </div>
     @empty

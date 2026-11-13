@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Teacher\BatchAttendanceInput;
+use App\Livewire\Teacher\BatchGradeInput;
 use App\Models\Absensi;
 use App\Models\EducationalUnit;
 use App\Models\GradeComponent;
@@ -16,6 +18,7 @@ use App\Models\TahunAjaran;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class GradeLockingTest extends TestCase
@@ -175,7 +178,7 @@ class GradeLockingTest extends TestCase
         // Guru mencoba mengubah/mengisi presensi santri yang rapornya sudah approved
         $response = $this->actingAs($guru)->post(route('teacher.attendance.store'), [
             'jadwal_pelajaran_id' => $jadwal->id,
-            'tanggal' => now()->toDateString(),
+            'tanggal' => $jadwal->latestMatchingDate(),
             'absensi' => [
                 $santri->id => [
                     'status' => 'Hadir',
@@ -227,7 +230,7 @@ class GradeLockingTest extends TestCase
         ]);
 
         // 2. Update absensi berhasil
-        $tanggal = now()->toDateString();
+        $tanggal = $jadwal->latestMatchingDate();
         $responseAttendance = $this->actingAs($guru)->post(route('teacher.attendance.store'), [
             'jadwal_pelajaran_id' => $jadwal->id,
             'tanggal' => $tanggal,
@@ -334,5 +337,87 @@ class GradeLockingTest extends TestCase
         $guru = $fixture['guruUser'];
         $resGuruReject = $this->actingAs($guru)->post(route('admin.reports.approve-santri', $santri->id));
         $resGuruReject->assertForbidden();
+    }
+
+    public function test_kepala_sekolah_and_pengurus_akademik_can_save_batch_grades_and_attendance_when_not_locked(): void
+    {
+        $fixture = $this->createAcademicFixture();
+        $jadwal = $fixture['jadwal'];
+        $santri = $fixture['santri'];
+        $ta = $fixture['ta'];
+        $kelas = $fixture['kelas'];
+
+        $kepalaSekolah = User::create([
+            'name' => 'Ibu Uswatun Hasanah SP, S.Pd.I.',
+            'email' => 'kepala.grades@nurulkhidmah.org',
+            'password' => Hash::make('password'),
+            'role' => User::ROLE_KEPALA_SEKOLAH,
+            'email_verified_at' => now(),
+        ]);
+
+        $stafTu = User::create([
+            'name' => 'Bapak Mufti',
+            'email' => 'tu.grades@nurulkhidmah.org',
+            'password' => Hash::make('password'),
+            'role' => User::ROLE_PENGURUS_AKADEMIK,
+            'email_verified_at' => now(),
+        ]);
+
+        // Kepala Sekolah membuka halaman edit nilai dan menyimpan via BatchGradeInput ("Simpan & Hitung Nilai Otomatis")
+        $this->actingAs($kepalaSekolah)
+            ->get(route('teacher.grades.edit', $jadwal))
+            ->assertOk();
+
+        Livewire::actingAs($kepalaSekolah)
+            ->test(BatchGradeInput::class, ['jadwal' => $jadwal])
+            ->set("grades.{$santri->id}.nilai_tugas", 80)
+            ->set("grades.{$santri->id}.nilai_uts", 90)
+            ->set("grades.{$santri->id}.nilai_uas", 100)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('nilais', [
+            'jadwal_pelajaran_id' => $jadwal->id,
+            'santri_id' => $santri->id,
+            'nilai_akhir' => 91.0,
+            'created_by' => $kepalaSekolah->id,
+        ]);
+
+        // Kepala Sekolah juga bisa menyimpan presensi kelas ketika belum dikunci
+        $tanggal = $jadwal->latestMatchingDate();
+        Livewire::actingAs($kepalaSekolah)
+            ->test(BatchAttendanceInput::class, ['jadwal' => $jadwal, 'tanggal' => $tanggal])
+            ->set("attendances.{$santri->id}.status", 'Hadir')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('absensis', [
+            'jadwal_pelajaran_id' => $jadwal->id,
+            'santri_id' => $santri->id,
+            'tanggal' => $tanggal,
+            'status_kehadiran' => 'Hadir',
+        ]);
+
+        // Pengurus Akademik (Staf TU) juga dapat menyimpan nilai sebelum rapor disetujui
+        Livewire::actingAs($stafTu)
+            ->test(BatchGradeInput::class, ['jadwal' => $jadwal])
+            ->set("grades.{$santri->id}.nilai_tugas", 85)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        // Namun jika rapor santri sudah approved, penguncian tetap berlaku walaupun dibuka oleh Kepala Sekolah
+        RaporSemester::create([
+            'santri_id' => $santri->id,
+            'tahun_ajaran_id' => $ta->id,
+            'kelas_id' => $kelas->id,
+            'status_publikasi' => 'approved',
+            'approved_by' => $kepalaSekolah->id,
+            'approved_at' => now(),
+        ]);
+
+        $componentAfterApprove = Livewire::actingAs($kepalaSekolah)
+            ->test(BatchGradeInput::class, ['jadwal' => $jadwal->fresh()]);
+        $this->assertArrayNotHasKey($santri->id, $componentAfterApprove->get('grades'));
+        $this->assertArrayHasKey($santri->id, $componentAfterApprove->get('lockedSantris'));
     }
 }

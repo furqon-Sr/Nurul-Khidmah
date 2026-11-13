@@ -31,7 +31,10 @@ class AbsensiPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isTenagaPengajar();
+        return $user->isSuperAdmin()
+            || $user->isPengurusAkademik()
+            || $user->isKepalaSekolah()
+            || $user->isTenagaPengajar();
     }
 
     /**
@@ -75,8 +78,10 @@ class AbsensiPolicy
             ? $absensi->jadwalPelajaran
             : ($absensi->jadwal_pelajaran_id ? JadwalPelajaran::with('tahunAjaran')->find($absensi->jadwal_pelajaran_id) : null);
 
-        // a) Pastikan user yang login adalah guru yang mengajar di jadwal tersebut ATAU adalah super_admin
-        $isSuperAdmin = $user->isSuperAdmin();
+        // a) Izinkan Super Admin, Pengurus Akademik (Staf TU), Kepala Sekolah (Supervisi), atau guru pengampu jadwal tersebut
+        $hasAcademicAuthority = $user->isSuperAdmin()
+            || $user->isPengurusAkademik()
+            || $user->isKepalaSekolah();
         $isPengajar = false;
 
         if ($user->isTenagaPengajar() && $schedule) {
@@ -86,7 +91,7 @@ class AbsensiPolicy
             }
         }
 
-        if (! $isSuperAdmin && ! $isPengajar) {
+        if (! $hasAcademicAuthority && ! $isPengajar) {
             return false;
         }
 
