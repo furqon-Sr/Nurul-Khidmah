@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Admin\RaporSantriSearch;
 use App\Models\AdminActivityLog;
 use App\Models\EducationalUnit;
 use App\Models\JadwalPelajaran;
@@ -11,6 +12,7 @@ use App\Models\RaporSemester;
 use App\Models\Santri;
 use App\Models\TahunAjaran;
 use App\Models\User;
+use Livewire\Livewire;
 
 beforeEach(function () {
     $this->kepalaSekolah = User::factory()->create([
@@ -308,4 +310,34 @@ test('approved rapor blocks free edits, requires official revision procedure, in
     $riwayatPage->assertOk();
     $riwayatPage->assertSee('v2.0');
     $riwayatPage->assertSee('Penyesuaian predikat sikap sesuai rapat dewan asatidz.');
+});
+
+test('rapor santri card uses livewire search engine instead of static dropdown and updates preview links live', function () {
+    $page = $this->actingAs($this->kepalaSekolah)->get(route('admin.reports.index'));
+    $page->assertOk()
+        ->assertDontSee('id="santri_select_id"', false)
+        ->assertSee('id="rapor_santri_search_input"', false);
+
+    $component = Livewire::actingAs($this->kepalaSekolah)
+        ->test(RaporSantriSearch::class, ['tahunAjaranId' => $this->taAktif->id])
+        ->assertSee($this->santriLengkap->nama_lengkap)
+        ->assertSee($this->santriKosong->nama_lengkap)
+        ->set('search', $this->santriKosong->nis)
+        ->assertSee($this->santriKosong->nama_lengkap)
+        ->assertDontSee($this->santriLengkap->nama_lengkap);
+
+    expect($component->get('selectedSantriId'))->toBe($this->santriKosong->id);
+
+    $component->assertSee(route('admin.reports.santri-rapor-pdf', [
+        'santri' => $this->santriKosong->id,
+        'tahun_ajaran_id' => $this->taAktif->id,
+    ]), false);
+
+    $component->call('clearSearch')
+        ->assertSee($this->santriLengkap->nama_lengkap)
+        ->call('selectSantri', $this->santriLengkap->id)
+        ->assertSee(route('admin.reports.santri-rapor.download', [
+            'santri' => $this->santriLengkap->id,
+            'tahun_ajaran_id' => $this->taAktif->id,
+        ]), false);
 });

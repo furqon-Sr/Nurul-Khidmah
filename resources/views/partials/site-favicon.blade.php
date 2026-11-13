@@ -1,5 +1,5 @@
 @php
-    $faviconPath = isset($settings) ? ($settings->favicon_path ?? null) : null;
+    $faviconPath = isset($settings) ? ($settings->favicon_path ?: ($settings->logo_path ?? null)) : null;
     $faviconUrl = $faviconPath ? asset('storage/' . $faviconPath) : null;
     $ext = $faviconPath ? strtolower(pathinfo($faviconPath, PATHINFO_EXTENSION)) : null;
     $faviconMime = match ($ext) {
@@ -7,6 +7,7 @@
         'ico' => 'image/x-icon',
         'png' => 'image/png',
         'jpg', 'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
         default => null,
     };
 @endphp
@@ -15,7 +16,7 @@
     @if ($ext !== 'ico')
         <link rel="alternate icon" href="{{ $faviconUrl }}" sizes="any">
     @endif
-    @if (in_array($ext, ['png', 'jpg', 'jpeg'], true))
+    @if (in_array($ext, ['png', 'jpg', 'jpeg', 'webp'], true))
         <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
     @endif
 @else

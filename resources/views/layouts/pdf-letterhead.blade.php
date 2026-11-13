@@ -26,6 +26,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dokumen Resmi SIAKAD - Ponpes Nurul Khidmah')</title>
+    @if (! $isPdfDoc)
+        @include('partials.site-favicon')
+    @endif
     <style>
         @page {
             size: A4 {{ $pageOrient }};

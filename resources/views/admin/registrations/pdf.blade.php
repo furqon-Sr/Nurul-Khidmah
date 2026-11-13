@@ -12,6 +12,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bukti_Pendaftaran_{{ $registration->registration_number }}</title>
+    @if (empty($isPdf))
+        @include('partials.site-favicon')
+    @endif
     <style>
         /* Gaya dasar halaman A4 */
         @page {

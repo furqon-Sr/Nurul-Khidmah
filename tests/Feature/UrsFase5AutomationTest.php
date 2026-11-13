@@ -11,12 +11,14 @@ use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Nilai;
+use App\Models\PageContent;
 use App\Models\Pengajar;
 use App\Models\Santri;
 use App\Models\SantriRegistration;
 use App\Models\TahunAjaran;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -211,7 +213,7 @@ class UrsFase5AutomationTest extends TestCase
 
         $this->actingAs($guruUser)->post(route('teacher.attendance.store'), [
             'jadwal_pelajaran_id' => $jadwal->id,
-            'tanggal' => '2026-11-04',
+            'tanggal' => $jadwal->latestMatchingDate(),
             'absensi' => [
                 $santri1->id => [
                     'status' => 'Terlambat',
@@ -376,9 +378,17 @@ class UrsFase5AutomationTest extends TestCase
         $this->assertStringContainsString('.pdf', $responseRapor->headers->get('Content-Disposition') ?? '');
         $this->assertStringStartsWith('%PDF-', $responseRapor->getContent());
 
-        // Pastikan view rapor santri menyertakan 3 penandatangan (Wali Santri, Wali Kelas, Kepala Sekolah)
+        // Pastikan preview rapor santri menyertakan favicon situs & 3 penandatangan
+        PageContent::updateOrCreate(
+            ['section_key' => 'favicon'],
+            ['image_path' => 'contents/site-icon.png']
+        );
+        Cache::forget('site_global_data');
+
         $previewRapor = $this->actingAs($admin)->get(route('admin.reports.santri-rapor-pdf', $santri));
         $previewRapor->assertOk();
+        $previewRapor->assertSee('storage/contents/site-icon.png');
+        $previewRapor->assertSee('rel="icon"', false);
         $previewRapor->assertSee('Orang Tua / Wali Santri');
         $previewRapor->assertSee('Wali Kelas');
         $previewRapor->assertSee('Kepala Sekolah');

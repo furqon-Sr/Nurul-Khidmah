@@ -336,60 +336,14 @@
                         </form>
                     </div>
 
-                    {{-- Card C: Rapor Santri --}}
-                    <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <div class="flex size-10 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                                    <svg aria-hidden="true" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                                </div>
-                                <span class="rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                                    {{ $santris->count() }} santri
-                                </span>
-                            </div>
-
-                            <h2 class="text-base font-bold text-gray-900 dark:text-white">Rapor Santri</h2>
-                            <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
-                                Dokumen rapor resmi per santri lengkap nilai mata pelajaran, sikap, presensi, dan tanda tangan.
-                            </p>
-                        </div>
-
-                        <div class="mt-4 pt-3.5 border-t border-gray-100 dark:border-gray-800 space-y-3">
-                            <input type="hidden" id="quick_rapor_tahun_id" value="{{ $selectedYear?->id }}">
-                            <div>
-                                <label for="santri_select_id" class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                    Pilih Santri
-                                </label>
-                                <select id="santri_select_id"
-                                        class="w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800 text-base sm:text-xs font-medium text-gray-900 dark:text-gray-100">
-                                    @forelse($santris as $s)
-                                        @php $sMeta = $santriReportMeta[$s->id] ?? []; @endphp
-                                        <option value="{{ $s->id }}">
-                                            {{ $s->nama_lengkap }} ({{ $s->nis }}) &mdash; {{ $sMeta['status_label'] ?? 'Draft' }}
-                                        </option>
-                                    @empty
-                                        <option value="" disabled>Tidak ada santri pada filter ini</option>
-                                    @endforelse
-                                </select>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" id="btn-quick-rapor-preview" {{ $santris->isEmpty() ? 'disabled' : '' }}
-                                        class="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition cursor-pointer">
-                                    <svg aria-hidden="true" class="size-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                    <span>Pratinjau</span>
-                                </button>
-                                <button type="button" id="btn-quick-rapor-download" {{ $santris->isEmpty() ? 'disabled' : '' }}
-                                        title="Download PDF Rapor Santri"
-                                        aria-label="Unduh / Download PDF Rapor Santri"
-                                        class="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-50 px-3 text-xs font-semibold text-white shadow-xs transition cursor-pointer">
-                                    <svg aria-hidden="true" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                    <span>Unduh PDF</span>
-                                    <span class="sr-only">Download PDF</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- Card C: Rapor Santri (Livewire Search Engine) --}}
+                    <livewire:admin.rapor-santri-search
+                        :tahun-ajaran-id="$selectedYear?->id"
+                        :tingkat="$selectedTingkat"
+                        :filter-kelas-id="$selectedFilterKelas?->id"
+                        :has-year-filter="request()->filled('tahun_ajaran_id')"
+                        :initial-search="$search"
+                    />
                 </div>
             </div>
         </section>
@@ -1205,31 +1159,7 @@
             }
         });
 
-        // ── 3. Card Rapor Santri: Pratinjau & Unduh PDF ────────────────────
-        const btnPreview = document.getElementById('btn-quick-rapor-preview');
-        const btnDownload = document.getElementById('btn-quick-rapor-download');
-        const selectEl = document.getElementById('santri_select_id');
-        const tahunId = document.getElementById('quick_rapor_tahun_id')?.value;
-
-        if (btnPreview) {
-            btnPreview.addEventListener('click', function () {
-                if (selectEl && selectEl.value) {
-                    const baseUrl = `{{ url('/admin/reports/santri-rapor-pdf') }}/${encodeURIComponent(selectEl.value)}`;
-                    window.open(tahunId ? `${baseUrl}?tahun_ajaran_id=${encodeURIComponent(tahunId)}` : baseUrl, '_blank');
-                }
-            });
-        }
-
-        if (btnDownload) {
-            btnDownload.addEventListener('click', function () {
-                if (selectEl && selectEl.value) {
-                    const baseUrl = `{{ url('/admin/reports/santri-rapor-pdf') }}/${encodeURIComponent(selectEl.value)}/download`;
-                    window.location.href = tahunId ? `${baseUrl}?tahun_ajaran_id=${encodeURIComponent(tahunId)}` : baseUrl;
-                }
-            });
-        }
-
-        // ── 4. Contextual Table Search & Status Filtering ──────────────────
+        // ── 3. Contextual Table Search & Status Filtering ──────────────────
         const kelolaSearch = document.getElementById('kelola-search-input');
         const kelolaStatusFilter = document.getElementById('kelola-status-filter');
         const approvalSearch = document.getElementById('approval-search-input');
