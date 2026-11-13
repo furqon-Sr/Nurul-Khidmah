@@ -42,9 +42,9 @@ class ImportAnalyzer
                 'label' => 'Santri',
                 'key' => 'nis',
                 'columns' => [
-                    'nama_lengkap' => ['required' => true, 'example' => 'Ahmad Fulan', 'note' => 'Nama sesuai akta kelahiran.', 'aliases' => []],
-                    'nis' => ['required' => false, 'example' => '26MTS001', 'note' => 'Kosongkan agar dibuat otomatis.', 'aliases' => []],
-                    'jenis_kelamin' => ['required' => false, 'example' => 'Laki-laki', 'note' => 'Laki-laki / Perempuan (atau L / P).', 'aliases' => []],
+                    'nama_lengkap' => ['required' => true, 'example' => 'Ahmad Fulan', 'note' => 'Nama sesuai akta kelahiran.', 'aliases' => ['nama', 'nama_santri', 'nama_siswa']],
+                    'nis' => ['required' => false, 'example' => '26MTS001', 'note' => 'Kosongkan agar dibuat otomatis.', 'aliases' => ['nomor_induk', 'no_induk']],
+                    'jenis_kelamin' => ['required' => false, 'example' => 'Laki-laki', 'note' => 'Laki-laki / Perempuan (atau L / P).', 'aliases' => ['jk', 'gender']],
                     'unit' => ['required' => false, 'example' => 'MTs', 'note' => 'Kode, nama, atau jenjang unit pendidikan.', 'aliases' => ['unit_pendidikan', 'kode_unit']],
                     'kelas' => ['required' => false, 'example' => '7A', 'note' => 'Nama atau kode kelas yang sudah ada.', 'aliases' => ['nama_kelas', 'kode_kelas']],
                     'tempat_lahir' => ['required' => false, 'example' => 'Lamongan', 'note' => '', 'aliases' => []],
@@ -54,13 +54,14 @@ class ImportAnalyzer
                     'no_hp_wali' => ['required' => false, 'example' => '081234567890', 'note' => 'Hanya angka, boleh diawali +.', 'aliases' => ['no_hp']],
                     'tahun_masuk' => ['required' => false, 'example' => '2026', 'note' => 'Empat digit.', 'aliases' => []],
                     'status_santri' => ['required' => false, 'example' => 'Aktif', 'note' => 'Kosongkan untuk Aktif.', 'aliases' => []],
+                    'nisn' => ['required' => false, 'example' => '3148118810', 'note' => 'Nomor Induk Siswa Nasional (10 digit).', 'aliases' => []],
                 ],
             ],
             ImportBatch::TYPE_PENGAJAR => [
                 'label' => 'Pengajar',
                 'key' => 'nomor_identitas',
                 'columns' => [
-                    'nama_lengkap' => ['required' => true, 'example' => 'Ust. Muhammad Zaid', 'note' => 'Nama beserta gelar.', 'aliases' => []],
+                    'nama_lengkap' => ['required' => true, 'example' => 'Ust. Muhammad Zaid', 'note' => 'Nama beserta gelar.', 'aliases' => ['nama', 'nama_pengajar', 'nama_guru']],
                     'nomor_identitas' => ['required' => false, 'example' => 'NIY-26-001', 'note' => 'Kosongkan agar dibuat otomatis.', 'aliases' => ['niy', 'nip']],
                     'jenis_kelamin' => ['required' => false, 'example' => 'Laki-laki', 'note' => 'Laki-laki / Perempuan (atau L / P).', 'aliases' => []],
                     'alamat' => ['required' => false, 'example' => 'Komplek Pesantren Putra', 'note' => '', 'aliases' => []],
@@ -93,7 +94,11 @@ class ImportAnalyzer
         $missing = collect($schema['columns'])
             ->filter(fn ($def, $col) => $def['required'] && ! array_intersect([$col, ...$def['aliases']], $headers))
             ->keys()->all();
-        $unknown = array_values(array_diff(array_filter($headers, fn ($h) => $h !== '' && ! is_numeric($h)), $known));
+        $ignoredHeaders = ['no', 'nomor', 'urut', 'no_urut'];
+        $unknown = array_values(array_diff(
+            array_filter($headers, fn ($h) => $h !== '' && ! is_numeric($h) && ! in_array($h, $ignoredHeaders, true)),
+            $known
+        ));
 
         $result = ['headers' => $headers, 'missing' => $missing, 'unknown' => $unknown, 'rows' => [], 'summary' => []];
         if ($missing !== []) {

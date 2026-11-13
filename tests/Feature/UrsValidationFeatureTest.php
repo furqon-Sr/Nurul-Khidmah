@@ -2,20 +2,23 @@
 
 namespace Tests\Feature;
 
-use App\Models\AdminActivityLog;
+use App\Models\EducationalUnit;
 use App\Models\EducationProgram;
 use App\Models\JadwalPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Nilai;
 use App\Models\Pengajar;
+use App\Models\RaporSemester;
 use App\Models\RiwayatKelasSantri;
 use App\Models\Santri;
 use App\Models\SantriRegistration;
 use App\Models\TahunAjaran;
 use App\Models\User;
+use App\Services\AcademicRaporService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -31,7 +34,7 @@ class UrsValidationFeatureTest extends TestCase
         $raw = ob_get_clean();
         imagedestroy($img);
 
-        return 'data:image/png;base64,' . base64_encode($raw);
+        return 'data:image/png;base64,'.base64_encode($raw);
     }
 
     public function test_fr01_and_fr02_ppdb_store_lamongan_without_guardian_relationship_and_idempotent_conversion(): void
@@ -413,6 +416,8 @@ class UrsValidationFeatureTest extends TestCase
         $this->actingAs($kepalaSekolah)->get(route('admin.reports.index'))->assertOk();
         $this->actingAs($kepalaSekolah)->get(route('admin.classes.index'))->assertOk();
         $this->actingAs($kepalaSekolah)->get(route('admin.santri.index'))->assertOk();
+        $this->actingAs($kepalaSekolah)->get(route('admin.teachers.index'))->assertOk();
+        $this->actingAs($kepalaSekolah)->get(route('admin.schedules.index'))->assertOk();
         $this->actingAs($kepalaSekolah)->get(route('admin.users.index'))->assertForbidden();
         $this->actingAs($kepalaSekolah)->get(route('pimpinan.dashboard'))->assertForbidden();
     }
@@ -453,7 +458,7 @@ class UrsValidationFeatureTest extends TestCase
         $waliUser = User::find($santri1->user_id);
         $this->assertNotNull($waliUser);
         $this->assertEquals(User::ROLE_SANTRI, $waliUser->role);
-        $this->assertTrue((bool)$waliUser->must_change_password);
+        $this->assertTrue((bool) $waliUser->must_change_password);
 
         // Anak Kedua mendaftar dari wali yang sama (guardian_phone sama)
         $reg2 = SantriRegistration::create([
@@ -756,14 +761,14 @@ class UrsValidationFeatureTest extends TestCase
     public function test_fase2_rapor_semesters_table_multi_anak_has_many_and_service_integration(): void
     {
         // 1. Verifikasi skema tabel santris: kolom nilai_sikap & catatan_wali_kelas telah dihapus
-        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasColumn('santris', 'nilai_sikap'));
-        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasColumn('santris', 'catatan_wali_kelas'));
+        $this->assertFalse(Schema::hasColumn('santris', 'nilai_sikap'));
+        $this->assertFalse(Schema::hasColumn('santris', 'catatan_wali_kelas'));
 
         // 2. Verifikasi skema tabel rapor_semesters
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasTable('rapor_semesters'));
-        $this->assertTrue(\Illuminate\Support\Facades\Schema::hasColumns('rapor_semesters', [
+        $this->assertTrue(Schema::hasTable('rapor_semesters'));
+        $this->assertTrue(Schema::hasColumns('rapor_semesters', [
             'santri_id', 'tahun_ajaran_id', 'kelas_id', 'status_kenaikan',
-            'catatan_wali_kelas', 'nilai_sikap', 'status_publikasi', 'approved_by', 'approved_at'
+            'catatan_wali_kelas', 'nilai_sikap', 'status_publikasi', 'approved_by', 'approved_at',
         ]));
 
         $ta = TahunAjaran::create([
@@ -842,7 +847,7 @@ class UrsValidationFeatureTest extends TestCase
             ],
         ])->assertRedirect();
 
-        $rapor1 = \App\Models\RaporSemester::where('santri_id', $anak1->id)
+        $rapor1 = RaporSemester::where('santri_id', $anak1->id)
             ->where('tahun_ajaran_id', $ta->id)
             ->firstOrFail();
 
@@ -852,7 +857,7 @@ class UrsValidationFeatureTest extends TestCase
         $this->assertSame('published', $rapor1->status_publikasi);
 
         // 5. Verifikasi AcademicRaporService mengambil langsung dari rapor_semesters
-        $service = app(\App\Services\AcademicRaporService::class);
+        $service = app(AcademicRaporService::class);
         $raporData1 = $service->buildSantriRaporData($anak1, $ta);
         $this->assertSame('Sangat Baik (A)', $raporData1['nilaiSikap']);
         $this->assertSame('Alhamdulillah, hafalan Al-Quran bertambah pesat.', $raporData1['catatanWaliKelas']);
@@ -893,8 +898,8 @@ class UrsValidationFeatureTest extends TestCase
         ]);
 
         // 2. Verifikasi Jurusan kejuruan pada SMK Otomotif & SMK DKV
-        $smkOto = \App\Models\EducationalUnit::where('kode_unit', 'SMK-OTO')->firstOrFail();
-        $smkDkv = \App\Models\EducationalUnit::where('kode_unit', 'SMK-DKV')->firstOrFail();
+        $smkOto = EducationalUnit::where('kode_unit', 'SMK-OTO')->firstOrFail();
+        $smkDkv = EducationalUnit::where('kode_unit', 'SMK-DKV')->firstOrFail();
 
         $this->assertTrue($smkOto->majors()->where('kode_jurusan', 'TO')->exists());
         $this->assertTrue($smkDkv->majors()->where('kode_jurusan', 'DKV')->exists());

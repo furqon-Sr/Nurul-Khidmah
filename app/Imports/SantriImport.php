@@ -37,14 +37,16 @@ class SantriImport implements ShouldQueue, ToModel, WithChunkReading, WithEvents
     public function rules(): array
     {
         return [
-            'nama_lengkap' => 'required|string',
+            'nama_lengkap' => 'required_without:nama|nullable|string',
+            'nama' => 'required_without:nama_lengkap|nullable|string',
             'nis' => 'nullable|string',
+            'nisn' => 'nullable|string',
         ];
     }
 
     public function model(array $row): Model|array|null
     {
-        $nama = trim($row['nama_lengkap'] ?? '');
+        $nama = trim($row['nama_lengkap'] ?? $row['nama'] ?? $row['nama_santri'] ?? $row['nama_siswa'] ?? '');
         if ($nama === '') {
             return null;
         }
@@ -93,8 +95,11 @@ class SantriImport implements ShouldQueue, ToModel, WithChunkReading, WithEvents
             ImportBatch::where('id', $this->batchId)->increment('processed_rows');
         }
 
+        $nisn = trim((string) ($row['nisn'] ?? ''));
+
         $santri = Santri::firstOrNew(['nis' => $nis]);
         $santri->fill([
+            'nisn' => $nisn !== '' ? $nisn : ($santri->nisn ?? null),
             'nama_lengkap' => $nama,
             'educational_unit_id' => $unit?->id,
             'kelas_id' => $kelas?->id,

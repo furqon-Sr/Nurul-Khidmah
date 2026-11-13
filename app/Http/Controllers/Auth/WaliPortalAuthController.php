@@ -51,7 +51,7 @@ class WaliPortalAuthController extends Controller
         ]);
 
         $identitas = trim($validated['identitas']);
-        $throttleKey = 'wali-portal:' . Str::lower($identitas) . '|' . $request->ip();
+        $throttleKey = 'wali-portal:'.Str::lower($identitas).'|'.$request->ip();
 
         // 2. Proteksi Brute-Force Rate Limiting (Maksimal 5 percobaan per 60 detik)
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
@@ -62,9 +62,14 @@ class WaliPortalAuthController extends Controller
             ]);
         }
 
-        // 3. Cari akun berdasarkan NIS Ananda (prioritas kemudahan Wali Santri) atau Email
+        // 3. Cari akun berdasarkan NIS / NISN Ananda (prioritas kemudahan Wali Santri) atau Email
         $user = null;
-        $santriByNis = Santri::with('user')->where('nis', $identitas)->first();
+        $santriByNis = Santri::with('user')
+            ->where('nis', $identitas)
+            ->orWhere(function ($q) use ($identitas) {
+                $q->whereNotNull('nisn')->where('nisn', $identitas);
+            })
+            ->first();
         if ($santriByNis && $santriByNis->user) {
             $user = $santriByNis->user;
         } elseif (filter_var($identitas, FILTER_VALIDATE_EMAIL)) {

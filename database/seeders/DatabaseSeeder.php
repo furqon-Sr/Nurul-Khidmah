@@ -13,32 +13,68 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
+        $defaultPassword = Hash::make('password');
+
+        // 1. Super Admin (Penyusun Sistem)
+        User::updateOrCreate(
             ['email' => 'super@nurulkhidmah.org'],
             [
-                'name' => 'Super Administrator',
-                'password' => Hash::make('password'),
+                'name' => 'Fahruri Anafi',
+                'password' => $defaultPassword,
                 'role' => User::ROLE_SUPER_ADMIN,
                 'email_verified_at' => now(),
             ]
         );
 
-        User::firstOrCreate(
-            ['email' => 'admin@nurulkhidmah.org'],
+        // 2. Pimpinan Yayasan & Pengasuh Pondok (2 Tokoh Kunci URS)
+        User::updateOrCreate(
+            ['email' => 'pimpinan@nurulkhidmah.org'],
             [
-                'name' => 'Bapak Mufti (Admin & TU)',
-                'password' => Hash::make('password'),
-                'role' => User::ROLE_ADMIN,
+                'name' => 'KH. Imam Machmudi',
+                'password' => $defaultPassword,
+                'role' => User::ROLE_PIMPINAN,
                 'email_verified_at' => now(),
             ]
         );
 
-        User::firstOrCreate(
+        User::updateOrCreate(
+            ['email' => 'ketua@nurulkhidmah.org'],
+            [
+                'name' => 'Bapak Mas\'ud, S.Pd.',
+                'password' => $defaultPassword,
+                'role' => User::ROLE_PIMPINAN,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // 3. Kepala Sekolah / Kepala Madrasah (Otoritas Akademik & Persetujuan Rapor)
+        User::updateOrCreate(
             ['email' => 'kepala@nurulkhidmah.org'],
             [
-                'name' => 'Drs. H. Ahmad Masrur, M.Pd.I. (Kepala Madrasah)',
-                'password' => Hash::make('password'),
+                'name' => 'Ibu Uswatun Hasanah SP, S.Pd.I.',
+                'password' => $defaultPassword,
                 'role' => User::ROLE_KEPALA_SEKOLAH,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // 4. Staf Tata Usaha / Administrasi Akademik (Operator Utama SIAKAD & PPDB)
+        User::updateOrCreate(
+            ['email' => 'admin@nurulkhidmah.org'],
+            [
+                'name' => 'Bapak Mufti',
+                'password' => $defaultPassword,
+                'role' => User::ROLE_PENGURUS_AKADEMIK,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'akademik@nurulkhidmah.org'],
+            [
+                'name' => 'Bapak Mufti (Staf TU)',
+                'password' => $defaultPassword,
+                'role' => User::ROLE_PENGURUS_AKADEMIK,
                 'email_verified_at' => now(),
             ]
         );

@@ -54,7 +54,7 @@
                 <select wire:model.live="kelas_id" 
                         class="min-h-11 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm focus:ring-2 focus:ring-emerald-500 text-gray-900 dark:text-gray-100">
                     <option value="">-- Semua Kelas --</option>
-                    <option value="unassigned">-- Belum Ditentukan --</option>
+                    <option value="unassigned">-- Mondok Saja / Belum Masuk Kelas --</option>
                     @foreach($kelasses as $k)
                         <option value="{{ $k->id }}">
                             {{ $k->nama_kelas }} ({{ $k->tahunAjaran->nama_tahun_ajaran ?? '-' }})
@@ -118,7 +118,7 @@
                             'nisn' => $item->nisn ?? '-',
                             'foto' => $item->fotoUrl(),
                             'initials' => $item->initials(),
-                            'kelas' => $item->kelas->nama_kelas ?? 'Belum Ditentukan',
+                            'kelas' => $item->kelas->nama_kelas ?? ($item->previous_school ?: 'Mondok Saja (Non-Kelas Formal)'),
                             'tahun_ajaran' => $item->kelas?->tahunAjaran?->nama_tahun_ajaran ?? '-',
                             'status' => $item->status_santri,
                             'gender' => $item->genderLabel(),
@@ -127,7 +127,7 @@
                             'no_hp' => $item->no_hp_wali ?? '-',
                             'alamat' => $item->alamat ?? '-',
                             'asal_sekolah' => $item->previous_school ?? '-',
-                            'mukim' => $item->boarding_status ? ($item->boarding_status === 'mukim' ? 'Mukim di Pondok' : 'Tidak Mukim (Laju)') : '-',
+                            'mukim' => $item->boarding_status ? (strtolower((string) $item->boarding_status) === 'mukim' ? 'Mukim di Pondok' : 'Tidak Mukim (Laju)') : '-',
                             'edit_url' => route('admin.santri.edit', $item->id),
                         ];
                     @endphp
@@ -175,9 +175,16 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 font-medium">
-                            <div>{{ $item->kelas->nama_kelas ?? 'Belum Ditentukan' }}</div>
-                            @if($item->kelas?->tahunAjaran)
-                                <div class="text-xs text-gray-600 dark:text-gray-400">TA: {{ $item->kelas->tahunAjaran->nama_tahun_ajaran }}</div>
+                            @if($item->kelas)
+                                <div>{{ $item->kelas->nama_kelas }}</div>
+                                @if($item->kelas->tahunAjaran)
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">TA: {{ $item->kelas->tahunAjaran->nama_tahun_ajaran }}</div>
+                                @endif
+                            @else
+                                <div>Mondok Saja</div>
+                                @if($item->previous_school)
+                                    <div class="text-xs text-emerald-700 dark:text-emerald-400">{{ $item->previous_school }}</div>
+                                @endif
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">

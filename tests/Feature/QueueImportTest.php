@@ -12,6 +12,8 @@ use App\Models\Santri;
 use App\Models\TahunAjaran;
 use App\Models\User;
 use App\Services\QueueHealth;
+use Database\Seeders\AcademicMasterSeeder;
+use Database\Seeders\EducationalUnitSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -418,5 +420,64 @@ class QueueImportTest extends TestCase
         $resPengajar->assertOk();
         $resPengajar->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
         $this->assertStringContainsString('nama_lengkap,nomor_identitas,jenis_kelamin', $resPengajar->getContent());
+    }
+
+    public function test_upload_supports_no_nama_nisn_headers_from_student_sheet_and_academic_seeder_populates_urs_roles_and_49_students(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+
+        $this->seed(EducationalUnitSeeder::class);
+        $this->seed(AcademicMasterSeeder::class);
+
+        // Pastikan seluruh akun role sesuai dokumen URS Tervalidasi
+        $this->assertDatabaseHas('users', ['email' => 'super@nurulkhidmah.org', 'name' => 'Fahruri Anafi', 'role' => User::ROLE_SUPER_ADMIN]);
+        $this->assertDatabaseHas('users', ['email' => 'pimpinan@nurulkhidmah.org', 'name' => 'KH. Imam Machmudi', 'role' => User::ROLE_PIMPINAN]);
+        $this->assertDatabaseHas('users', ['email' => 'ketua@nurulkhidmah.org', 'name' => 'Bapak Mas\'ud, S.Pd.', 'role' => User::ROLE_PIMPINAN]);
+        $this->assertDatabaseHas('users', ['email' => 'kepala@nurulkhidmah.org', 'name' => 'Ibu Uswatun Hasanah SP, S.Pd.I.', 'role' => User::ROLE_KEPALA_SEKOLAH]);
+        $this->assertDatabaseHas('users', ['email' => 'admin@nurulkhidmah.org', 'name' => 'Bapak Mufti', 'role' => User::ROLE_PENGURUS_AKADEMIK]);
+        $this->assertDatabaseHas('users', ['email' => 'akademik@nurulkhidmah.org', 'name' => 'Bapak Mufti (Staf TU)', 'role' => User::ROLE_PENGURUS_AKADEMIK]);
+
+        // Pastikan 9 tenaga pengajar sesuai responden URS
+        $this->assertSame(9, Pengajar::count());
+        $this->assertDatabaseHas('pengajars', ['nomor_identitas' => 'UST-2024-001', 'nama_lengkap' => 'Ustazah Hesti Eka Nur Dianti']);
+        $this->assertDatabaseHas('pengajars', ['nomor_identitas' => 'UST-2024-009', 'nama_lengkap' => 'Ustazah Fadian Miftah Utami']);
+
+        // Pastikan 49 data siswa dari berkas terlampir masuk dengan penempatan kelas tepat:
+        // No 1-26 = Kelas 7 (7A: 1-13, 7B: 14-26); No 27-45 & 47-49 = Kelas 8; No 46 (Qonita) = SMA Sekolah Luar / Mondok Saja
+        $this->assertSame(49, Santri::count());
+        $this->assertDatabaseHas('santris', ['nis' => '20260001', 'nisn' => '3148118810', 'nama_lengkap' => 'Ach. Azyan Uwais Al Qorny']);
+        $this->assertDatabaseHas('santris', ['nis' => '20260002', 'nisn' => '0147404399', 'nama_lengkap' => 'Ahmad Alfian Ramdani']);
+        $this->assertDatabaseHas('santris', ['nis' => '20260049', 'nisn' => '3135935807', 'nama_lengkap' => 'Suvia Ananda Hidayati']);
+
+        $santri26 = Santri::with('kelas')->where('nis', '20260026')->firstOrFail();
+        $this->assertSame('Kelas 7 Ula B', $santri26->kelas?->nama_kelas);
+
+        foreach (['20260027', '20260045', '20260047', '20260049'] as $nisKelas8) {
+            $s8 = Santri::with('kelas')->where('nis', $nisKelas8)->firstOrFail();
+            $this->assertSame('Kelas 8 Wustho A', $s8->kelas?->nama_kelas);
+        }
+
+        $qonita = Santri::where('nis', '20260046')->firstOrFail();
+        $this->assertSame('Qonita Federica', $qonita->nama_lengkap);
+        $this->assertNull($qonita->kelas_id);
+        $this->assertNull($qonita->educational_unit_id);
+        $this->assertSame('Mukim', $qonita->boarding_status);
+        $this->assertSame('Aktif', $qonita->status_santri);
+        $this->assertSame('SMA (Sekolah di Luar — Mondok Saja)', $qonita->previous_school);
+
+        // Pastikan format CSV "No,Nama,NISN" juga didukung langsung pada fitur Import Santri
+        $admin = User::where('email', 'admin@nurulkhidmah.org')->firstOrFail();
+        $csv = "No,Nama,NISN\n1,Santri Baru Uji,0149999999\n";
+
+        $this->actingAs($admin)->post(route('admin.imports.santri'), [
+            'file' => UploadedFile::fake()->createWithContent('data_siswa.csv', $csv),
+        ])->assertRedirect();
+
+        $batch = ImportBatch::latest('id')->first();
+        $this->assertNotNull($batch);
+        $this->assertSame(1, $batch->valid_rows);
+        $this->assertSame(0, $batch->invalid_rows);
+        $this->assertEmpty($batch->report['unknown_headers'] ?? []);
     }
 }
